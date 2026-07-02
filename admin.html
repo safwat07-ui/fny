@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فنّي — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
+  --amber:#F08A24; --amber-soft:#FCE9D2;
+  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
+  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A; --blue:#2563A8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+.topbar{background:var(--teal-deep);color:#fff;position:sticky;top:0;z-index:50}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:baseline;gap:9px}
+.logo .ar{font-size:25px;font-weight:900;line-height:1}
+.logo .en{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A9C4C7}
+.top-right{display:flex;gap:12px;align-items:center;font-size:13px}
+.refresh-btn,.logout-btn{background:rgba(255,255,255,.12);border:none;color:#fff;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;padding:7px 16px;border-radius:99px;cursor:pointer}
+.refresh-btn:hover,.logout-btn:hover{background:rgba(255,255,255,.22)}
+#lastSync{color:#A9C4C7;font-family:'IBM Plex Mono',monospace;font-size:11px}
+
+.wrap{max-width:1200px;margin:24px auto 60px;padding:0 20px}
+
+/* login */
+.login-card{max-width:420px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:36px;box-shadow:0 14px 40px rgba(12,46,51,.08);text-align:center}
+.login-card h2{font-size:22px;font-weight:900;margin:14px 0 6px}
+.login-card p{color:var(--muted);font-size:14px;margin-bottom:22px}
+.login-card input{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:14px;margin-bottom:14px;text-align:center}
+.login-card input:focus{outline:none;border-color:var(--teal)}
+.login-card .logo-big{font-size:44px;font-weight:900;color:var(--teal);line-height:1}
+.login-err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
+
+/* stats */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:26px;color:var(--teal)}
+.stat .l{font-size:12.5px;color:var(--muted);font-weight:700}
+.stat.hl{background:var(--teal);border-color:var(--teal)}
+.stat.hl .v{color:#fff}
+.stat.hl .l{color:#A9C4C7}
+.stat.warn .v{color:var(--amber)}
+
+/* sections */
+.sec{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:26px}
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sec-head h3{font-size:16px;font-weight:900}
+.sec-head h3 .count{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);font-weight:500}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.f-chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:4px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;color:var(--muted)}
+.f-chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{background:var(--sand);text-align:left;padding:10px 14px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800;white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top}
+tr:hover td{background:var(--mist)}
+td .sub{font-size:12px;color:var(--muted)}
+td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.chip{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 12px;border-radius:99px;white-space:nowrap}
+.st-new{background:var(--amber-soft);color:#9A5A0F}
+.st-assigned{background:#E4EEF8;color:var(--blue)}
+.st-en_route,.st-arrived,.st-working{background:#E0F0EA;color:var(--green)}
+.st-done{background:var(--teal);color:#fff}
+.st-cancelled{background:#F6E3E0;color:var(--red)}
+.st-applied{background:var(--amber-soft);color:#9A5A0F}
+.st-assessment_booked{background:#E4EEF8;color:var(--blue)}
+.st-approved{background:var(--teal);color:#fff}
+.approve-btn{background:var(--amber);border:none;color:var(--ink);font-family:'Cairo',sans-serif;font-weight:800;font-size:12.5px;padding:6px 16px;border-radius:99px;cursor:pointer;white-space:nowrap}
+.approve-btn:hover{transform:translateY(-1px)}
+.approve-btn:disabled{opacity:.5;cursor:default;transform:none}
+.tok-box{background:var(--sand);border-radius:8px;padding:6px 10px;font-size:11px;word-break:break-all;margin-top:6px;cursor:pointer}
+.tok-box:hover{background:var(--amber-soft)}
+.empty{padding:32px;text-align:center;color:var(--muted);font-size:14px}
+.table-scroll{overflow-x:auto}
+
+@media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){
+  th,td{padding:9px 10px;font-size:12.5px}
+  .hide-m{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login-card">
+    <div class="logo-big">فنّي</div>
+    <h2>Admin Dashboard</h2>
+    <p>Enter your admin token to continue.</p>
+    <input type="password" id="tokenInput" placeholder="X-Admin-Token" onkeydown="if(event.key==='Enter')login()">
+    <button class="approve-btn" style="width:100%;padding:12px;font-size:14px" onclick="login()">Sign in</button>
+    <p class="login-err" id="loginErr">Invalid token — check FANNI_ADMIN_TOKEN in Railway variables.</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashView" style="display:none">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="logo"><span class="ar">فنّي</span><span class="en">Admin</span></div>
+      <div class="top-right">
+        <span id="lastSync"></span>
+        <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <h3>Booking requests <span class="count" id="bkCount"></span></h3>
+        <div class="filters" id="bkFilters">
+          <button class="f-chip on" data-f="">All</button>
+          <button class="f-chip" data-f="new">New</button>
+          <button class="f-chip" data-f="assigned">Assigned</button>
+          <button class="f-chip" data-f="working">Working</button>
+          <button class="f-chip" data-f="done">Done</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Code</th><th>Job</th><th class="hide-m">Customer</th><th>Area · Schedule</th><th>Total</th><th>Status</th><th class="hide-m">Technician</th>
+          </tr></thead>
+          <tbody id="bkBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="bkEmpty" style="display:none">No bookings yet — they'll appear here the moment one comes in.</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <h3>Technician applications <span class="count" id="apCount"></span></h3>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Name</th><th class="hide-m">Mobile</th><th>Area</th><th>Trades</th><th class="hide-m">Assessment</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody id="apBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="apEmpty" style="display:none">No applications yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let TOKEN=null, bkFilter='', pollTimer=null;
+const tradeAr={"ac":"AC","satellite":"Satellite","cctv":"CCTV","wifi":"WiFi","intercom":"Intercom","smart-home":"Smart Home"};
+
+async function api(path,opts={}){
+  const r=await fetch(path,{...opts,headers:{'X-Admin-Token':TOKEN,'Content-Type':'application/json',...(opts.headers||{})}});
+  if(r.status===401) throw new Error('auth');
+  return r.json();
+}
+
+async function login(){
+  TOKEN=document.getElementById('tokenInput').value.trim();
+  if(!TOKEN)return;
+  try{
+    const d=await api('/api/admin/stats');
+    if(!d.ok)throw new Error('auth');
+    document.getElementById('loginView').style.display='none';
+    document.getElementById('dashView').style.display='block';
+    loadAll();
+    pollTimer=setInterval(loadAll,30000);
+  }catch(e){
+    document.getElementById('loginErr').style.display='block';
+  }
+}
+function logout(){
+  TOKEN=null;clearInterval(pollTimer);
+  document.getElementById('dashView').style.display='none';
+  document.getElementById('loginView').style.display='block';
+  document.getElementById('tokenInput').value='';
+}
+
+async function loadAll(){
+  try{
+    const [s,b,a]=await Promise.all([
+      api('/api/admin/stats'),
+      api('/api/admin/bookings'+(bkFilter?'?status='+bkFilter:'')),
+      api('/api/admin/applications')
+    ]);
+    renderStats(s.stats);renderBookings(b.bookings);renderApps(a.applications);
+    document.getElementById('lastSync').textContent='synced '+new Date().toLocaleTimeString();
+  }catch(e){ if(e.message==='auth') logout(); }
+}
+
+function renderStats(s){
+  document.getElementById('statGrid').innerHTML=`
+    <div class="stat hl"><div class="v">${s.bookings_total}</div><div class="l">Total bookings</div></div>
+    <div class="stat"><div class="v">${s.bookings_done}</div><div class="l">Completed jobs</div></div>
+    <div class="stat"><div class="v">EGP ${s.gmv_egp.toLocaleString()}</div><div class="l">GMV (completed)</div></div>
+    <div class="stat"><div class="v">EGP ${s.platform_revenue_egp.toLocaleString()}</div><div class="l">Platform revenue</div></div>
+    <div class="stat"><div class="v">${s.technicians_approved}</div><div class="l">Approved technicians</div></div>
+    <div class="stat warn"><div class="v">${s.applications_pending}</div><div class="l">Pending applications</div></div>
+    <div class="stat"><div class="v">${s.avg_rating||'—'}</div><div class="l">Avg rating</div></div>
+    <div class="stat"><div class="v mono" style="font-size:15px;padding-top:8px">20% + 25</div><div class="l">Commission + fee</div></div>`;
+}
+
+function esc(x){const d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML}
+
+function renderBookings(rows){
+  const body=document.getElementById('bkBody');
+  document.getElementById('bkCount').textContent='· '+rows.length;
+  document.getElementById('bkEmpty').style.display=rows.length?'none':'block';
+  body.innerHTML=rows.map(b=>`
+    <tr>
+      <td class="mono">${esc(b.code)}<div class="sub">${esc((b.created_at||'').slice(0,10))}</div></td>
+      <td><b>${esc(b.job_title||b.service_slug)}</b><div class="sub">${esc(b.notes||'')}</div></td>
+      <td class="hide-m">${esc(b.customer_name||'—')}<div class="sub mono">${esc(b.customer_mobile)}</div></td>
+      <td>${esc(b.area)}<div class="sub">${esc(b.day)} · ${esc(b.time_window)}</div></td>
+      <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}</td>
+      <td><span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></td>
+      <td class="hide-m">${b.technician_id?('#'+b.technician_id):'—'}</td>
+    </tr>`).join('');
+}
+
+function renderApps(rows){
+  const body=document.getElementById('apBody');
+  document.getElementById('apCount').textContent='· '+rows.length;
+  document.getElementById('apEmpty').style.display=rows.length?'none':'block';
+  body.innerHTML=rows.map(a=>`
+    <tr>
+      <td><b>${esc(a.full_name)}</b><div class="sub">${esc(a.experience||'')}</div></td>
+      <td class="hide-m mono">${esc(a.mobile)}</td>
+      <td>${esc(a.district)}<div class="sub">${esc(a.governorate)}</div></td>
+      <td>${(a.trades||'').split(',').filter(Boolean).map(t=>tradeAr[t]||t).join(' · ')}</td>
+      <td class="hide-m">${esc(a.assessment_slot||'—')}<div class="sub">${esc((a.assessment_hub||'').replace(/مركز فنّي —|Fanni Hub —/,''))}</div></td>
+      <td><span class="chip st-${esc(a.status)}">${esc(a.status.replace('_',' '))}</span></td>
+      <td>${a.status!=='approved'
+          ?`<button class="approve-btn" onclick="approve(${a.id},this)">Approve ✓</button>`
+          :'<span class="sub">token issued</span>'}
+          <div id="tok-${a.id}"></div></td>
+    </tr>`).join('');
+}
+
+async function approve(id,btn){
+  if(!confirm('Approve this technician and issue their app token?'))return;
+  btn.disabled=true;btn.textContent='…';
+  try{
+    const d=await api('/api/admin/technicians/'+id+'/approve',{method:'POST'});
+    if(d.ok){
+      btn.outerHTML='<span class="chip st-approved">approved</span>';
+      document.getElementById('tok-'+id).innerHTML=
+        `<div class="tok-box" title="Tap to copy" onclick="navigator.clipboard.writeText('${d.api_token}');this.textContent='Copied ✓'">${d.api_token}</div>
+         <div class="sub">Send this token to the technician securely — shown once.</div>`;
+      loadAll();
+    }
+  }catch(e){btn.disabled=false;btn.textContent='Approve ✓'}
+}
+
+document.querySelectorAll('#bkFilters .f-chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#bkFilters .f-chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');bkFilter=c.dataset.f;loadAll();
+  });
+});
+</script>
+</body>
+</html>
