@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فنّي — Technician App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
+  --amber:#F08A24; --amber-soft:#FCE9D2;
+  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
+  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cairo',sans-serif;color:var(--ink);background:#0A3238;
+  line-height:1.55;-webkit-font-smoothing:antialiased;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 12px;
+}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* phone frame */
+.phone{
+  width:100%;max-width:410px;background:var(--mist);
+  border-radius:34px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.45), 0 0 0 10px #071F23;
+  display:flex;flex-direction:column;height:min(860px,94vh);
+}
+.app-head{background:var(--teal-deep);color:#fff;padding:18px 20px 16px;flex-shrink:0}
+.app-head-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.app-logo{display:flex;align-items:baseline;gap:8px}
+.app-logo .ar{font-size:24px;font-weight:900;line-height:1}
+.app-logo .en{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#A9C4C7}
+.online-toggle{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;cursor:pointer;user-select:none}
+.switch{width:42px;height:24px;border-radius:99px;background:#1A5058;position:relative;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.online .switch{background:var(--green)}
+.online .switch::after{left:21px}
+.app-head .greet{font-size:14px;color:#A9C4C7}
+.app-head .greet b{color:#fff}
+
+/* content */
+.screen{flex:1;overflow-y:auto;padding:16px;display:none}
+.screen.active{display:block}
+.sec-title{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:6px 0 10px}
+
+/* stat strip */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 10px;text-align:center}
+.stat .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:18px;color:var(--teal)}
+.stat .l{font-size:11px;color:var(--muted);font-weight:700}
+
+/* job cards */
+.job-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.job-card.new::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--amber)}
+.jc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.jc-svc{font-weight:900;font-size:15.5px}
+.jc-svc .ic{margin-right:6px}
+.jc-pay{text-align:right;flex-shrink:0}
+.jc-pay .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;color:var(--teal)}
+.jc-pay .yours{font-size:10.5px;color:var(--green);font-weight:800}
+.jc-meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:6px}
+.jc-note{font-size:12.5px;background:var(--sand);border-radius:8px;padding:7px 10px;margin-bottom:10px;color:var(--ink)}
+.jc-actions{display:flex;gap:8px}
+.jbtn{flex:1;padding:10px;border-radius:99px;font-weight:800;font-size:13.5px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:transform .12s}
+.jbtn:active{transform:scale(.97)}
+.jbtn-accept{background:var(--amber);color:var(--ink)}
+.jbtn-decline{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.jc-timer{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600;position:absolute;top:14px;right:16px}
+.job-card.scheduled .jc-when{display:inline-block;background:var(--mist);color:var(--teal);font-weight:800;font-size:12px;padding:2px 12px;border-radius:99px;margin-bottom:8px}
+.empty-feed{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px}
+.empty-feed .big{font-size:38px;display:block;margin-bottom:8px}
+
+/* active job screen */
+.aj-head{background:var(--teal);color:#fff;border-radius:16px;padding:16px;margin-bottom:14px}
+.aj-head .code{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#A9C4C7}
+.aj-head .t{font-weight:900;font-size:17px;margin:2px 0}
+.aj-head .cust{font-size:13px;color:#CFE3E5}
+.aj-contact{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.aj-cbtn{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:9px 4px;text-align:center;font-weight:800;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif}
+.aj-cbtn:hover{border-color:var(--teal)}
+.phase-track{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.phase{display:flex;gap:12px;padding-bottom:16px;position:relative}
+.phase:last-child{padding-bottom:0}
+.phase::before{content:"";position:absolute;left:11px;top:26px;bottom:0;width:2px;background:var(--line)}
+.phase:last-child::before{display:none}
+.ph-dot{width:24px;height:24px;border-radius:50%;background:#fff;border:2.5px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:1}
+.phase.done .ph-dot{background:var(--green);border-color:var(--green);color:#fff}
+.phase.now .ph-dot{background:var(--amber);border-color:var(--amber)}
+.phase .t{font-weight:800;font-size:14px}
+.phase .d{font-size:12px;color:var(--muted)}
+.phase.pending{opacity:.45}
+.big-action{width:100%;padding:14px;border-radius:99px;font-weight:900;font-size:15px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;background:var(--amber);color:var(--ink);margin-bottom:10px}
+.big-action:active{transform:scale(.98)}
+.big-action.green{background:var(--green);color:#fff}
+
+/* parts quote */
+.parts-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.parts-box h4{font-size:14px;font-weight:900;margin-bottom:10px}
+.part-row{display:flex;gap:8px;margin-bottom:8px}
+.part-row input{flex:1;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px}
+.part-row input.price{max-width:96px;font-family:'IBM Plex Mono',monospace}
+.add-part{background:none;border:none;color:var(--teal);font-weight:800;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;padding:4px 0}
+.parts-total{display:flex;justify-content:space-between;font-size:14px;font-weight:800;border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+.parts-total .mono{color:var(--teal)}
+.parts-note{font-size:11.5px;color:var(--muted);margin-top:8px}
+
+/* earnings */
+.earn-hero{background:var(--teal-deep);color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+.earn-hero .bgar{position:absolute;right:-14px;bottom:-34px;font-size:120px;font-weight:900;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
+.earn-hero .l{font-size:12.5px;color:#A9C4C7;font-weight:700}
+.earn-hero .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:34px;margin:2px 0 12px}
+.earn-hero .payout{display:inline-block;background:var(--amber);color:var(--ink);font-weight:800;font-size:12.5px;padding:6px 18px;border-radius:99px;cursor:pointer}
+.earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.earn-cell{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}
+.earn-cell .l{font-size:11.5px;color:var(--muted);font-weight:700}
+.earn-cell .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;color:var(--ink)}
+.ledger{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ledger-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line);font-size:13px}
+.ledger-row:last-child{border-bottom:none}
+.ledger-row .t{font-weight:800}
+.ledger-row .d{font-size:11.5px;color:var(--muted)}
+.ledger-row .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);white-space:nowrap}
+.ledger-row .amt.out{color:var(--muted)}
+
+/* profile */
+.prof-head{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.prof-avatar{width:60px;height:60px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prof-head .nm{font-weight:900;font-size:17px}
+.prof-head .sub{font-size:12.5px;color:var(--muted)}
+.prof-head .vbadge{display:inline-block;background:#EDF7F1;color:var(--green);font-size:11px;font-weight:800;padding:1px 10px;border-radius:99px;margin-top:3px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.menu{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px}
+.menu-row{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;cursor:pointer}
+.menu-row:last-child{border-bottom:none}
+.menu-row:hover{background:var(--mist)}
+.menu-row .ic{margin-right:10px}
+.menu-row .arr{color:var(--line)}
+.streak{background:var(--amber-soft);border-radius:14px;padding:13px 16px;font-size:13px;display:flex;gap:10px;align-items:center}
+
+/* bottom nav */
+.bottom-nav{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);flex-shrink:0}
+.nav-btn{padding:10px 4px 12px;text-align:center;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif;position:relative}
+.nav-btn .ic{font-size:20px;display:block;filter:grayscale(1);opacity:.5}
+.nav-btn .l{font-size:10.5px;font-weight:800;color:var(--muted)}
+.nav-btn.on .ic{filter:none;opacity:1}
+.nav-btn.on .l{color:var(--teal)}
+.nav-btn .pip{position:absolute;top:7px;right:calc(50% - 17px);width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.toast{
+  position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;font-size:13.5px;font-weight:700;
+  padding:10px 22px;border-radius:99px;opacity:0;transition:all .25s ease;pointer-events:none;z-index:200;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- HEADER -->
+  <div class="app-head online" id="appHead">
+    <div class="app-head-top">
+      <div class="app-logo"><span class="ar">فنّي</span><span class="en">Partner</span></div>
+      <div class="online-toggle" onclick="toggleOnline()">
+        <span id="onlineLbl">Online</span><div class="switch"></div>
+      </div>
+    </div>
+    <div class="greet">Good morning, <b>Mostafa</b> · Nasr City zone</div>
+  </div>
+
+  <!-- SCREEN: JOBS -->
+  <div class="screen active" id="scr-jobs">
+    <div class="stat-strip">
+      <div class="stat"><div class="v">EGP 940</div><div class="l">Today</div></div>
+      <div class="stat"><div class="v">3</div><div class="l">Jobs today</div></div>
+      <div class="stat"><div class="v">4.9★</div><div class="l">Rating</div></div>
+    </div>
+
+    <div class="sec-title">New requests</div>
+    <div id="newJobs">
+      <div class="job-card new" id="req1">
+        <span class="jc-timer" id="timer1">04:32</span>
+        <div class="jc-top">
+          <div class="jc-svc"><span class="ic">❄️</span>AC deep cleaning</div>
+          <div class="jc-pay"><div class="amt">EGP 350</div><div class="yours">You earn EGP 280</div></div>
+        </div>
+        <div class="jc-meta"><span>📍 Makram Ebeid, Nasr City · 2.1 km</span><span>🕐 Today, 1–3 PM</span></div>
+        <div class="jc-note">"Unit is on the balcony, 3rd floor, no elevator"</div>
+        <div class="jc-actions">
+          <button class="jbtn jbtn-decline" onclick="declineJob('req1')">Decline</button>
+          <button class="jbtn jbtn-accept" onclick="acceptJob('req1')">Accept — EGP 280 ✓</button>
+        </div>
+      </div>
+      <div class="job-card new" id="req2">
+        <span class="jc-timer">08:15</span>
+        <div class="jc-top">
+          <div class="jc-svc"><span class="ic">❄️</span>AC not cooling — diagnosis</div>
+          <div class="jc-pay"><div class="amt">EGP 150+</div><div class="yours">Inspection · repair quoted on site</div></div>
+        </div>
+        <div class="jc-meta"><span>📍 El Hay El Sabea, Nasr City · 3.4 km</span><span>🕐 Today, 3–5 PM</span></div>
+        <div class="jc-actions">
+          <button class="jbtn jbtn-decline" onclick="declineJob('req2')">Decline</button>
+          <button class="jbtn jbtn-accept" onclick="acceptJob('req2')">Accept ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">Scheduled</div>
+    <div class="job-card scheduled">
+      <span class="jc-when">Tomorrow · 9–11 AM</span>
+      <div class="jc-top">
+        <div class="jc-svc"><span class="ic">❄️</span>Freon refill (R410)</div>
+        <div class="jc-pay"><div class="amt">EGP 600</div><div class="yours">You earn EGP 480</div></div>
+      </div>
+      <div class="jc-meta"><span>📍 Heliopolis · 5.8 km</span><span>👤 Karim S. · 4.7★</span></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: ACTIVE JOB -->
+  <div class="screen" id="scr-active">
+    <div class="empty-feed" id="noActive"><span class="big">🧰</span>No active job.<br>Accept a request from the Jobs tab.</div>
+    <div id="activeJob" style="display:none">
+      <div class="aj-head">
+        <div class="code" id="ajCode">FN-38214</div>
+        <div class="t">AC deep cleaning — 1.5 HP split</div>
+        <div class="cust">Ahmed M. · Makram Ebeid, Nasr City · Today 1–3 PM</div>
+      </div>
+      <div class="aj-contact">
+        <button class="aj-cbtn">📞 Call</button>
+        <button class="aj-cbtn">💬 Chat</button>
+        <button class="aj-cbtn">🗺️ Navigate</button>
+      </div>
+      <div class="phase-track">
+        <div class="phase done" id="ph1"><div class="ph-dot">✓</div><div><div class="t">Accepted</div><div class="d">Customer notified with your profile</div></div></div>
+        <div class="phase now" id="ph2"><div class="ph-dot">●</div><div><div class="t">On the way</div><div class="d">Customer sees your live ETA</div></div></div>
+        <div class="phase pending" id="ph3"><div class="ph-dot"></div><div><div class="t">Working</div><div class="d">Quote any parts before installing</div></div></div>
+        <div class="phase pending" id="ph4"><div class="ph-dot"></div><div><div class="t">Done — collect & close</div><div class="d">EGP 350 cash · warranty starts</div></div></div>
+      </div>
+
+      <div class="parts-box" id="partsBox" style="display:none">
+        <h4>🔩 Parts needed? Quote before installing</h4>
+        <div id="partRows">
+          <div class="part-row"><input type="text" placeholder="Part name — e.g. capacitor 35µF"><input type="text" class="price" placeholder="EGP"></div>
+        </div>
+        <button class="add-part" onclick="addPart()">+ Add another part</button>
+        <div class="parts-total"><span>Send to customer for approval</span><span class="mono">in-app ✓</span></div>
+        <div class="parts-note">The customer approves in their app before you install. Approved parts are added to the final bill — sourced parts through فنّي supply earn you wholesale margin.</div>
+      </div>
+
+      <button class="big-action" id="phaseBtn" onclick="advancePhase()">I've arrived ✓</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: EARNINGS -->
+  <div class="screen" id="scr-earn">
+    <div class="earn-hero">
+      <div class="bgar">فنّي</div>
+      <div class="l">Available balance</div>
+      <div class="v">EGP 4,320</div>
+      <span class="payout">Withdraw to wallet →</span>
+    </div>
+    <div class="earn-grid">
+      <div class="earn-cell"><div class="l">This week</div><div class="v">EGP 2,860</div></div>
+      <div class="earn-cell"><div class="l">Jobs this week</div><div class="v">11</div></div>
+      <div class="earn-cell"><div class="l">Parts margin</div><div class="v">EGP 340</div></div>
+      <div class="earn-cell"><div class="l">Avg per job</div><div class="v">EGP 260</div></div>
+    </div>
+    <div class="sec-title">Recent activity</div>
+    <div class="ledger">
+      <div class="ledger-row"><span><span class="t">AC deep cleaning · FN-38102</span><br><span class="d">Today · Nasr City · 5★</span></span><span class="amt">+ EGP 280</span></div>
+      <div class="ledger-row"><span><span class="t">Freon refill · FN-38071</span><br><span class="d">Today · Heliopolis · 5★</span></span><span class="amt">+ EGP 480</span></div>
+      <div class="ledger-row"><span><span class="t">Capacitor (فنّي supply)</span><br><span class="d">Parts margin</span></span><span class="amt">+ EGP 45</span></div>
+      <div class="ledger-row"><span><span class="t">AC repair · FN-37990</span><br><span class="d">Yesterday · New Cairo · 4★</span></span><span class="amt">+ EGP 180</span></div>
+      <div class="ledger-row"><span><span class="t">Payout to Vodafone Cash</span><br><span class="d">Sunday</span></span><span class="amt out">− EGP 3,000</span></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: PROFILE -->
+  <div class="screen" id="scr-prof">
+    <div class="prof-head">
+      <div class="prof-avatar">م</div>
+      <div>
+        <div class="nm">Mostafa Abdelrahman</div>
+        <div class="sub">AC specialist · Nasr City zone · since Mar 2026</div>
+        <span class="vbadge">✓ ID-verified · Skill-certified</span>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="stat"><div class="v">4.9★</div><div class="l">Rating</div></div>
+      <div class="stat"><div class="v">412</div><div class="l">Jobs done</div></div>
+      <div class="stat"><div class="v">96%</div><div class="l">Acceptance</div></div>
+    </div>
+    <div class="streak" style="margin-bottom:14px"><span style="font-size:20px">🏅</span><span><b>Top فنّي — June.</b> Keep rating ≥ 4.8 this month for priority job routing and a lower commission tier.</span></div>
+    <div class="menu">
+      <div class="menu-row"><span><span class="ic">🕐</span>Working hours & zones</span><span class="arr">›</span></div>
+      <div class="menu-row"><span><span class="ic">🧰</span>My trades & certifications</span><span class="arr">›</span></div>
+      <div class="menu-row"><span><span class="ic">🔩</span>Order parts — wholesale</span><span class="arr">›</span></div>
+      <div class="menu-row"><span><span class="ic">🛡️</span>Warranty callbacks (0 open)</span><span class="arr">›</span></div>
+      <div class="menu-row"><span><span class="ic">💬</span>Support · 16xxx</span><span class="arr">›</span></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn on" data-scr="jobs" onclick="go('jobs',this)"><span class="pip" id="jobsPip">2</span><span class="ic">📋</span><span class="l">Jobs</span></button>
+    <button class="nav-btn" data-scr="active" onclick="go('active',this)"><span class="ic">🧰</span><span class="l">Active</span></button>
+    <button class="nav-btn" data-scr="earn" onclick="go('earn',this)"><span class="ic">💰</span><span class="l">Earnings</span></button>
+    <button class="nav-btn" data-scr="prof" onclick="go('prof',this)"><span class="ic">👤</span><span class="l">Profile</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let online=true;
+function toggleOnline(){
+  online=!online;
+  document.getElementById('appHead').classList.toggle('online',online);
+  document.getElementById('onlineLbl').textContent=online?'Online':'Offline';
+  toast(online?'You are online — receiving jobs':'You are offline');
+}
+function go(scr,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scr-'+scr).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* request timer */
+let secs=272;
+setInterval(()=>{
+  if(secs<=0)return;secs--;
+  const el=document.getElementById('timer1');
+  if(el)el.textContent=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');
+},1000);
+
+function updatePip(){
+  const n=document.querySelectorAll('#newJobs .job-card').length;
+  const pip=document.getElementById('jobsPip');
+  if(n===0){pip.style.display='none';
+    document.getElementById('newJobs').innerHTML='<div class="empty-feed"><span class="big">📭</span>No new requests right now.<br>Stay online — Nasr City is a busy zone.</div>';
+  } else pip.textContent=n;
+}
+function declineJob(id){
+  document.getElementById(id).remove();
+  updatePip();toast('Request declined — no penalty this time');
+}
+function acceptJob(id){
+  document.getElementById(id).remove();
+  updatePip();
+  document.getElementById('noActive').style.display='none';
+  document.getElementById('activeJob').style.display='block';
+  go('active',document.querySelector('[data-scr="active"]'));
+  toast('Job accepted! Customer notified ✓');
+}
+
+/* active job phases */
+let phase=2;
+function advancePhase(){
+  const btn=document.getElementById('phaseBtn');
+  if(phase===2){
+    setPh(2,'done','✓');setPh(3,'now','●');
+    document.getElementById('partsBox').style.display='block';
+    btn.textContent='Job finished — collect EGP 350 ✓';
+    btn.classList.add('green');
+    toast('Marked as arrived — customer notified');
+    phase=3;
+  } else if(phase===3){
+    setPh(3,'done','✓');setPh(4,'done','✓');
+    btn.textContent='Closed ✓ · EGP 280 added to balance';
+    btn.disabled=true;btn.style.opacity=.65;
+    document.getElementById('partsBox').style.display='none';
+    toast('Job closed — 30-day warranty active 🛡️');
+    phase=4;
+  }
+}
+function setPh(n,cls,mark){
+  const el=document.getElementById('ph'+n);
+  el.className='phase '+cls;
+  el.querySelector('.ph-dot').textContent=mark;
+}
+function addPart(){
+  const row=document.createElement('div');
+  row.className='part-row';
+  row.innerHTML='<input type="text" placeholder="Part name"><input type="text" class="price" placeholder="EGP">';
+  document.getElementById('partRows').appendChild(row);
+}
+</script>
+</body>
+</html>

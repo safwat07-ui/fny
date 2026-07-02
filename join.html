@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join فنّي — Technician Application</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33;
+  --teal:#0F5B63;
+  --teal-deep:#0A424A;
+  --amber:#F08A24;
+  --amber-soft:#FCE9D2;
+  --paper:#FFFFFF;
+  --mist:#EDF3F2;
+  --sand:#F5F0E4;
+  --line:#D8E0DE;
+  --muted:#5C7275;
+  --green:#1E8E5A;
+  --red:#C64B3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cairo',sans-serif;color:var(--ink);
+  background:var(--mist);line-height:1.6;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* ---- TOP BAR ---- */
+.topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.topbar-inner{max-width:760px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none}
+.logo .ar{font-size:26px;font-weight:900;color:var(--teal);line-height:1}
+.logo .en{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.topbar .help{font-size:13.5px;color:var(--muted);text-decoration:none}
+.topbar .help .mono{color:var(--teal);font-weight:600}
+
+/* ---- PROGRESS ---- */
+.progress-wrap{max-width:760px;margin:28px auto 0;padding:0 20px}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.progress-label .stage{font-weight:800;color:var(--teal)}
+.progress-label .count{font-family:'IBM Plex Mono',monospace;color:var(--muted)}
+.progress-track{height:6px;background:#fff;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:99px;transition:width .35s ease;width:16%}
+
+/* ---- CARD ---- */
+.wrap{max-width:760px;margin:20px auto 60px;padding:0 20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:36px;box-shadow:0 14px 40px rgba(12,46,51,.07)}
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;
+}
+.eyebrow::before{content:"";width:22px;height:2px;background:var(--amber);border-radius:2px}
+.card h2{font-size:26px;font-weight:900;line-height:1.25;margin-bottom:6px}
+.card .sub{color:var(--muted);font-size:15px;margin-bottom:28px}
+.card .sub .ar{color:var(--teal);font-weight:700}
+
+/* fields */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13.5px;font-weight:800;margin-bottom:6px}
+.field label small{font-weight:400;color:var(--muted)}
+.field input,.field select,.field textarea{
+  width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;
+  font-family:'Cairo',sans-serif;font-size:15px;color:var(--ink);background:#fff;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,91,99,.1)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+
+/* trade tiles */
+.trade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.trade{
+  border:1.5px solid var(--line);border-radius:12px;padding:18px 12px;text-align:center;
+  cursor:pointer;background:#fff;transition:all .15s ease;position:relative;
+}
+.trade .ic{font-size:28px;display:block;margin-bottom:6px}
+.trade .nm{font-weight:800;font-size:14px}
+.trade .ar{font-size:12px;color:var(--muted)}
+.trade:hover{border-color:var(--teal)}
+.trade.selected{border-color:var(--teal);background:var(--mist)}
+.trade.selected::after{
+  content:"✓";position:absolute;top:8px;right:10px;
+  width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;
+  font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;
+}
+.multi-hint{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+/* experience pills */
+.pill-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.pill{
+  border:1.5px solid var(--line);border-radius:999px;padding:9px 20px;
+  font-weight:700;font-size:14px;cursor:pointer;background:#fff;transition:all .15s ease;
+  font-family:'Cairo',sans-serif;color:var(--ink);
+}
+.pill:hover{border-color:var(--teal)}
+.pill.selected{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* checkbox rows */
+.check-list{display:grid;gap:10px}
+.check-item{
+  display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);
+  border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .15s ease;background:#fff;
+}
+.check-item:hover{border-color:var(--teal)}
+.check-item.selected{border-color:var(--teal);background:var(--mist)}
+.check-item input{margin-top:5px;accent-color:var(--teal);width:17px;height:17px;flex-shrink:0}
+.check-item .t{font-weight:800;font-size:14.5px}
+.check-item .d{font-size:13px;color:var(--muted)}
+
+/* uploads */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upload{
+  border:2px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;
+  cursor:pointer;transition:all .15s ease;background:#fff;
+}
+.upload:hover{border-color:var(--amber);background:var(--amber-soft)}
+.upload.done{border-color:var(--green);border-style:solid;background:#EDF7F1}
+.upload .ic{font-size:30px;display:block;margin-bottom:8px}
+.upload .t{font-weight:800;font-size:14px}
+.upload .d{font-size:12.5px;color:var(--muted)}
+.upload.done .d{color:var(--green);font-weight:700}
+
+/* assessment slots */
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.slot{
+  border:1.5px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;
+  cursor:pointer;background:#fff;transition:all .15s ease;
+}
+.slot:hover{border-color:var(--teal)}
+.slot.selected{border-color:var(--teal);background:var(--teal);color:#fff}
+.slot .day{font-weight:800;font-size:14px}
+.slot .time{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--muted)}
+.slot.selected .time{color:#CFE3E5}
+.center-note{
+  display:flex;gap:12px;align-items:flex-start;background:var(--sand);
+  border-radius:12px;padding:14px 16px;font-size:13.5px;margin-top:18px;color:var(--muted);
+}
+.center-note .ic{font-size:18px}
+
+/* review */
+.review-block{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.review-row{display:flex;justify-content:space-between;gap:16px;padding:13px 18px;border-bottom:1px solid var(--line);font-size:14.5px}
+.review-row:last-child{border-bottom:none}
+.review-row .k{color:var(--muted);flex-shrink:0}
+.review-row .v{font-weight:700;text-align:right}
+.review-row .v.mono{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal)}
+.agree{display:flex;gap:12px;align-items:flex-start;margin:20px 0 4px;font-size:14px}
+.agree input{margin-top:5px;accent-color:var(--teal);width:17px;height:17px}
+.agree a{color:var(--teal);font-weight:700}
+
+/* success */
+.success{text-align:center;padding:20px 0}
+.success .badge{
+  width:84px;height:84px;border-radius:50%;background:var(--green);color:#fff;
+  font-size:40px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;
+  box-shadow:0 0 0 12px rgba(30,142,90,.12);
+}
+.success h2{margin-bottom:10px}
+.success .ref{
+  display:inline-block;background:var(--sand);border-radius:10px;padding:10px 22px;
+  font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:var(--teal);margin:14px 0 22px;
+}
+.next-steps{max-width:420px;margin:0 auto;text-align:left;display:grid;gap:12px}
+.next-steps .ns{display:flex;gap:12px;font-size:14.5px}
+.next-steps .ns .n{
+  width:26px;height:26px;border-radius:50%;background:var(--amber);color:var(--ink);
+  font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+}
+
+/* nav buttons */
+.step-nav{display:flex;justify-content:space-between;gap:14px;margin-top:32px}
+.btn{
+  padding:13px 30px;border-radius:999px;font-weight:800;font-size:15px;
+  border:none;cursor:pointer;font-family:'Cairo',sans-serif;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn-primary{background:var(--amber);color:var(--ink)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
+.btn-back{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.btn-back:hover{color:var(--ink);border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.err{color:var(--red);font-size:13px;font-weight:700;margin-top:14px;display:none}
+.err.show{display:block}
+
+@media(max-width:640px){
+  .card{padding:26px 20px}
+  .grid2{grid-template-columns:1fr}
+  .trade-grid{grid-template-columns:repeat(2,1fr)}
+  .upload-grid{grid-template-columns:1fr}
+  .slot-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="#" class="logo"><span class="ar">فنّي</span><span class="en">Fanni · Technicians</span></a>
+    <a href="#" class="help">Need help? <span class="mono">16xxx</span></a>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span class="stage" id="stageName">Your details</span>
+    <span class="count mono" id="stageCount">Step 1 of 6</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <!-- STEP 1: PERSONAL -->
+    <div class="step-panel active" data-step="1">
+      <span class="eyebrow">Application · طلب انضمام</span>
+      <h2>Let's start with you</h2>
+      <p class="sub">Your legal details as they appear on your national ID. We verify every <span class="ar">فنّي</span> before their first job.</p>
+      <div class="grid2">
+        <div class="field"><label>Full name <small>(as on ID)</small></label><input type="text" id="fullName" placeholder="Ahmed Mohamed Hassan"></div>
+        <div class="field"><label>Mobile number</label><input type="tel" id="mobile" placeholder="01X XXXX XXXX"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>National ID number</label><input type="text" id="nid" maxlength="14" placeholder="14 digits"><div class="hint">Used for identity verification only. Never shown to customers.</div></div>
+        <div class="field"><label>Date of birth</label><input type="date" id="dob"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Governorate</label>
+          <select id="gov"><option value="">Select…</option><option>Cairo</option><option>Giza</option><option>Alexandria</option><option>Qalyubia</option><option>Sharqia</option><option>Dakahlia</option><option>Other</option></select>
+        </div>
+        <div class="field"><label>District / area</label><input type="text" id="district" placeholder="e.g. Nasr City"></div>
+      </div>
+      <p class="err" id="err1">Please complete all fields — the national ID must be 14 digits.</p>
+      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="nextStep(1)">Continue →</button></div>
+    </div>
+
+    <!-- STEP 2: TRADES -->
+    <div class="step-panel" data-step="2">
+      <span class="eyebrow">Your craft · تخصصك</span>
+      <h2>What do you fix?</h2>
+      <p class="sub">Select every trade you work in professionally. You'll be assessed in each one you pick.</p>
+      <div class="trade-grid" id="tradeGrid">
+        <div class="trade" data-trade="AC"><span class="ic">❄️</span><span class="nm">Air Conditioning</span><div class="ar">تكييف</div></div>
+        <div class="trade" data-trade="Satellite & TV"><span class="ic">📡</span><span class="nm">Satellite & TV</span><div class="ar">دش وتلفزيون</div></div>
+        <div class="trade" data-trade="CCTV"><span class="ic">🎥</span><span class="nm">CCTV & Security</span><div class="ar">كاميرات</div></div>
+        <div class="trade" data-trade="Networking"><span class="ic">📶</span><span class="nm">WiFi & Networking</span><div class="ar">شبكات</div></div>
+        <div class="trade" data-trade="Intercom"><span class="ic">🔔</span><span class="nm">Video Intercom</span><div class="ar">إنتركم</div></div>
+        <div class="trade" data-trade="Smart Home"><span class="ic">🏠</span><span class="nm">Smart Home</span><div class="ar">منزل ذكي</div></div>
+      </div>
+      <p class="multi-hint">You can select more than one.</p>
+
+      <div class="field"><label>Years of experience</label></div>
+      <div class="pill-row" id="expRow">
+        <button class="pill" data-exp="1–2 years">1–2 years</button>
+        <button class="pill" data-exp="3–5 years">3–5 years</button>
+        <button class="pill" data-exp="6–10 years">6–10 years</button>
+        <button class="pill" data-exp="10+ years">10+ years</button>
+      </div>
+      <p class="err" id="err2">Select at least one trade and your experience level.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: WORK SETUP -->
+    <div class="step-panel" data-step="3">
+      <span class="eyebrow">Work setup · تجهيزاتك</span>
+      <h2>Your tools and coverage</h2>
+      <p class="sub">This affects which jobs we can route to you from day one.</p>
+
+      <div class="field"><label>How do you get to jobs?</label></div>
+      <div class="pill-row" id="transportRow" style="margin-bottom:24px">
+        <button class="pill" data-tr="Own vehicle">Own car / van</button>
+        <button class="pill" data-tr="Motorcycle">Motorcycle</button>
+        <button class="pill" data-tr="Public transport">Public transport</button>
+      </div>
+
+      <div class="field"><label>Which apply to you?</label></div>
+      <div class="check-list" id="setupList">
+        <label class="check-item"><input type="checkbox" data-set="Full tool kit"><span><span class="t">I own a complete tool kit for my trade</span><br><span class="d">Ladder, drill, meters, crimpers — whatever your specialty needs</span></span></label>
+        <label class="check-item"><input type="checkbox" data-set="Smartphone"><span><span class="t">I have an Android or iPhone with internet</span><br><span class="d">Jobs are received and closed through the فنّي app</span></span></label>
+        <label class="check-item"><input type="checkbox" data-set="Weekend availability"><span><span class="t">I can work Fridays & Saturdays</span><br><span class="d">Weekend jobs pay a higher rate — optional</span></span></label>
+        <label class="check-item"><input type="checkbox" data-set="Team"><span><span class="t">I work with a helper or small team</span><br><span class="d">Qualifies you for larger installation jobs</span></span></label>
+      </div>
+      <p class="err" id="err3">Select your transport method to continue.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(3)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: DOCUMENTS -->
+    <div class="step-panel" data-step="4">
+      <span class="eyebrow">Verification · التحقق</span>
+      <h2>Upload your documents</h2>
+      <p class="sub">Clear photos are fine. Documents are encrypted and reviewed within 48 hours.</p>
+      <div class="upload-grid">
+        <div class="upload" data-doc="ID front"><span class="ic">🪪</span><span class="t">National ID — front</span><br><span class="d">Tap to upload</span></div>
+        <div class="upload" data-doc="ID back"><span class="ic">🪪</span><span class="t">National ID — back</span><br><span class="d">Tap to upload</span></div>
+        <div class="upload" data-doc="Personal photo"><span class="ic">🤳</span><span class="t">Personal photo</span><br><span class="d">Shown to customers on booking</span></div>
+        <div class="upload" data-doc="Certificate"><span class="ic">📜</span><span class="t">Trade certificate <small>(optional)</small></span><br><span class="d">Diploma, training or brand certification</span></div>
+      </div>
+      <div class="center-note"><span class="ic">🔒</span><span>Your ID is used only for identity and criminal-record screening, as required for platform safety. It is never shared with customers or third parties.</span></div>
+      <p class="err" id="err4">ID front, ID back and personal photo are required.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(4)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: ASSESSMENT -->
+    <div class="step-panel" data-step="5">
+      <span class="eyebrow">Skill check · اختبار عملي</span>
+      <h2>Book your assessment</h2>
+      <p class="sub">A 45-minute practical test at our Fanni Hub. Pass it and you start receiving jobs the same week.</p>
+      <div class="field"><label>Choose a hub</label>
+        <select id="hub">
+          <option>Fanni Hub — Nasr City (Abbas El Akkad)</option>
+          <option>Fanni Hub — 6th of October (Central Axis)</option>
+          <option>Fanni Hub — Alexandria (Smouha)</option>
+        </select>
+      </div>
+      <div class="field"><label>Available slots this week</label></div>
+      <div class="slot-grid" id="slotGrid">
+        <div class="slot" data-slot="Sat 10:00"><div class="day">Saturday</div><div class="time">10:00 AM</div></div>
+        <div class="slot" data-slot="Sat 13:00"><div class="day">Saturday</div><div class="time">1:00 PM</div></div>
+        <div class="slot" data-slot="Sun 10:00"><div class="day">Sunday</div><div class="time">10:00 AM</div></div>
+        <div class="slot" data-slot="Mon 11:00"><div class="day">Monday</div><div class="time">11:00 AM</div></div>
+        <div class="slot" data-slot="Tue 10:00"><div class="day">Tuesday</div><div class="time">10:00 AM</div></div>
+        <div class="slot" data-slot="Wed 14:00"><div class="day">Wednesday</div><div class="time">2:00 PM</div></div>
+      </div>
+      <div class="center-note"><span class="ic">🧰</span><span>Bring your own hand tools. Test equipment (AC unit, dish, camera kit, router) is provided at the hub. The assessment is free.</span></div>
+      <p class="err" id="err5">Pick an assessment slot to continue.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(5)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(5)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 6: REVIEW -->
+    <div class="step-panel" data-step="6">
+      <span class="eyebrow">Final check · مراجعة</span>
+      <h2>Review & submit</h2>
+      <p class="sub">Make sure everything is right — then you're one assessment away from your first job.</p>
+      <div class="review-block" id="reviewBlock"></div>
+      <label class="agree">
+        <input type="checkbox" id="agreeBox">
+        <span>I confirm my details are accurate and I agree to the <a href="#">Technician Agreement</a> — including the commission structure, quality standards and 30-day workmanship warranty on my jobs.</span>
+      </label>
+      <p class="err" id="err6">Please accept the Technician Agreement to submit.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(6)">← Back</button>
+        <button class="btn btn-primary" onclick="submitApp()">Submit application ✓</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="step-panel" data-step="7">
+      <div class="success">
+        <div class="badge">✓</div>
+        <h2>Application received!</h2>
+        <p class="sub">Welcome to the network, <span id="successName" style="font-weight:800;color:var(--teal)"></span>.</p>
+        <div class="ref" id="refCode"></div>
+        <div class="next-steps">
+          <div class="ns"><span class="n">1</span><span>We'll verify your ID and documents within <b>48 hours</b> — you'll get an SMS.</span></div>
+          <div class="ns"><span class="n">2</span><span>Attend your practical assessment at the hub you booked. Bring your tools and original ID.</span></div>
+          <div class="ns"><span class="n">3</span><span>Pass, download the <b>فنّي app</b>, set your working hours — and start receiving jobs.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const state={trades:[],exp:null,transport:null,setup:[],docs:[],slot:null};
+const stages=["Your details","Your craft","Work setup","Verification","Assessment","Review"];
+let current=1;
+
+function render(){
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.toggle('active',+p.dataset.step===current));
+  const pct = current>=7 ? 100 : Math.round((current/6)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('stageName').textContent = current>=7 ? "Done" : stages[current-1];
+  document.getElementById('stageCount').textContent = current>=7 ? "Complete" : `Step ${current} of 6`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showErr(n,show){document.getElementById('err'+n).classList.toggle('show',show)}
+
+function validate(n){
+  if(n===1){
+    const name=v('fullName'),mob=v('mobile'),nid=v('nid'),dob=v('dob'),gov=v('gov'),dist=v('district');
+    return name&&mob.length>=10&&/^\d{14}$/.test(nid)&&dob&&gov&&dist;
+  }
+  if(n===2) return state.trades.length>0&&state.exp;
+  if(n===3) return !!state.transport;
+  if(n===4) return ['ID front','ID back','Personal photo'].every(d=>state.docs.includes(d));
+  if(n===5) return !!state.slot;
+  return true;
+}
+function v(id){return document.getElementById(id).value.trim()}
+
+function nextStep(n){
+  if(!validate(n)){showErr(n,true);return}
+  showErr(n,false);
+  current=n+1;
+  if(current===6) buildReview();
+  render();
+}
+function prevStep(n){current=n-1;render()}
+
+/* trades */
+document.querySelectorAll('.trade').forEach(t=>{
+  t.addEventListener('click',()=>{
+    t.classList.toggle('selected');
+    const name=t.dataset.trade;
+    state.trades = t.classList.contains('selected')
+      ? [...state.trades,name] : state.trades.filter(x=>x!==name);
+  });
+});
+/* pills */
+function pillGroup(rowId,key,attr){
+  document.querySelectorAll(`#${rowId} .pill`).forEach(p=>{
+    p.addEventListener('click',()=>{
+      document.querySelectorAll(`#${rowId} .pill`).forEach(x=>x.classList.remove('selected'));
+      p.classList.add('selected');
+      state[key]=p.dataset[attr];
+    });
+  });
+}
+pillGroup('expRow','exp','exp');
+pillGroup('transportRow','transport','tr');
+/* setup checks */
+document.querySelectorAll('#setupList .check-item input').forEach(c=>{
+  c.addEventListener('change',()=>{
+    c.closest('.check-item').classList.toggle('selected',c.checked);
+    const name=c.dataset.set;
+    state.setup=c.checked?[...state.setup,name]:state.setup.filter(x=>x!==name);
+  });
+});
+/* uploads (simulated) */
+document.querySelectorAll('.upload').forEach(u=>{
+  u.addEventListener('click',()=>{
+    if(u.classList.contains('done'))return;
+    u.classList.add('done');
+    u.querySelector('.d').textContent='Uploaded ✓';
+    state.docs.push(u.dataset.doc);
+  });
+});
+/* slots */
+document.querySelectorAll('.slot').forEach(s=>{
+  s.addEventListener('click',()=>{
+    document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));
+    s.classList.add('selected');
+    state.slot=s.dataset.slot;
+  });
+});
+
+function buildReview(){
+  const rows=[
+    ['Name',v('fullName')],
+    ['Mobile',v('mobile'),true],
+    ['National ID','•••• •••• '+v('nid').slice(-4),true],
+    ['Area',v('district')+', '+v('gov')],
+    ['Trades',state.trades.join(' · ')],
+    ['Experience',state.exp],
+    ['Transport',state.transport],
+    ['Setup',state.setup.length?state.setup.join(' · '):'—'],
+    ['Assessment',document.getElementById('hub').value.replace('Fanni Hub —','')+' · '+state.slot,true],
+  ];
+  document.getElementById('reviewBlock').innerHTML=rows.map(r=>
+    `<div class="review-row"><span class="k">${r[0]}</span><span class="v${r[2]?' mono':''}">${r[1]}</span></div>`).join('');
+}
+
+const tradeSlug={"AC":"ac","Satellite & TV":"satellite","CCTV":"cctv","Networking":"wifi","Intercom":"intercom","Smart Home":"smart-home"};
+async function submitApp(){
+  if(!document.getElementById('agreeBox').checked){showErr(6,true);return}
+  showErr(6,false);
+  document.getElementById('successName').textContent=v('fullName').split(' ')[0];
+  let ref='FN-2026-'+String(Math.floor(1000+Math.random()*9000));
+  try{
+    const r=await fetch('/api/technicians/apply',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({full_name:v('fullName'),mobile:v('mobile'),national_id:v('nid'),
+        governorate:v('gov'),district:v('district'),trades:state.trades.map(t=>tradeSlug[t]||t),
+        experience:state.exp,transport:state.transport,setup:state.setup,
+        assessment_hub:document.getElementById('hub').value,assessment_slot:state.slot})});
+    const d=await r.json();
+    if(d.ok){ref=d.reference}
+    else if(d.error&&d.error.includes('already exists')){alert('An application with this mobile number already exists.');return}
+  }catch(e){/* offline demo mode */}
+  document.getElementById('refCode').textContent=ref;
+  current=7;render();
+}
+</script>
+</body>
+</html>
