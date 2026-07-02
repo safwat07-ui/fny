@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>انضم لفنّي — طلب انضمام الفنيين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
+  --amber:#F08A24; --amber-soft:#FCE9D2;
+  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
+  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+.topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.topbar-inner{max-width:760px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none}
+.logo .ar{font-size:26px;font-weight:900;color:var(--teal);line-height:1}
+.logo .en{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.top-actions{display:flex;gap:12px;align-items:center}
+.lang{font-family:'IBM Plex Mono',monospace;font-size:11px;border:1.5px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted);text-decoration:none}
+.lang:hover{border-color:var(--teal)}
+.topbar .help{font-size:13.5px;color:var(--muted);text-decoration:none}
+.topbar .help .mono{color:var(--teal);font-weight:600}
+
+.progress-wrap{max-width:760px;margin:28px auto 0;padding:0 20px}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.progress-label .stage{font-weight:800;color:var(--teal)}
+.progress-label .count{font-family:'IBM Plex Mono',monospace;color:var(--muted)}
+.progress-track{height:6px;background:#fff;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(-90deg,var(--teal),var(--amber));border-radius:99px;transition:width .35s ease;width:16%}
+
+.wrap{max-width:760px;margin:20px auto 60px;padding:0 20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:36px;box-shadow:0 14px 40px rgba(12,46,51,.07)}
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--teal);margin-bottom:10px}
+.eyebrow::before{content:"";width:22px;height:2px;background:var(--amber);border-radius:2px}
+.card h2{font-size:25px;font-weight:900;line-height:1.4;margin-bottom:6px}
+.card .sub{color:var(--muted);font-size:15px;margin-bottom:28px}
+.card .sub .hl{color:var(--teal);font-weight:800}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13.5px;font-weight:800;margin-bottom:6px}
+.field label small{font-weight:400;color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;color:var(--ink);background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,91,99,.1)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.ltr{direction:ltr;text-align:right}
+
+.trade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.trade{border:1.5px solid var(--line);border-radius:12px;padding:18px 12px;text-align:center;cursor:pointer;background:#fff;transition:all .15s ease;position:relative}
+.trade .ic{font-size:28px;display:block;margin-bottom:6px}
+.trade .nm{font-weight:800;font-size:14px}
+.trade:hover{border-color:var(--teal)}
+.trade.selected{border-color:var(--teal);background:var(--mist)}
+.trade.selected::after{content:"✓";position:absolute;top:8px;left:10px;width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.multi-hint{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+.pill-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.pill{border:1.5px solid var(--line);border-radius:999px;padding:9px 20px;font-weight:700;font-size:14px;cursor:pointer;background:#fff;transition:all .15s ease;font-family:'Cairo',sans-serif;color:var(--ink)}
+.pill:hover{border-color:var(--teal)}
+.pill.selected{background:var(--teal);border-color:var(--teal);color:#fff}
+
+.check-list{display:grid;gap:10px}
+.check-item{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .15s ease;background:#fff}
+.check-item:hover{border-color:var(--teal)}
+.check-item.selected{border-color:var(--teal);background:var(--mist)}
+.check-item input{margin-top:7px;accent-color:var(--teal);width:17px;height:17px;flex-shrink:0}
+.check-item .t{font-weight:800;font-size:14.5px}
+.check-item .d{font-size:13px;color:var(--muted)}
+
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upload{border:2px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;cursor:pointer;transition:all .15s ease;background:#fff}
+.upload:hover{border-color:var(--amber);background:var(--amber-soft)}
+.upload.done{border-color:var(--green);border-style:solid;background:#EDF7F1}
+.upload .ic{font-size:30px;display:block;margin-bottom:8px}
+.upload .t{font-weight:800;font-size:14px}
+.upload .d{font-size:12.5px;color:var(--muted)}
+.upload.done .d{color:var(--green);font-weight:700}
+
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.slot{border:1.5px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .15s ease}
+.slot:hover{border-color:var(--teal)}
+.slot.selected{border-color:var(--teal);background:var(--teal);color:#fff}
+.slot .day{font-weight:800;font-size:14px}
+.slot .time{font-size:12.5px;color:var(--muted)}
+.slot.selected .time{color:#CFE3E5}
+.center-note{display:flex;gap:12px;align-items:flex-start;background:var(--sand);border-radius:12px;padding:14px 16px;font-size:13.5px;margin-top:18px;color:var(--muted)}
+.center-note .ic{font-size:18px}
+
+.review-block{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.review-row{display:flex;justify-content:space-between;gap:16px;padding:13px 18px;border-bottom:1px solid var(--line);font-size:14.5px}
+.review-row:last-child{border-bottom:none}
+.review-row .k{color:var(--muted);flex-shrink:0}
+.review-row .v{font-weight:700;text-align:left}
+.review-row .v.mono{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal)}
+.agree{display:flex;gap:12px;align-items:flex-start;margin:20px 0 4px;font-size:14px}
+.agree input{margin-top:7px;accent-color:var(--teal);width:17px;height:17px}
+.agree a{color:var(--teal);font-weight:800}
+
+.success{text-align:center;padding:20px 0}
+.success .badge{width:84px;height:84px;border-radius:50%;background:var(--green);color:#fff;font-size:40px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;box-shadow:0 0 0 12px rgba(30,142,90,.12)}
+.success h2{margin-bottom:10px}
+.success .ref{display:inline-block;background:var(--sand);border-radius:10px;padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:var(--teal);margin:14px 0 22px}
+.next-steps{max-width:440px;margin:0 auto;text-align:right;display:grid;gap:12px}
+.next-steps .ns{display:flex;gap:12px;font-size:14.5px}
+.next-steps .ns .n{width:26px;height:26px;border-radius:50%;background:var(--amber);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px}
+
+.step-nav{display:flex;justify-content:space-between;gap:14px;margin-top:32px}
+.btn{padding:13px 30px;border-radius:999px;font-weight:800;font-size:15px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:transform .15s ease,box-shadow .15s ease}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn-primary{background:var(--amber);color:var(--ink)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
+.btn-back{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.btn-back:hover{color:var(--ink);border-color:var(--muted)}
+.err{color:var(--red);font-size:13px;font-weight:700;margin-top:14px;display:none}
+.err.show{display:block}
+
+@media(max-width:640px){
+  .card{padding:26px 20px}
+  .grid2{grid-template-columns:1fr}
+  .trade-grid{grid-template-columns:repeat(2,1fr)}
+  .upload-grid{grid-template-columns:1fr}
+  .slot-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">للفنيين</span></a>
+    <div class="top-actions">
+      <a href="join.html" class="lang">EN</a>
+      <a href="#" class="help">محتاج مساعدة؟ <span class="mono">16xxx</span></a>
+    </div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span class="stage" id="stageName">بياناتك</span>
+    <span class="count mono" id="stageCount">1 / 6</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <!-- 1 البيانات -->
+    <div class="step-panel active" data-step="1">
+      <span class="eyebrow">طلب انضمام</span>
+      <h2>نبدأ ببياناتك</h2>
+      <p class="sub">بياناتك الرسمية زي ما هي في البطاقة. بنتحقق من كل <span class="hl">فنّي</span> قبل أول شغلانة.</p>
+      <div class="grid2">
+        <div class="field"><label>الاسم بالكامل <small>(زي البطاقة)</small></label><input type="text" id="fullName" placeholder="أحمد محمد حسن"></div>
+        <div class="field"><label>رقم الموبايل</label><input type="tel" id="mobile" class="ltr" placeholder="01X XXXX XXXX"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>الرقم القومي</label><input type="text" id="nid" class="ltr" maxlength="14" placeholder="14 رقم"><div class="hint">للتحقق من الهوية فقط. مش بيظهر للعملاء أبدًا.</div></div>
+        <div class="field"><label>تاريخ الميلاد</label><input type="date" id="dob" class="ltr"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>المحافظة</label>
+          <select id="gov"><option value="">اختار…</option><option>القاهرة</option><option>الجيزة</option><option>الإسكندرية</option><option>القليوبية</option><option>الشرقية</option><option>الدقهلية</option><option>محافظة تانية</option></select>
+        </div>
+        <div class="field"><label>المنطقة / الحي</label><input type="text" id="district" placeholder="مثال: مدينة نصر"></div>
+      </div>
+      <p class="err" id="err1">من فضلك كمّل كل البيانات — الرقم القومي لازم يكون 14 رقم.</p>
+      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="nextStep(1)">← كمّل</button></div>
+    </div>
+
+    <!-- 2 التخصص -->
+    <div class="step-panel" data-step="2">
+      <span class="eyebrow">تخصصك</span>
+      <h2>بتصلّح إيه؟</h2>
+      <p class="sub">اختار كل الصنايع اللي بتشتغل فيها. هتتختبر عمليًا في كل واحدة تختارها.</p>
+      <div class="trade-grid" id="tradeGrid">
+        <div class="trade" data-trade="ac"><span class="ic">❄️</span><span class="nm">تكييف</span></div>
+        <div class="trade" data-trade="satellite"><span class="ic">📡</span><span class="nm">دش وشاشات</span></div>
+        <div class="trade" data-trade="cctv"><span class="ic">🎥</span><span class="nm">كاميرات مراقبة</span></div>
+        <div class="trade" data-trade="wifi"><span class="ic">📶</span><span class="nm">واي فاي وشبكات</span></div>
+        <div class="trade" data-trade="intercom"><span class="ic">🔔</span><span class="nm">إنتركم</span></div>
+        <div class="trade" data-trade="smart-home"><span class="ic">🏠</span><span class="nm">سمارت هوم</span></div>
+      </div>
+      <p class="multi-hint">تقدر تختار أكتر من واحدة.</p>
+      <div class="field"><label>سنين الخبرة</label></div>
+      <div class="pill-row" id="expRow">
+        <button class="pill" data-exp="1-2 سنة">1–2 سنة</button>
+        <button class="pill" data-exp="3-5 سنين">3–5 سنين</button>
+        <button class="pill" data-exp="6-10 سنين">6–10 سنين</button>
+        <button class="pill" data-exp="أكتر من 10 سنين">أكتر من 10</button>
+      </div>
+      <p class="err" id="err2">اختار صنعة واحدة على الأقل ومستوى خبرتك.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(2)">رجوع →</button>
+        <button class="btn btn-primary" onclick="nextStep(2)">← كمّل</button>
+      </div>
+    </div>
+
+    <!-- 3 التجهيزات -->
+    <div class="step-panel" data-step="3">
+      <span class="eyebrow">تجهيزاتك</span>
+      <h2>عدّتك ووسيلتك</h2>
+      <p class="sub">ده بيحدد الشغلانات اللي نقدر نبعتهالك من أول يوم.</p>
+      <div class="field"><label>بتوصل للشغل إزاي؟</label></div>
+      <div class="pill-row" id="transportRow" style="margin-bottom:24px">
+        <button class="pill" data-tr="عربية / فان">عربية أو فان</button>
+        <button class="pill" data-tr="موتوسيكل">موتوسيكل</button>
+        <button class="pill" data-tr="مواصلات">مواصلات</button>
+      </div>
+      <div class="field"><label>إيه اللي ينطبق عليك؟</label></div>
+      <div class="check-list" id="setupList">
+        <label class="check-item"><input type="checkbox" data-set="عدة كاملة"><span><span class="t">معايا عدة كاملة لصنعتي</span><br><span class="d">سلم، شنيور، عدة قياس، مكابس — على حسب تخصصك</span></span></label>
+        <label class="check-item"><input type="checkbox" data-set="موبايل ذكي"><span><span class="t">معايا موبايل أندرويد أو آيفون بإنترنت</span><br><span class="d">الشغلانات بتوصلك وبتتقفل من تطبيق فنّي</span></span></label>
+        <label class="check-item"><input type="checkbox" data-set="شغل الويك اند"><span><span class="t">أقدر أشتغل الجمعة والسبت</span><br><span class="d">شغل الويك اند بسعر أعلى — اختياري</span></span></label>
+        <label class="check-item"><input type="checkbox" data-set="فريق"><span><span class="t">بشتغل بمساعد أو فريق صغير</span><br><span class="d">بيأهلك لشغلانات التركيبات الكبيرة</span></span></label>
+      </div>
+      <p class="err" id="err3">اختار وسيلة المواصلات عشان تكمل.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(3)">رجوع →</button>
+        <button class="btn btn-primary" onclick="nextStep(3)">← كمّل</button>
+      </div>
+    </div>
+
+    <!-- 4 المستندات -->
+    <div class="step-panel" data-step="4">
+      <span class="eyebrow">التحقق</span>
+      <h2>ارفع مستنداتك</h2>
+      <p class="sub">صور واضحة كفاية. المستندات بتتشفر وبتتراجع خلال 48 ساعة.</p>
+      <div class="upload-grid">
+        <div class="upload" data-doc="وش البطاقة"><span class="ic">🪪</span><span class="t">البطاقة — الوش</span><br><span class="d">اضغط للرفع</span></div>
+        <div class="upload" data-doc="ضهر البطاقة"><span class="ic">🪪</span><span class="t">البطاقة — الضهر</span><br><span class="d">اضغط للرفع</span></div>
+        <div class="upload" data-doc="صورة شخصية"><span class="ic">🤳</span><span class="t">صورة شخصية</span><br><span class="d">بتظهر للعميل عند الحجز</span></div>
+        <div class="upload" data-doc="شهادة"><span class="ic">📜</span><span class="t">شهادة صنعة <small>(اختياري)</small></span><br><span class="d">دبلوم، تدريب، أو اعتماد ماركة</span></div>
+      </div>
+      <div class="center-note"><span class="ic">🔒</span><span>بطاقتك بتُستخدم فقط للتحقق من الهوية والفحص الأمني، حفاظًا على أمان المنصة. مش بتتشارك مع العملاء ولا أي طرف تالت.</span></div>
+      <p class="err" id="err4">وش البطاقة وضهرها والصورة الشخصية مطلوبين.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(4)">رجوع →</button>
+        <button class="btn btn-primary" onclick="nextStep(4)">← كمّل</button>
+      </div>
+    </div>
+
+    <!-- 5 الاختبار -->
+    <div class="step-panel" data-step="5">
+      <span class="eyebrow">اختبار عملي</span>
+      <h2>احجز اختبارك</h2>
+      <p class="sub">اختبار عملي 45 دقيقة في مركز فنّي. لو عدّيت، بتبدأ تستقبل شغلانات في نفس الأسبوع.</p>
+      <div class="field"><label>اختار المركز</label>
+        <select id="hub">
+          <option>مركز فنّي — مدينة نصر (عباس العقاد)</option>
+          <option>مركز فنّي — ٦ أكتوبر (المحور المركزي)</option>
+          <option>مركز فنّي — الإسكندرية (سموحة)</option>
+        </select>
+      </div>
+      <div class="field"><label>المواعيد المتاحة الأسبوع ده</label></div>
+      <div class="slot-grid" id="slotGrid">
+        <div class="slot" data-slot="السبت 10:00 ص"><div class="day">السبت</div><div class="time">10:00 ص</div></div>
+        <div class="slot" data-slot="السبت 1:00 ظ"><div class="day">السبت</div><div class="time">1:00 ظ</div></div>
+        <div class="slot" data-slot="الأحد 10:00 ص"><div class="day">الأحد</div><div class="time">10:00 ص</div></div>
+        <div class="slot" data-slot="الاثنين 11:00 ص"><div class="day">الاثنين</div><div class="time">11:00 ص</div></div>
+        <div class="slot" data-slot="الثلاثاء 10:00 ص"><div class="day">الثلاثاء</div><div class="time">10:00 ص</div></div>
+        <div class="slot" data-slot="الأربعاء 2:00 ع"><div class="day">الأربعاء</div><div class="time">2:00 ع</div></div>
+      </div>
+      <div class="center-note"><span class="ic">🧰</span><span>هات عدة الإيد بتاعتك. معدات الاختبار (تكييف، دش، كاميرات، راوتر) متوفرة في المركز. الاختبار مجاني.</span></div>
+      <p class="err" id="err5">اختار ميعاد الاختبار عشان تكمل.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(5)">رجوع →</button>
+        <button class="btn btn-primary" onclick="nextStep(5)">← كمّل</button>
+      </div>
+    </div>
+
+    <!-- 6 المراجعة -->
+    <div class="step-panel" data-step="6">
+      <span class="eyebrow">مراجعة أخيرة</span>
+      <h2>راجع وابعت</h2>
+      <p class="sub">اتأكد إن كل حاجة صح — وبعدها بينك وبين أول شغلانة اختبار واحد بس.</p>
+      <div class="review-block" id="reviewBlock"></div>
+      <label class="agree">
+        <input type="checkbox" id="agreeBox">
+        <span>بأقر إن بياناتي صحيحة وبوافق على <a href="#">اتفاقية الفني</a> — شاملة نظام العمولة، ومعايير الجودة، وضمان الـ٣٠ يوم على شغلي.</span>
+      </label>
+      <p class="err" id="err6">من فضلك وافق على اتفاقية الفني عشان تبعت الطلب.</p>
+      <div class="step-nav">
+        <button class="btn btn-back" onclick="prevStep(6)">رجوع →</button>
+        <button class="btn btn-primary" onclick="submitApp()">ابعت الطلب ✓</button>
+      </div>
+    </div>
+
+    <!-- النجاح -->
+    <div class="step-panel" data-step="7">
+      <div class="success">
+        <div class="badge">✓</div>
+        <h2>استلمنا طلبك!</h2>
+        <p class="sub">أهلًا بيك في الشبكة يا <span id="successName" style="font-weight:800;color:var(--teal)"></span>.</p>
+        <div class="ref" id="refCode"></div>
+        <div class="next-steps">
+          <div class="ns"><span class="n">1</span><span>هنتحقق من بطاقتك ومستنداتك خلال <b>48 ساعة</b> — هيوصلك رسالة.</span></div>
+          <div class="ns"><span class="n">2</span><span>احضر الاختبار العملي في المركز اللي حجزته. هات عدتك وبطاقتك الأصلية.</span></div>
+          <div class="ns"><span class="n">3</span><span>لو عدّيت، نزّل <b>تطبيق فنّي</b>، حدد مواعيد شغلك — وابدأ تستقبل شغلانات.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const state={trades:[],exp:null,transport:null,setup:[],docs:[],slot:null};
+const stages=["بياناتك","تخصصك","تجهيزاتك","التحقق","الاختبار","المراجعة"];
+const tradeAr={"ac":"تكييف","satellite":"دش وشاشات","cctv":"كاميرات","wifi":"واي فاي","intercom":"إنتركم","smart-home":"سمارت هوم"};
+let current=1;
+
+/* تحويل الأرقام العربية إلى إنجليزية */
+function normDigits(s){
+  return (s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+}
+
+function render(){
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.toggle('active',+p.dataset.step===current));
+  const pct = current>=7 ? 100 : Math.round((current/6)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('stageName').textContent = current>=7 ? "تم" : stages[current-1];
+  document.getElementById('stageCount').textContent = current>=7 ? "اكتمل" : `${current} / 6`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showErr(n,show){document.getElementById('err'+n).classList.toggle('show',show)}
+function v(id){return document.getElementById(id).value.trim()}
+function vNum(id){return normDigits(v(id)).replace(/\D/g,'')}
+
+function validate(n){
+  if(n===1){
+    return v('fullName')&&vNum('mobile').length===11&&/^\d{14}$/.test(vNum('nid'))&&v('dob')&&v('gov')&&v('district');
+  }
+  if(n===2) return state.trades.length>0&&state.exp;
+  if(n===3) return !!state.transport;
+  if(n===4) return ['وش البطاقة','ضهر البطاقة','صورة شخصية'].every(d=>state.docs.includes(d));
+  if(n===5) return !!state.slot;
+  return true;
+}
+function nextStep(n){
+  if(!validate(n)){showErr(n,true);return}
+  showErr(n,false);
+  current=n+1;
+  if(current===6) buildReview();
+  render();
+}
+function prevStep(n){current=n-1;render()}
+
+document.querySelectorAll('.trade').forEach(t=>{
+  t.addEventListener('click',()=>{
+    t.classList.toggle('selected');
+    const name=t.dataset.trade;
+    state.trades = t.classList.contains('selected') ? [...state.trades,name] : state.trades.filter(x=>x!==name);
+  });
+});
+function pillGroup(rowId,key,attr){
+  document.querySelectorAll(`#${rowId} .pill`).forEach(p=>{
+    p.addEventListener('click',()=>{
+      document.querySelectorAll(`#${rowId} .pill`).forEach(x=>x.classList.remove('selected'));
+      p.classList.add('selected');
+      state[key]=p.dataset[attr];
+    });
+  });
+}
+pillGroup('expRow','exp','exp');
+pillGroup('transportRow','transport','tr');
+document.querySelectorAll('#setupList .check-item input').forEach(c=>{
+  c.addEventListener('change',()=>{
+    c.closest('.check-item').classList.toggle('selected',c.checked);
+    const name=c.dataset.set;
+    state.setup=c.checked?[...state.setup,name]:state.setup.filter(x=>x!==name);
+  });
+});
+document.querySelectorAll('.upload').forEach(u=>{
+  u.addEventListener('click',()=>{
+    if(u.classList.contains('done'))return;
+    u.classList.add('done');
+    u.querySelector('.d').textContent='تم الرفع ✓';
+    state.docs.push(u.dataset.doc);
+  });
+});
+document.querySelectorAll('.slot').forEach(s=>{
+  s.addEventListener('click',()=>{
+    document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));
+    s.classList.add('selected');
+    state.slot=s.dataset.slot;
+  });
+});
+
+function buildReview(){
+  const rows=[
+    ['الاسم',v('fullName')],
+    ['الموبايل',vNum('mobile'),true],
+    ['الرقم القومي','•••• •••• '+vNum('nid').slice(-4),true],
+    ['المنطقة',v('district')+'، '+v('gov')],
+    ['الصنايع',state.trades.map(t=>tradeAr[t]).join(' · ')],
+    ['الخبرة',state.exp],
+    ['المواصلات',state.transport],
+    ['التجهيزات',state.setup.length?state.setup.join(' · '):'—'],
+    ['الاختبار',document.getElementById('hub').value.replace('مركز فنّي —','')+' · '+state.slot],
+  ];
+  document.getElementById('reviewBlock').innerHTML=rows.map(r=>
+    `<div class="review-row"><span class="k">${r[0]}</span><span class="v${r[2]?' mono':''}">${r[1]}</span></div>`).join('');
+}
+
+async function submitApp(){
+  if(!document.getElementById('agreeBox').checked){showErr(6,true);return}
+  showErr(6,false);
+  let ref='FN-2026-'+String(Math.floor(1000+Math.random()*9000));
+  try{
+    const r=await fetch('/api/technicians/apply',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({full_name:v('fullName'),mobile:vNum('mobile'),national_id:vNum('nid'),
+        governorate:v('gov'),district:v('district'),trades:state.trades,
+        experience:state.exp,transport:state.transport,setup:state.setup,
+        assessment_hub:document.getElementById('hub').value,assessment_slot:state.slot})});
+    const d=await r.json();
+    if(d.ok){ref=d.reference}
+    else if(d.error&&d.error.includes('already exists')){alert('في طلب مسجل بنفس رقم الموبايل ده.');return}
+  }catch(e){/* وضع العرض */}
+  document.getElementById('successName').textContent=v('fullName').split(' ')[0];
+  document.getElementById('refCode').textContent=ref;
+  current=7;render();
+}
+</script>
+</body>
+</html>

@@ -253,6 +253,7 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="#join">For technicians</a>
+      <a href="index-ar.html" class="lang" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;color:var(--muted)">العربية</a>
       <a href="book.html" class="btn btn-primary">Book now</a>
     </div>
   </div>
@@ -289,7 +290,7 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
       </div>
       <div class="field">
         <label>What do you need?</label>
-        <select><option>AC cleaning & maintenance</option><option>AC installation</option><option>AC repair — not cooling</option><option>Freon refill</option></select>
+        <select id="heroJobs"><option>AC deep cleaning & maintenance</option><option>AC not cooling — diagnosis</option><option>Freon refill</option><option>New AC installation</option></select>
       </div>
       <div class="field">
         <label>Area</label>
@@ -529,11 +530,28 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
 </footer>
 
 <script>
-// service chip toggle
+const heroCatalog={
+  "AC":["AC deep cleaning & maintenance","AC not cooling — diagnosis","Freon refill","New AC installation"],
+  "Satellite":["Dish install & alignment","Signal loss — realignment","Receiver setup & channels","TV wall mounting"],
+  "CCTV":["4-camera package install","Camera repair","Remote viewing setup","NVR replacement / upgrade"],
+  "WiFi":["Mesh WiFi setup","Weak signal — dead-zone fix","New router install","Network cabling"],
+  "Intercom":["Video intercom install (apartment)","Villa / multi-unit intercom","Intercom repair"],
+  "Smart home":["Smart lighting setup","Smart lock install","Smart camera & sensors","Smart-home consultation"]
+};
+const chipSlug={"AC":"AC","Satellite":"Satellite & TV","CCTV":"CCTV","WiFi":"WiFi","Intercom":"Intercom","Smart home":"Smart Home"};
+let heroSvc="AC";
 document.querySelectorAll('.chip').forEach(chip=>{
   chip.addEventListener('click',()=>{
     document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
+    heroSvc=chip.textContent.trim();
+    const sel=document.getElementById('heroJobs');
+    sel.innerHTML=(heroCatalog[heroSvc]||heroCatalog["AC"]).map(j=>`<option>${j}</option>`).join('');
+  });
+});
+document.querySelectorAll('a[href="book.html"]').forEach(a=>{
+  a.addEventListener('click',()=>{
+    a.href='book.html?svc='+encodeURIComponent(chipSlug[heroSvc]||'AC');
   });
 });
 </script>

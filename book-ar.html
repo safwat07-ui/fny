@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فنّي — Book a technician</title>
+<title>فنّي — احجز فني</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -14,19 +14,20 @@
   --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
 .mono{font-family:'IBM Plex Mono',monospace}
 
-/* topbar */
 .topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
 .topbar-inner{max-width:560px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
 .logo{display:flex;align-items:baseline;gap:9px;text-decoration:none}
 .logo .ar{font-size:25px;font-weight:900;color:var(--teal);line-height:1}
 .logo .en{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.topbar .back-link{font-size:14px;color:var(--muted);text-decoration:none;font-weight:700;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif}
+.top-actions{display:flex;gap:14px;align-items:center}
+.lang{font-family:'IBM Plex Mono',monospace;font-size:11px;border:1.5px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted);text-decoration:none}
+.lang:hover{border-color:var(--teal)}
+.topbar .back-link{font-size:14px;color:var(--muted);font-weight:700;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif}
 .topbar .back-link:hover{color:var(--teal)}
 
-/* progress dots */
 .dots{display:flex;gap:7px;justify-content:center;margin:22px 0 4px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .25s ease}
 .dot.on{background:var(--teal);width:24px;border-radius:99px}
@@ -37,18 +38,16 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
 .panel{display:none}
 .panel.active{display:block;animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
+h2{font-size:22px;font-weight:900;line-height:1.4;margin-bottom:4px}
 .sub{color:var(--muted);font-size:14.5px;margin-bottom:22px}
 
-/* service tiles */
 .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .svc{border:1.5px solid var(--line);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .15s ease}
 .svc .ic{font-size:26px;display:block;margin-bottom:4px}
-.svc .nm{font-weight:800;font-size:12.5px;line-height:1.3}
+.svc .nm{font-weight:800;font-size:12.5px;line-height:1.4}
 .svc:hover{border-color:var(--teal)}
 .svc.selected{border-color:var(--teal);background:var(--mist);box-shadow:inset 0 0 0 1px var(--teal)}
 
-/* job option rows */
 .job-list{display:grid;gap:10px}
 .job{border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;cursor:pointer;background:#fff;transition:all .15s ease;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .job:hover{border-color:var(--teal)}
@@ -58,7 +57,6 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 .job .pr{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;color:var(--teal);white-space:nowrap}
 .job .pr.insp{color:var(--muted);font-size:12px}
 
-/* schedule */
 .day-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px}
 .day{min-width:74px;border:1.5px solid var(--line);border-radius:13px;padding:10px 6px;text-align:center;cursor:pointer;background:#fff;transition:all .15s ease;flex-shrink:0}
 .day .dw{font-size:12px;color:var(--muted);font-weight:700}
@@ -66,24 +64,23 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 .day.selected{border-color:var(--teal);background:var(--teal);color:#fff}
 .day.selected .dw{color:#CFE3E5}
 .time-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.time{border:1.5px solid var(--line);border-radius:11px;padding:10px 6px;text-align:center;cursor:pointer;background:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;transition:all .15s ease}
+.time{border:1.5px solid var(--line);border-radius:11px;padding:10px 6px;text-align:center;cursor:pointer;background:#fff;font-size:13px;font-weight:700;transition:all .15s ease}
 .time:hover{border-color:var(--teal)}
 .time.selected{border-color:var(--teal);background:var(--teal);color:#fff}
 .time.off{opacity:.35;cursor:not-allowed;text-decoration:line-through}
 
-/* fields */
 .field{margin-bottom:15px}
-.field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}
+.field label{display:block;font-size:13.5px;font-weight:800;margin-bottom:5px}
 .field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo',sans-serif;font-size:14.5px;color:var(--ink);background:#fff}
 .field textarea{resize:vertical;min-height:70px}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,91,99,.1)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.ltr{direction:ltr;text-align:right}
 
-/* price summary */
 .quote{border:2px solid var(--teal);border-radius:16px;overflow:hidden;margin-bottom:18px}
 .quote-head{background:var(--teal);color:#fff;padding:13px 20px;display:flex;justify-content:space-between;align-items:center}
 .quote-head .t{font-weight:800;font-size:14px}
-.quote-head .fixed{background:var(--amber);color:var(--ink);font-size:11px;font-weight:800;padding:2px 12px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em}
+.quote-head .fixed{background:var(--amber);color:var(--ink);font-size:12px;font-weight:800;padding:2px 12px;border-radius:99px}
 .quote-row{display:flex;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--line);font-size:14px}
 .quote-row .k{color:var(--muted)}
 .quote-row .v{font-weight:700}
@@ -96,24 +93,23 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 .pay .ic{font-size:20px;display:block;margin-bottom:2px}
 .pay.selected{border-color:var(--teal);background:var(--mist)}
 
-/* tracking */
 .tech-card{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:15px;padding:16px;background:var(--sand);margin-bottom:20px}
 .avatar{width:62px;height:62px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tech-card .nm{font-weight:900;font-size:16.5px}
 .tech-card .meta{font-size:13px;color:var(--muted)}
 .tech-card .meta .mono{color:var(--teal);font-weight:600}
-.tech-card .badge{margin-left:auto;text-align:center;flex-shrink:0}
+.tech-card .badge{margin-inline-start:auto;text-align:center;flex-shrink:0}
 .tech-card .badge .r{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;color:var(--teal)}
 .tech-card .badge .l{font-size:11px;color:var(--muted)}
 .contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
 .contact-btn{border:1.5px solid var(--teal);color:var(--teal);background:#fff;border-radius:99px;padding:10px;font-weight:800;font-family:'Cairo',sans-serif;font-size:14px;cursor:pointer}
 .contact-btn:hover{background:var(--mist)}
 
-.timeline{position:relative;padding-left:30px}
-.timeline::before{content:"";position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.timeline{position:relative;padding-right:30px}
+.timeline::before{content:"";position:absolute;right:10px;top:8px;bottom:8px;width:2px;background:var(--line)}
 .tl-item{position:relative;padding-bottom:22px}
 .tl-item:last-child{padding-bottom:0}
-.tl-item .nd{position:absolute;left:-30px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px}
+.tl-item .nd{position:absolute;right:-30px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px}
 .tl-item.done .nd{background:var(--green);border-color:var(--green);color:#fff}
 .tl-item.now .nd{background:var(--amber);border-color:var(--amber);color:var(--ink);animation:pulse 1.6s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,138,36,.4)}50%{box-shadow:0 0 0 8px rgba(240,138,36,0)}}
@@ -123,28 +119,25 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 .eta-strip{background:var(--teal-deep);color:#fff;border-radius:13px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
 .eta-strip .l{font-size:13px;color:#A9C4C7}
 .eta-strip .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:21px}
-.eta-strip .code{text-align:right}
+.eta-strip .code{text-align:left}
 
-/* rating */
 .rate-wrap{text-align:center;padding:8px 0}
 .rate-wrap .badge-ok{width:78px;height:78px;border-radius:50%;background:var(--green);color:#fff;font-size:36px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 0 0 12px rgba(30,142,90,.12)}
-.stars{display:flex;gap:8px;justify-content:center;margin:18px 0 8px;font-size:36px}
+.stars{display:flex;gap:8px;justify-content:center;margin:18px 0 8px;direction:ltr}
 .star{cursor:pointer;color:var(--line);transition:transform .1s ease,color .1s ease;background:none;border:none;font-size:36px}
 .star:hover{transform:scale(1.15)}
 .star.lit{color:var(--amber)}
 .rate-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px 0 20px}
 .rtag{border:1.5px solid var(--line);border-radius:99px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;font-family:'Cairo',sans-serif;transition:all .15s ease}
 .rtag.selected{border-color:var(--teal);background:var(--teal);color:#fff}
-.warranty-note{background:var(--amber-soft);border-radius:12px;padding:13px 16px;font-size:13.5px;margin-top:18px;text-align:left;display:flex;gap:10px}
+.warranty-note{background:var(--amber-soft);border-radius:12px;padding:13px 16px;font-size:13.5px;margin-top:18px;text-align:right;display:flex;gap:10px}
 
-/* buttons */
 .step-nav{display:flex;justify-content:space-between;gap:12px;margin-top:26px}
 .btn{padding:12px 28px;border-radius:999px;font-weight:800;font-size:15px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:transform .15s ease,box-shadow .15s ease}
 .btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .btn-primary{background:var(--amber);color:var(--ink)}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
 .btn-dark{background:var(--teal);color:#fff}
-.btn-back{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
 .btn-full{width:100%}
 .err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
 .err.show{display:block}
@@ -152,9 +145,7 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 
 @media(max-width:480px){
   .card{padding:24px 18px}
-  .svc-grid{grid-template-columns:repeat(3,1fr)}
   .grid2{grid-template-columns:1fr}
-  .time-row{grid-template-columns:repeat(3,1fr)}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -163,8 +154,11 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 
 <div class="topbar">
   <div class="topbar-inner">
-    <a href="#" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
-    <div style="display:flex;gap:14px;align-items:center"><a href="book-ar.html" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted);text-decoration:none">العربية</a><button class="back-link" onclick="goBack()" id="backBtn" style="visibility:hidden">← Back</button></div>
+    <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
+    <div class="top-actions">
+      <a href="book.html" class="lang">EN</a>
+      <button class="back-link" onclick="goBack()" id="backBtn" style="visibility:hidden">رجوع →</button>
+    </div>
   </div>
 </div>
 
@@ -173,126 +167,126 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 <div class="wrap">
   <div class="card">
 
-    <!-- 1. SERVICE -->
+    <!-- 1 الخدمة -->
     <div class="panel active" data-p="1">
-      <h2>What needs fixing?</h2>
-      <p class="sub">Pick a service — fixed price shown before you confirm.</p>
+      <h2>عايز تصلّح إيه؟</h2>
+      <p class="sub">اختار الخدمة — السعر الثابت هيظهرلك قبل ما تأكد.</p>
       <div class="svc-grid">
-        <div class="svc" data-svc="AC"><span class="ic">❄️</span><span class="nm">AC</span></div>
-        <div class="svc" data-svc="Satellite & TV"><span class="ic">📡</span><span class="nm">Satellite & TV</span></div>
-        <div class="svc" data-svc="CCTV"><span class="ic">🎥</span><span class="nm">CCTV</span></div>
-        <div class="svc" data-svc="WiFi"><span class="ic">📶</span><span class="nm">WiFi & Network</span></div>
-        <div class="svc" data-svc="Intercom"><span class="ic">🔔</span><span class="nm">Intercom</span></div>
-        <div class="svc" data-svc="Smart Home"><span class="ic">🏠</span><span class="nm">Smart Home</span></div>
+        <div class="svc" data-svc="AC"><span class="ic">❄️</span><span class="nm">تكييف</span></div>
+        <div class="svc" data-svc="Satellite & TV"><span class="ic">📡</span><span class="nm">دش وشاشات</span></div>
+        <div class="svc" data-svc="CCTV"><span class="ic">🎥</span><span class="nm">كاميرات</span></div>
+        <div class="svc" data-svc="WiFi"><span class="ic">📶</span><span class="nm">واي فاي وشبكات</span></div>
+        <div class="svc" data-svc="Intercom"><span class="ic">🔔</span><span class="nm">إنتركم</span></div>
+        <div class="svc" data-svc="Smart Home"><span class="ic">🏠</span><span class="nm">سمارت هوم</span></div>
       </div>
-      <p class="err" id="e1">Choose a service to continue.</p>
-      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(1)">Continue →</button></div>
+      <p class="err" id="e1">اختار خدمة عشان تكمل.</p>
+      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(1)">← كمّل</button></div>
     </div>
 
-    <!-- 2. JOB -->
+    <!-- 2 الشغلانة -->
     <div class="panel" data-p="2">
-      <h2 id="jobTitle">Choose the job</h2>
-      <p class="sub">Prices are fixed for labor. Spare parts are quoted on site for your approval first.</p>
+      <h2 id="jobTitle">اختار الشغلانة</h2>
+      <p class="sub">الأسعار ثابتة للمصنعية. قطع الغيار بتتسعّر في المكان وبموافقتك الأول.</p>
       <div class="job-list" id="jobList"></div>
-      <p class="err" id="e2">Select a job to continue.</p>
-      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(2)">Continue →</button></div>
+      <p class="err" id="e2">اختار شغلانة عشان تكمل.</p>
+      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(2)">← كمّل</button></div>
     </div>
 
-    <!-- 3. SCHEDULE + ADDRESS -->
+    <!-- 3 الميعاد والعنوان -->
     <div class="panel" data-p="3">
-      <h2>When & where?</h2>
-      <p class="sub">Same-day slots available in most Cairo districts.</p>
-      <div class="field"><label>Day</label></div>
+      <h2>امتى وفين؟</h2>
+      <p class="sub">مواعيد في نفس اليوم متاحة في معظم مناطق القاهرة.</p>
+      <div class="field"><label>اليوم</label></div>
       <div class="day-row" id="dayRow"></div>
-      <div class="field"><label>Arrival window</label></div>
+      <div class="field"><label>ميعاد الوصول</label></div>
       <div class="time-row" id="timeRow">
-        <div class="time" data-t="9–11 AM">9–11 AM</div>
-        <div class="time" data-t="11–1 PM">11–1 PM</div>
-        <div class="time" data-t="1–3 PM">1–3 PM</div>
-        <div class="time" data-t="3–5 PM">3–5 PM</div>
-        <div class="time" data-t="5–7 PM">5–7 PM</div>
-        <div class="time off">7–9 PM</div>
+        <div class="time" data-t="9-11 ص">9–11 ص</div>
+        <div class="time" data-t="11-1 ظ">11–1 ظ</div>
+        <div class="time" data-t="1-3 ع">1–3 ع</div>
+        <div class="time" data-t="3-5 ع">3–5 ع</div>
+        <div class="time" data-t="5-7 م">5–7 م</div>
+        <div class="time off">7–9 م</div>
       </div>
       <div style="height:18px"></div>
       <div class="grid2">
-        <div class="field"><label>Area</label>
-          <select id="area"><option>Nasr City</option><option>New Cairo</option><option>Maadi</option><option>Heliopolis</option><option>6th of October</option><option>Zamalek</option><option>Alexandria — Smouha</option></select>
+        <div class="field"><label>المنطقة</label>
+          <select id="area"><option>مدينة نصر</option><option>القاهرة الجديدة</option><option>المعادي</option><option>مصر الجديدة</option><option>٦ أكتوبر</option><option>الزمالك</option><option>الإسكندرية — سموحة</option></select>
         </div>
-        <div class="field"><label>Mobile</label><input type="tel" id="mob" placeholder="01X XXXX XXXX"></div>
+        <div class="field"><label>رقم الموبايل</label><input type="tel" id="mob" class="ltr" placeholder="01X XXXX XXXX"></div>
       </div>
-      <div class="field"><label>Address</label><input type="text" id="addr" placeholder="Street, building, floor, apartment"></div>
-      <div class="field"><label>Notes for the فنّي <small style="color:var(--muted);font-weight:400">(optional)</small></label><textarea id="notes" placeholder="e.g. Unit is on the balcony, 3rd floor, no elevator"></textarea></div>
-      <p class="err" id="e3">Pick a day and time, and fill mobile & address.</p>
-      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(3)">See my price →</button></div>
+      <div class="field"><label>العنوان</label><input type="text" id="addr" placeholder="الشارع، العمارة، الدور، الشقة"></div>
+      <div class="field"><label>ملاحظات للفنّي <small style="color:var(--muted);font-weight:400">(اختياري)</small></label><textarea id="notes" placeholder="مثال: التكييف في البلكونة، الدور التالت، مفيش أسانسير"></textarea></div>
+      <p class="err" id="e3">اختار اليوم والميعاد، واكتب الموبايل والعنوان.</p>
+      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(3)">← شوف سعرك</button></div>
     </div>
 
-    <!-- 4. QUOTE -->
+    <!-- 4 السعر -->
     <div class="panel" data-p="4">
-      <h2>Your fixed price</h2>
-      <p class="sub">No surprises at the door — this is what you pay for the job.</p>
+      <h2>سعرك الثابت</h2>
+      <p class="sub">من غير مفاجآت على الباب — ده اللي هتدفعه للشغلانة.</p>
       <div class="quote">
-        <div class="quote-head"><span class="t" id="qService"></span><span class="fixed">Fixed price</span></div>
-        <div class="quote-row"><span class="k">Job</span><span class="v" id="qJob"></span></div>
-        <div class="quote-row"><span class="k">Schedule</span><span class="v" id="qWhen"></span></div>
-        <div class="quote-row"><span class="k">Location</span><span class="v" id="qWhere"></span></div>
-        <div class="quote-row"><span class="k">Labor</span><span class="v mono" id="qLabor"></span></div>
-        <div class="quote-row"><span class="k">Service fee</span><span class="v mono">EGP 25</span></div>
-        <div class="quote-row total"><span class="k">Total</span><span class="v" id="qTotal"></span></div>
-        <div class="quote-note">🔩 If spare parts are needed, your فنّي quotes them on site — nothing is installed without your approval. Every job includes a <b>30-day workmanship warranty</b>.</div>
+        <div class="quote-head"><span class="t" id="qService"></span><span class="fixed">سعر ثابت</span></div>
+        <div class="quote-row"><span class="k">الشغلانة</span><span class="v" id="qJob"></span></div>
+        <div class="quote-row"><span class="k">الميعاد</span><span class="v" id="qWhen"></span></div>
+        <div class="quote-row"><span class="k">المنطقة</span><span class="v" id="qWhere"></span></div>
+        <div class="quote-row"><span class="k">المصنعية</span><span class="v mono" id="qLabor"></span></div>
+        <div class="quote-row"><span class="k">رسوم الخدمة</span><span class="v mono">25 جنيه</span></div>
+        <div class="quote-row total"><span class="k">الإجمالي</span><span class="v" id="qTotal"></span></div>
+        <div class="quote-note">🔩 لو في قطع غيار، الفنّي بيسعّرها في المكان — ومفيش حاجة بتتركب من غير موافقتك. وكل شغلانة عليها <b>ضمان ٣٠ يوم</b>.</div>
       </div>
-      <div class="field"><label>How will you pay?</label></div>
+      <div class="field"><label>هتدفع إزاي؟</label></div>
       <div class="pay-row">
-        <div class="pay selected" data-pay="Cash"><span class="ic">💵</span>Cash after job</div>
-        <div class="pay" data-pay="Card"><span class="ic">💳</span>Card / wallet</div>
+        <div class="pay selected" data-pay="cash"><span class="ic">💵</span>كاش بعد الشغل</div>
+        <div class="pay" data-pay="card"><span class="ic">💳</span>كارت أو محفظة</div>
       </div>
-      <div class="step-nav"><span></span><button class="btn btn-primary btn-full" onclick="confirmBooking()">Confirm booking ✓</button></div>
+      <div class="step-nav"><span></span><button class="btn btn-primary btn-full" onclick="confirmBooking()">أكّد الحجز ✓</button></div>
     </div>
 
-    <!-- 5. TRACKING -->
+    <!-- 5 المتابعة -->
     <div class="panel" data-p="5">
-      <h2>Your فنّي is on the way</h2>
-      <p class="sub" id="trackSub">Booking confirmed — we've matched you with a top-rated technician.</p>
+      <h2>فنّيك في الطريق</h2>
+      <p class="sub" id="trackSub">تم تأكيد الحجز — ورشّحنالك فني من الأعلى تقييمًا.</p>
       <div class="eta-strip">
-        <div><div class="l">Estimated arrival</div><div class="v" id="etaVal">28 min</div></div>
-        <div class="code"><div class="l">Job code</div><div class="v" id="jobCode"></div></div>
+        <div><div class="l">الوصول المتوقع</div><div class="v" id="etaVal">28 دقيقة</div></div>
+        <div class="code"><div class="l">كود الطلب</div><div class="v" id="jobCode"></div></div>
       </div>
       <div class="tech-card">
         <div class="avatar">م</div>
         <div>
-          <div class="nm">Mostafa Abdelrahman</div>
-          <div class="meta">AC specialist · 7 yrs · <span class="mono">412 jobs</span></div>
-          <div class="meta">ID-verified ✓ · Skill-certified ✓</div>
+          <div class="nm">مصطفى عبدالرحمن</div>
+          <div class="meta">متخصص تكييف · خبرة 7 سنين · <span class="mono">412 شغلانة</span></div>
+          <div class="meta">متحقق من الهوية ✓ · معتمد عمليًا ✓</div>
         </div>
-        <div class="badge"><div class="r">4.9★</div><div class="l">rating</div></div>
+        <div class="badge"><div class="r">4.9★</div><div class="l">التقييم</div></div>
       </div>
       <div class="contact-row">
-        <button class="contact-btn">📞 Call</button>
-        <button class="contact-btn">💬 Chat</button>
+        <button class="contact-btn">📞 اتصال</button>
+        <button class="contact-btn">💬 شات</button>
       </div>
       <div class="timeline" id="timeline">
-        <div class="tl-item done"><div class="nd">✓</div><div class="t">Booking confirmed</div><div class="d">Fixed price locked · <span class="mono" id="tlPrice"></span></div></div>
-        <div class="tl-item now" id="tl2"><div class="nd">●</div><div class="t">فنّي on the way</div><div class="d">Mostafa is heading to your address</div></div>
-        <div class="tl-item pending" id="tl3"><div class="nd"></div><div class="t">Job in progress</div><div class="d">Work starts after he reviews the fault with you</div></div>
-        <div class="tl-item pending" id="tl4"><div class="nd"></div><div class="t">Done & guaranteed</div><div class="d">Pay, rate, and your 30-day warranty starts</div></div>
+        <div class="tl-item done"><div class="nd">✓</div><div class="t">تم تأكيد الحجز</div><div class="d">السعر الثابت اتقفل · <span class="mono" id="tlPrice"></span></div></div>
+        <div class="tl-item now" id="tl2"><div class="nd">●</div><div class="t">الفنّي في الطريق</div><div class="d">مصطفى متوجه لعنوانك</div></div>
+        <div class="tl-item pending" id="tl3"><div class="nd"></div><div class="t">الشغل جاري</div><div class="d">الشغل بيبدأ بعد ما يراجع العطل معاك</div></div>
+        <div class="tl-item pending" id="tl4"><div class="nd"></div><div class="t">خلص ومضمون</div><div class="d">ادفع، قيّم، والضمان ٣٠ يوم يبدأ</div></div>
       </div>
-      <div class="step-nav"><span></span><button class="btn btn-dark btn-full" onclick="advanceJob()" id="advanceBtn">▶ Simulate: technician arrived</button></div>
-      <p class="demo-hint">Demo control — in production this updates live from the technician app.</p>
+      <div class="step-nav"><span></span><button class="btn btn-dark btn-full" onclick="advanceJob()" id="advanceBtn">▶ تجربة: الفني وصل</button></div>
+      <p class="demo-hint">زر تجريبي — في التشغيل الفعلي الحالة بتتحدث تلقائيًا من تطبيق الفني.</p>
     </div>
 
-    <!-- 6. RATE -->
+    <!-- 6 التقييم -->
     <div class="panel" data-p="6">
       <div class="rate-wrap">
         <div class="badge-ok">✓</div>
-        <h2>Job complete!</h2>
-        <p class="sub">Paid <span class="mono" id="paidAmt" style="color:var(--teal);font-weight:600"></span> · How was Mostafa?</p>
+        <h2>الشغلانة خلصت!</h2>
+        <p class="sub">دفعت <span class="mono" id="paidAmt" style="color:var(--teal);font-weight:600"></span> · إيه رأيك في مصطفى؟</p>
         <div class="stars" id="stars">
           <button class="star" data-s="1">★</button><button class="star" data-s="2">★</button><button class="star" data-s="3">★</button><button class="star" data-s="4">★</button><button class="star" data-s="5">★</button>
         </div>
         <div class="rate-tags" id="rateTags">
-          <button class="rtag">On time</button><button class="rtag">Clean work</button><button class="rtag">Fair with parts</button><button class="rtag">Explained everything</button><button class="rtag">Polite</button>
+          <button class="rtag">جه في معاده</button><button class="rtag">شغل نضيف</button><button class="rtag">أمين في قطع الغيار</button><button class="rtag">شرح كل حاجة</button><button class="rtag">محترم</button>
         </div>
-        <button class="btn btn-primary btn-full" onclick="finishRating()">Submit rating</button>
-        <div class="warranty-note"><span>🛡️</span><span><b>Your warranty is active until 1 Aug 2026.</b> Same fault returns? We send a فنّي back free — from the app, under "My jobs".</span></div>
+        <button class="btn btn-primary btn-full" onclick="finishRating()">ابعت التقييم</button>
+        <div class="warranty-note"><span>🛡️</span><span><b>ضمانك شغال لمدة ٣٠ يوم.</b> لو نفس العطل رجع؟ بنبعتلك فنّي تاني مجانًا — من التطبيق، من "طلباتي".</span></div>
       </div>
     </div>
 
@@ -300,61 +294,59 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 </div>
 
 <script>
+/* نفس أرقام الكتالوج في الـ API (job_catalog_id) */
 const jobs={
   "AC":[
-    {id:1,t:"Deep cleaning & maintenance",d:"1.5 HP split, indoor + outdoor",p:350},
-    {id:2,t:"Not cooling — diagnosis & repair",d:"Inspection deducted from repair",p:150,insp:true},
-    {id:3,t:"Freon refill (R410)",d:"Includes leak check",p:600},
-    {id:4,t:"New AC installation",d:"Split unit, up to 4m piping",p:900}
+    {id:1,t:"غسيل وصيانة تكييف",d:"سبليت 1.5 حصان، الوحدتين",p:350},
+    {id:2,t:"مش بيبرد — كشف وإصلاح",d:"الكشف بيتخصم من الإصلاح",p:150,insp:true},
+    {id:3,t:"شحن فريون (R410)",d:"شامل فحص التسريب",p:600},
+    {id:4,t:"تركيب تكييف جديد",d:"سبليت، حتى 4 متر مواسير",p:900}
   ],
   "Satellite & TV":[
-    {id:5,t:"Dish install & alignment",d:"Single receiver, incl. 10m cable",p:400},
-    {id:6,t:"Signal loss — realignment",d:"Existing dish",p:250},
-    {id:7,t:"Receiver setup & channels",d:"Any receiver brand",p:200},
-    {id:8,t:"TV wall mounting",d:"Up to 65\", bracket not included",p:300}
+    {id:5,t:"تركيب وضبط دش",d:"رسيفر واحد، شامل 10 متر كابل",p:400},
+    {id:6,t:"ضعف إشارة — إعادة ضبط",d:"على الدش الموجود",p:250},
+    {id:7,t:"برمجة رسيفر وقنوات",d:"أي ماركة رسيفر",p:200},
+    {id:8,t:"تعليق شاشة على الحائط",d:"حتى 65 بوصة، بدون الحامل",p:300}
   ],
   "CCTV":[
-    {id:9,t:"4-camera package install",d:"Labor only, equipment quoted separately",p:1200},
-    {id:10,t:"Camera not working — repair",d:"Inspection deducted from repair",p:200,insp:true},
-    {id:11,t:"Remote viewing setup",d:"Phone app + router config",p:300},
-    {id:12,t:"NVR replacement / upgrade",d:"Reuse existing cabling",p:500}
+    {id:9,t:"تركيب باكدج 4 كاميرات",d:"المصنعية فقط، المعدات بتتسعّر على حدة",p:1200},
+    {id:10,t:"كاميرا مش شغالة — إصلاح",d:"الكشف بيتخصم من الإصلاح",p:200,insp:true},
+    {id:11,t:"متابعة من الموبايل",d:"تطبيق + ضبط الراوتر",p:300},
+    {id:12,t:"تغيير أو تطوير جهاز التسجيل",d:"على الكابلات الموجودة",p:500}
   ],
   "WiFi":[
-    {id:13,t:"Mesh WiFi setup",d:"Up to 3 nodes + full-home survey",p:500},
-    {id:14,t:"Weak signal — dead-zone fix",d:"Survey + repositioning or extender",p:300},
-    {id:15,t:"New router install & config",d:"Any ISP",p:250},
-    {id:16,t:"Network cabling",d:"Per point, in-wall or trunking",p:350}
+    {id:13,t:"تركيب شبكة Mesh",d:"حتى 3 وحدات + مسح كامل للبيت",p:500},
+    {id:14,t:"حل ضعف الإشارة",d:"مسح + نقل الراوتر أو مقوي",p:300},
+    {id:15,t:"تركيب راوتر جديد",d:"أي شركة إنترنت",p:250},
+    {id:16,t:"تمديد شبكات",d:"للنقطة، داخل الحائط أو ترانك",p:350}
   ],
   "Intercom":[
-    {id:17,t:"Video intercom install (apartment)",d:"Single unit",p:400},
-    {id:18,t:"Villa / multi-unit intercom",d:"Site survey included",p:900},
-    {id:19,t:"Intercom repair",d:"Inspection deducted from repair",p:150,insp:true}
+    {id:17,t:"تركيب إنتركم شقة",d:"وحدة واحدة",p:400},
+    {id:18,t:"إنتركم فيلا / عمارة",d:"شامل معاينة الموقع",p:900},
+    {id:19,t:"إصلاح إنتركم",d:"الكشف بيتخصم من الإصلاح",p:150,insp:true}
   ],
   "Smart Home":[
-    {id:20,t:"Smart lighting setup",d:"Up to 6 switches / bulbs + app",p:600},
-    {id:21,t:"Smart lock install",d:"Includes door assessment",p:450},
-    {id:22,t:"Smart camera & sensors",d:"Up to 3 devices + hub config",p:550},
-    {id:23,t:"Full smart-home consultation",d:"On-site, deducted from project",p:300,insp:true}
+    {id:20,t:"إضاءة ذكية",d:"حتى 6 مفاتيح أو لمبات + التطبيق",p:600},
+    {id:21,t:"قفل ذكي",d:"شامل معاينة الباب",p:450},
+    {id:22,t:"كاميرات وحساسات ذكية",d:"حتى 3 أجهزة + ضبط الهاب",p:550},
+    {id:23,t:"استشارة سمارت هوم كاملة",d:"في الموقع، بتتخصم من المشروع",p:300,insp:true}
   ]
 };
-const state={svc:null,job:null,day:null,time:null,pay:"Cash"};
+const svcAr={"AC":"تكييف","Satellite & TV":"دش وشاشات","CCTV":"كاميرات","WiFi":"واي فاي وشبكات","Intercom":"إنتركم","Smart Home":"سمارت هوم"};
+const state={svc:null,job:null,day:null,time:null,pay:"cash",code:null};
 let step=1;const TOTAL=6;
 
-/* dots */
 const dotsEl=document.getElementById('dots');
 for(let i=0;i<TOTAL;i++){const d=document.createElement('div');d.className='dot';dotsEl.appendChild(d)}
 function render(){
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',+p.dataset.p===step));
-  document.querySelectorAll('.dot').forEach((d,i)=>{
-    d.className='dot'+(i+1<step?' done':i+1===step?' on':'');
-  });
+  document.querySelectorAll('.dot').forEach((d,i)=>{d.className='dot'+(i+1<step?' done':i+1===step?' on':'')});
   document.getElementById('backBtn').style.visibility=(step>1&&step<5)?'visible':'hidden';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function showErr(n,s){document.getElementById('e'+n).classList.toggle('show',s)}
 function goBack(){if(step>1&&step<5){step--;render()}}
 
-/* step 1: services */
 document.querySelectorAll('.svc').forEach(s=>{
   s.addEventListener('click',()=>{
     document.querySelectorAll('.svc').forEach(x=>x.classList.remove('selected'));
@@ -362,13 +354,12 @@ document.querySelectorAll('.svc').forEach(s=>{
   });
 });
 
-/* step 2: build jobs */
 function buildJobs(){
-  document.getElementById('jobTitle').textContent=state.svc+" — choose the job";
+  document.getElementById('jobTitle').textContent=svcAr[state.svc]+" — اختار الشغلانة";
   document.getElementById('jobList').innerHTML=jobs[state.svc].map((j,i)=>
     `<div class="job" data-i="${i}">
       <span><span class="t">${j.t}</span><br><span class="d">${j.d}</span></span>
-      <span class="pr${j.insp?' insp':''}">${j.insp?'Inspection ':''}EGP ${j.p}</span>
+      <span class="pr${j.insp?' insp':''}">${j.insp?'كشف ':''}${j.p} جنيه</span>
     </div>`).join('');
   document.querySelectorAll('.job').forEach(j=>{
     j.addEventListener('click',()=>{
@@ -378,15 +369,15 @@ function buildJobs(){
   });
 }
 
-/* step 3: days */
 const dayRow=document.getElementById('dayRow');
-const dNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const dNames=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 const today=new Date();
 for(let i=0;i<7;i++){
   const d=new Date(today);d.setDate(today.getDate()+i);
   const el=document.createElement('div');el.className='day';
-  el.innerHTML=`<div class="dw">${i===0?'Today':i===1?'Tmrw':dNames[d.getDay()]}</div><div class="dn">${d.getDate()}</div>`;
-  el.dataset.day=(i===0?'Today':i===1?'Tomorrow':dNames[d.getDay()]+' '+d.getDate());
+  const lbl=(i===0?'انهارده':i===1?'بكرة':dNames[d.getDay()]);
+  el.innerHTML=`<div class="dw">${lbl}</div><div class="dn">${d.getDate()}</div>`;
+  el.dataset.day=(i===0?'انهارده':i===1?'بكرة':lbl+' '+d.getDate());
   el.addEventListener('click',()=>{
     document.querySelectorAll('.day').forEach(x=>x.classList.remove('selected'));
     el.classList.add('selected');state.day=el.dataset.day;
@@ -399,8 +390,6 @@ document.querySelectorAll('#timeRow .time:not(.off)').forEach(t=>{
     t.classList.add('selected');state.time=t.dataset.t;
   });
 });
-
-/* payment */
 document.querySelectorAll('.pay').forEach(p=>{
   p.addEventListener('click',()=>{
     document.querySelectorAll('.pay').forEach(x=>x.classList.remove('selected'));
@@ -413,49 +402,48 @@ function next(n){
   if(n===1){if(!state.svc){showErr(1,true);return}showErr(1,false);buildJobs()}
   if(n===2){if(!state.job){showErr(2,true);return}showErr(2,false)}
   if(n===3){
-    if(!state.day||!state.time||v('mob').length<10||!v('addr')){showErr(3,true);return}
+    if(!state.day||!state.time||v('mob').replace(/\D/g,'').length<11||!v('addr')){showErr(3,true);return}
     showErr(3,false);buildQuote();
   }
   step=n+1;render();
 }
 function buildQuote(){
   const total=state.job.p+25;
-  document.getElementById('qService').textContent=state.svc;
+  document.getElementById('qService').textContent=svcAr[state.svc];
   document.getElementById('qJob').textContent=state.job.t;
   document.getElementById('qWhen').textContent=state.day+' · '+state.time;
   document.getElementById('qWhere').textContent=v('area');
-  document.getElementById('qLabor').textContent='EGP '+state.job.p;
-  document.getElementById('qTotal').textContent='EGP '+total;
+  document.getElementById('qLabor').textContent=state.job.p+' جنيه';
+  document.getElementById('qTotal').textContent=total+' جنيه';
 }
-const slugMap={"AC":"ac","Satellite & TV":"satellite","CCTV":"cctv","WiFi":"wifi","Intercom":"intercom","Smart Home":"smart-home"};
 async function confirmBooking(){
   const total=state.job.p+25;
   let code='FN-'+String(Math.floor(10000+Math.random()*90000));
   try{
     const r=await fetch('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({job_catalog_id:state.job.id,customer_mobile:v('mob'),area:v('area'),
-        address:v('addr'),notes:v('notes'),day:state.day,time_window:state.time,payment_method:state.pay.toLowerCase()})});
+        address:v('addr'),notes:v('notes'),day:state.day,time_window:state.time,payment_method:state.pay})});
     const d=await r.json();
     if(d.ok){code=d.code;state.code=code}
-  }catch(e){/* offline demo mode */}
+  }catch(e){/* وضع العرض */}
   document.getElementById('jobCode').textContent=code;
-  document.getElementById('tlPrice').textContent='EGP '+total;
+  document.getElementById('tlPrice').textContent=total+' جنيه';
   step=5;render();
 }
 
-/* tracking simulation */
 let jobPhase=0;
 function advanceJob(){
   const btn=document.getElementById('advanceBtn');
   if(jobPhase===0){
     setTL(2,'done','✓');setTL(3,'now','●');
-    document.getElementById('etaVal').textContent='Arrived';
-    document.getElementById('trackSub').textContent='Mostafa has arrived — reviewing the fault with you.';
-    btn.textContent='▶ Simulate: job finished';
+    document.getElementById('etaVal').textContent='وصل';
+    document.getElementById('trackSub').textContent='مصطفى وصل — بيراجع العطل معاك.';
+    btn.textContent='▶ تجربة: الشغل خلص';
     jobPhase=1;
   } else {
     step=6;
-    document.getElementById('paidAmt').textContent='EGP '+(state.job.p+25)+' · '+state.pay;
+    const pm=state.pay==='cash'?'كاش':'كارت';
+    document.getElementById('paidAmt').textContent=(state.job.p+25)+' جنيه · '+pm;
     render();
   }
 }
@@ -465,7 +453,6 @@ function setTL(n,cls,mark){
   el.querySelector('.nd').textContent=mark;
 }
 
-/* rating */
 let rating=0;
 document.querySelectorAll('.star').forEach(s=>{
   s.addEventListener('click',()=>{
@@ -481,10 +468,11 @@ function finishRating(){
     fetch('/api/bookings/'+state.code+'/rating',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({stars:rating,tags})}).catch(()=>{});
   }
-  btn.textContent=rating>0?'Thank you! ★'.replace('★','★'.repeat(0))+' Rating submitted ✓':'Rating submitted ✓';
+  btn.textContent='تم إرسال التقييم ✓';
   btn.disabled=true;btn.style.opacity=.6;
 }
-/* preselect service from homepage */
+
+/* اختيار الخدمة القادمة من الصفحة الرئيسية */
 const urlSvc=new URLSearchParams(location.search).get('svc');
 if(urlSvc&&jobs[urlSvc]){
   const el=document.querySelector(`.svc[data-svc="${urlSvc}"]`);

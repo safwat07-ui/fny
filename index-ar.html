@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فنّي — احجز فني موثوق في مصر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
+  --amber:#F08A24; --amber-soft:#FCE9D2;
+  --paper:#FFFFFF; --mist:#EDF3F2; --sand:#F5F0E4;
+  --line:#D8E0DE; --muted:#5C7275; --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--paper);line-height:1.75;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:1160px;margin:0 auto;padding:0 24px}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:baseline;gap:10px;text-decoration:none}
+.logo .ar{font-size:30px;font-weight:900;color:var(--teal);line-height:1}
+.logo .en{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{text-decoration:none;color:var(--ink);font-weight:700;font-size:15px}
+.nav-links a:hover{color:var(--teal)}
+.lang{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;border:1.5px solid var(--line);border-radius:99px;padding:5px 14px !important;color:var(--muted) !important}
+.lang:hover{border-color:var(--teal)}
+.btn{display:inline-block;padding:11px 26px;border-radius:999px;font-weight:800;font-size:15px;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;border:none;cursor:pointer;font-family:'Cairo',sans-serif}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn-primary{background:var(--amber);color:var(--ink)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
+.btn-dark{background:var(--teal);color:#fff}
+.btn-ghost{background:transparent;color:var(--teal);border:2px solid var(--teal)}
+.btn-ghost:hover{background:var(--mist)}
+
+.hero{position:relative;overflow:hidden;background:var(--mist)}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:72px 0 88px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--teal);margin-bottom:18px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--amber);border-radius:2px}
+h1{font-size:clamp(32px,4.6vw,52px);font-weight:900;line-height:1.35}
+h1 .hl{color:var(--teal);position:relative;white-space:nowrap}
+h1 .hl::after{content:"";position:absolute;right:0;left:0;bottom:6px;height:10px;background:var(--amber-soft);z-index:-1;border-radius:3px}
+.hero p.lead{font-size:18px;color:var(--muted);margin:18px 0 28px;max-width:540px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+.trust-row{display:flex;gap:30px;flex-wrap:wrap}
+.trust-item{display:flex;flex-direction:column}
+.trust-item .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:20px;color:var(--teal)}
+.trust-item .lbl{font-size:13px;color:var(--muted)}
+
+.book-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 20px 50px rgba(12,46,51,.10);position:relative}
+.book-card::before{content:"اطلب فنّي";position:absolute;top:-14px;left:22px;background:var(--teal);color:#fff;font-weight:800;font-size:14px;padding:4px 16px;border-radius:999px}
+.book-card h3{font-size:19px;font-weight:800;margin-bottom:16px}
+.svc-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.chip{border:1.5px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;color:var(--ink);transition:all .15s ease}
+.chip .ic{font-size:22px;display:block;margin-bottom:4px}
+.chip:hover{border-color:var(--teal);background:var(--mist)}
+.chip.active{border-color:var(--teal);background:var(--teal);color:#fff}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13.5px;font-weight:800;margin-bottom:6px;color:var(--muted)}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;color:var(--ink);background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:var(--teal)}
+.book-card .btn{width:100%;text-align:center;margin-top:4px}
+.book-note{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+.book-note .mono{color:var(--teal)}
+
+section{padding:88px 0}
+.sec-head{max-width:640px;margin-bottom:48px}
+.sec-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:900;line-height:1.4;margin-bottom:12px}
+.sec-head p{color:var(--muted);font-size:17px}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.svc-card{border:1px solid var(--line);border-radius:var(--radius);padding:28px 24px;background:#fff;position:relative;transition:all .2s ease;cursor:pointer}
+.svc-card:hover{border-color:var(--teal);box-shadow:0 12px 32px rgba(12,46,51,.09);transform:translateY(-3px)}
+.svc-card .ic{width:52px;height:52px;border-radius:12px;background:var(--mist);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px}
+.svc-card h3{font-size:18px;font-weight:800;margin-bottom:8px}
+.svc-card p{font-size:14.5px;color:var(--muted);margin-bottom:14px}
+.svc-card .from{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);background:var(--sand);padding:4px 10px;border-radius:6px;display:inline-block}
+.svc-card .arrow{position:absolute;top:26px;left:22px;color:var(--line);font-size:20px;transition:all .2s ease}
+.svc-card:hover .arrow{color:var(--amber);transform:translateX(-3px)}
+
+.how{background:var(--teal-deep);color:#fff;position:relative;overflow:hidden}
+.how .sec-head h2{color:#fff}
+.how .sec-head p{color:#A9C4C7}
+.how-bg-ar{position:absolute;left:-30px;bottom:-60px;font-size:280px;font-weight:900;color:rgba(255,255,255,.04);line-height:1;pointer-events:none;user-select:none}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;position:relative;z-index:1}
+.cable{position:absolute;top:26px;right:8%;left:8%;height:2px;z-index:0}
+.cable svg{width:100%;height:60px;overflow:visible}
+.step{position:relative;z-index:1}
+.step .dot{width:54px;height:54px;border-radius:50%;background:var(--amber);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:18px;margin-bottom:20px;box-shadow:0 0 0 8px rgba(240,138,36,.15)}
+.step h3{font-size:19px;font-weight:800;margin-bottom:8px}
+.step p{font-size:15px;color:#A9C4C7}
+
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.why-card{border-top:3px solid var(--amber);background:var(--sand);border-radius:0 0 var(--radius) var(--radius);padding:24px 20px}
+.why-card .ic{font-size:26px;margin-bottom:12px;display:block}
+.why-card h3{font-size:16.5px;font-weight:800;margin-bottom:6px}
+.why-card p{font-size:14px;color:var(--muted)}
+
+.pricing{background:var(--mist)}
+.price-table{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.price-row{display:grid;grid-template-columns:2fr 1.4fr 1fr;gap:16px;padding:18px 26px;border-bottom:1px solid var(--line);align-items:center}
+.price-row:last-child{border-bottom:none}
+.price-row.head{background:var(--teal);color:#fff;font-weight:800;font-size:14px}
+.price-row .svc{font-weight:800;font-size:15.5px}
+.price-row .svc small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.price-row .val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal)}
+.price-row .tag{justify-self:start;font-size:12px;font-weight:800;padding:3px 12px;border-radius:999px;background:var(--amber-soft);color:#9A5A0F}
+.price-note{font-size:13px;color:var(--muted);margin-top:14px}
+
+.tech-band{background:var(--ink);color:#fff}
+.tech-inner{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center}
+.tech-inner h2{font-size:clamp(24px,3.2vw,36px);font-weight:900;line-height:1.45;margin-bottom:14px}
+.tech-inner h2 .hl2{color:var(--amber)}
+.tech-inner p{color:#9BB0B3;font-size:16.5px;margin-bottom:26px;max-width:480px}
+.tech-perks{list-style:none;display:grid;gap:12px}
+.tech-perks li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
+.tech-perks li::before{content:"✓";color:var(--amber);font-weight:900;flex-shrink:0}
+
+footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px;margin-bottom:40px}
+.foot-grid h4{color:#fff;font-size:14.5px;font-weight:800;margin-bottom:14px}
+.foot-grid a{display:block;color:#A9C4C7;text-decoration:none;font-size:14.5px;margin-bottom:9px}
+.foot-grid a:hover{color:#fff}
+.foot-logo .ar{font-size:34px;font-weight:900;color:#fff;line-height:1}
+.foot-logo p{font-size:14px;margin-top:10px;max-width:260px}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;display:flex;justify-content:space-between;font-size:13px;flex-wrap:wrap;gap:10px}
+
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;padding:52px 0 64px}
+  .svc-grid{grid-template-columns:repeat(2,1fr)}
+  .why-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:1fr;gap:32px}
+  .cable{display:none}
+  .tech-inner{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .nav-links a:not(.btn):not(.lang){display:none}
+  .svc-grid{grid-template-columns:1fr}
+  .why-grid{grid-template-columns:1fr}
+  .price-row{grid-template-columns:1.6fr 1fr;font-size:14px}
+  .price-row .tag{display:none}
+  section{padding:64px 0}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
+    <div class="nav-links">
+      <a href="#services">الخدمات</a>
+      <a href="#how">كيف نعمل</a>
+      <a href="#pricing">الأسعار</a>
+      <a href="#join">للفنيين</a>
+      <a href="index.html" class="lang">EN</a>
+      <a href="book-ar.html" class="btn btn-primary">احجز الآن</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">خدمات منزلية · مصر</span>
+      <h1><span class="hl">فنّي</span> موثوق على باب بيتك — معتمد، بسعر ثابت، وبضمان.</h1>
+      <p class="lead">احجز فنيين معتمدين للتكييف والدش والكاميرات والواي فاي والإنتركم والسمارت هوم — بأسعار معلنة مقدمًا بالجنيه المصري، وضمان ٣٠ يوم على الشغل.</p>
+      <div class="hero-ctas">
+        <a href="book-ar.html" class="btn btn-primary">احجز فنّي</a>
+        <a href="#services" class="btn btn-ghost">تصفح الخدمات</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item"><span class="num">+1,200</span><span class="lbl">فني معتمد</span></div>
+        <div class="trust-item"><span class="num">4.8★</span><span class="lbl">متوسط التقييم</span></div>
+        <div class="trust-item"><span class="num">27</span><span class="lbl">محافظة</span></div>
+      </div>
+    </div>
+
+    <div class="book-card" id="book">
+      <h3>احجز في ٦٠ ثانية</h3>
+      <div class="svc-chips">
+        <button class="chip active" data-svc="AC"><span class="ic">❄️</span>تكييف</button>
+        <button class="chip" data-svc="Satellite & TV"><span class="ic">📡</span>دش وشاشات</button>
+        <button class="chip" data-svc="CCTV"><span class="ic">🎥</span>كاميرات</button>
+        <button class="chip" data-svc="WiFi"><span class="ic">📶</span>واي فاي</button>
+        <button class="chip" data-svc="Intercom"><span class="ic">🔔</span>إنتركم</button>
+        <button class="chip" data-svc="Smart Home"><span class="ic">🏠</span>سمارت هوم</button>
+      </div>
+      <div class="field">
+        <label>محتاج إيه؟</label>
+        <select id="heroJobs"><option>غسيل وصيانة تكييف</option><option>التكييف مش بيبرد — كشف</option><option>شحن فريون</option><option>تركيب تكييف جديد</option></select>
+      </div>
+      <div class="field">
+        <label>المنطقة</label>
+        <select><option>مدينة نصر</option><option>القاهرة الجديدة</option><option>المعادي</option><option>٦ أكتوبر</option><option>مصر الجديدة</option><option>الإسكندرية</option></select>
+      </div>
+      <div class="field">
+        <label>رقم الموبايل</label>
+        <input type="tel" placeholder="01X XXXX XXXX" style="direction:ltr;text-align:right">
+      </div>
+      <a href="book-ar.html" class="btn btn-dark" style="display:block;text-align:center">اعرف السعر واحجز</a>
+      <p class="book-note">السعر الثابت يظهر قبل التأكيد · <span class="mono">يبدأ من 250 جنيه</span></p>
+    </div>
+  </div>
+</header>
+
+<section id="services">
+  <div class="container">
+    <div class="sec-head">
+      <h2>كل سلك وشاشة وإشارة في بيتك</h2>
+      <p>منصة واحدة للفنيين اللي كنت بتدور عليهم بالسؤال والمعرفة. كل فنّي متحقق من هويته، ومختبر عمليًا، ومقيّم من عملاء حقيقيين.</p>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card"><span class="arrow">←</span><div class="ic">❄️</div><h3>تكييف</h3><p>تركيب، غسيل وصيانة، شحن فريون، إصلاح الضاغط — كل الماركات.</p><span class="from">يبدأ من 300 جنيه</span></div>
+      <div class="svc-card"><span class="arrow">←</span><div class="ic">📡</div><h3>دش وشاشات</h3><p>تركيب وضبط الدش، برمجة الرسيفر، تعليق الشاشات على الحائط.</p><span class="from">يبدأ من 250 جنيه</span></div>
+      <div class="svc-card"><span class="arrow">←</span><div class="ic">🎥</div><h3>كاميرات مراقبة</h3><p>تركيب الكاميرات وأجهزة التسجيل، متابعة من الموبايل، عقود صيانة.</p><span class="from">يبدأ من 500 جنيه</span></div>
+      <div class="svc-card"><span class="arrow">←</span><div class="ic">📶</div><h3>واي فاي وشبكات</h3><p>تركيب راوتر، تغطية Mesh لكل البيت، تمديد شبكات، حل ضعف الإشارة.</p><span class="from">يبدأ من 250 جنيه</span></div>
+      <div class="svc-card"><span class="arrow">←</span><div class="ic">🔔</div><h3>إنتركم بالفيديو</h3><p>تركيب إنتركم للشقق والفلل، تطوير الأنظمة القديمة، وإصلاح الأعطال.</p><span class="from">يبدأ من 400 جنيه</span></div>
+      <div class="svc-card"><span class="arrow">←</span><div class="ic">🏠</div><h3>سمارت هوم</h3><p>إضاءة ذكية، أقفال ذكية، كاميرات وحساسات — تركيب وبرمجة كاملة.</p><span class="from">يبدأ من 600 جنيه</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="how-bg-ar">فنّي</div>
+  <div class="container">
+    <div class="sec-head">
+      <h2>من الطلب للتصليح — ثلاث خطوات</h2>
+      <p>من غير فصال على الباب. ومن غير غريب من غير اسم.</p>
+    </div>
+    <div style="position:relative">
+      <div class="cable">
+        <svg viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,30 C 180,30 200,5 340,5 S 520,55 660,55 S 860,30 1000,30" fill="none" stroke="#F08A24" stroke-width="2.5" stroke-dasharray="8 7" opacity=".7"/>
+        </svg>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="dot">01</div><h3>اختار وشوف السعر</h3><p>اختار الخدمة وشوف السعر الثابت بالجنيه قبل ما تأكد — قطع الغيار بتتسعّر على حدة وبموافقتك.</p></div>
+        <div class="step"><div class="dot">02</div><h3>اعرف فنّيك</h3><p>هيوصلك اسمه وصورته وتقييمه وموعد وصوله لحظة بلحظة. كل فني متحقق من هويته ومعتمد عمليًا.</p></div>
+        <div class="step"><div class="dot">03</div><h3>اتصلّح، قيّم، ومضمون</h3><p>ادفع كاش أو بالكارت بعد الشغل. قيّم الفني. وكل شغلانة عليها ضمان ٣٠ يوم.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="sec-head"><h2>ليه البيوت بتختار فنّي؟</h2></div>
+    <div class="why-grid">
+      <div class="why-card"><span class="ic">🪪</span><h3>فنيين متحقق من هويتهم</h3><p>فحص بطاقة الرقم القومي، وفحص أمني، واختبار عملي حضوري قبل ما أي فني ينضم.</p></div>
+      <div class="why-card"><span class="ic">🏷️</span><h3>أسعار ثابتة ومعلنة</h3><p>السعر اللي بتشوفه هو اللي بتدفعه. قطع الغيار بتتسعّر وبتاخد موافقتك قبل التركيب.</p></div>
+      <div class="why-card"><span class="ic">🛡️</span><h3>ضمان ٣٠ يوم</h3><p>لو نفس العطل رجع خلال ٣٠ يوم، بنبعتلك فنّي تاني مجانًا.</p></div>
+      <div class="why-card"><span class="ic">🔩</span><h3>قطع غيار أصلية</h3><p>قطع غيار ومعدات أصلية من موزعين معتمدين — وبالفواتير.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="sec-head">
+      <h2>أسعار واضحة، بالجنيه المصري</h2>
+      <p>أمثلة لأسعار ثابتة لأكتر الخدمات طلبًا. السعر النهائي بيتأكد في التطبيق قبل الحجز.</p>
+    </div>
+    <div class="price-table">
+      <div class="price-row head"><span>الخدمة</span><span>السعر الثابت</span><span></span></div>
+      <div class="price-row"><span class="svc">غسيل تكييف سبليت <small>1.5 حصان، الوحدة الداخلية والخارجية</small></span><span class="val">350 جنيه</span><span class="tag">الأكثر طلبًا</span></div>
+      <div class="price-row"><span class="svc">تركيب وضبط دش <small>رسيفر واحد، شامل 10 متر كابل</small></span><span class="val">400 جنيه</span><span></span></div>
+      <div class="price-row"><span class="svc">تركيب 4 كاميرات مراقبة <small>المصنعية فقط، المعدات بتتسعّر على حدة</small></span><span class="val">1,200 جنيه</span><span></span></div>
+      <div class="price-row"><span class="svc">تركيب شبكة Mesh واي فاي <small>حتى 3 وحدات، مع مسح كامل للبيت</small></span><span class="val">500 جنيه</span><span class="tag">جديد</span></div>
+      <div class="price-row"><span class="svc">تعليق شاشة على الحائط <small>حتى 65 بوصة، بدون الحامل</small></span><span class="val">300 جنيه</span><span></span></div>
+    </div>
+    <p class="price-note">* أسعار استرشادية لبداية التشغيل في القاهرة الكبرى. زيارة الكشف تبدأ من 150 جنيه وبتتخصم من سعر الإصلاح.</p>
+  </div>
+</section>
+
+<section class="tech-band" id="join">
+  <div class="container tech-inner">
+    <div>
+      <span class="eyebrow" style="color:var(--amber)">للفنيين</span>
+      <h2>الإيد الشاطرة تستاهل شغل ثابت. <span class="hl2">اشتغل معانا</span></h2>
+      <p>انضم لشبكة الفنيين المباشرة للبيوت في مصر. انت معاك الصنعة — واحنا معانا العملاء والتسعير والتحصيل.</p>
+      <a href="join-ar.html" class="btn btn-primary">قدّم كفنّي</a>
+    </div>
+    <ul class="tech-perks">
+      <li>طلبات شغل يومية في منطقتك — من غير انتظار الواسطة والمعارف</li>
+      <li>النسبة الأكبر من كل شغلانة ليك؛ العمولة على الشغل المكتمل بس</li>
+      <li>تحويل أرباحك أسبوعيًا على المحفظة أو البنك</li>
+      <li>أسعار جملة على المعدات وقطع الغيار الأصلية</li>
+      <li>عقود الصيانة والعملاء الدايمين بيفضلوا ليك</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-logo">
+        <div class="ar">فنّي</div>
+        <p>منصة مصر لتوصيل الفنيين مباشرة للبيوت. صنايعية معتمدين، أسعار ثابتة، وشغل مضمون.</p>
+      </div>
+      <div>
+        <h4>الخدمات</h4>
+        <a href="#services">تكييف</a><a href="#services">دش وشاشات</a><a href="#services">كاميرات مراقبة</a><a href="#services">واي فاي وشبكات</a><a href="#services">سمارت هوم</a>
+      </div>
+      <div>
+        <h4>الشركة</h4>
+        <a href="#">عن فنّي</a><a href="join-ar.html">للفنيين</a><a href="#">وظائف</a><a href="#">اتصل بنا</a>
+      </div>
+      <div>
+        <h4>الدعم</h4>
+        <a href="#">مركز المساعدة</a><a href="#">سياسة الضمان</a><a href="#">الشروط والخصوصية</a><a href="#" class="mono">16xxx</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 فنّي. جميع الحقوق محفوظة.</span>
+      <span>القاهرة · الجيزة · الإسكندرية — وقريبًا في كل المحافظات</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const heroCatalogAr={
+  "AC":["غسيل وصيانة تكييف","التكييف مش بيبرد — كشف","شحن فريون","تركيب تكييف جديد"],
+  "Satellite & TV":["تركيب وضبط دش","ضعف إشارة — إعادة ضبط","برمجة رسيفر وقنوات","تعليق شاشة على الحائط"],
+  "CCTV":["تركيب باكدج 4 كاميرات","إصلاح كاميرا","متابعة من الموبايل","تغيير أو تطوير جهاز التسجيل"],
+  "WiFi":["تركيب شبكة Mesh","حل ضعف الإشارة","تركيب راوتر جديد","تمديد شبكات"],
+  "Intercom":["تركيب إنتركم شقة","إنتركم فيلا / عمارة","إصلاح إنتركم"],
+  "Smart Home":["إضاءة ذكية","قفل ذكي","كاميرات وحساسات ذكية","استشارة سمارت هوم"]
+};
+let heroSvc="AC";
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    heroSvc=chip.dataset.svc;
+    document.getElementById('heroJobs').innerHTML=heroCatalogAr[heroSvc].map(j=>`<option>${j}</option>`).join('');
+  });
+});
+document.querySelectorAll('a[href="book-ar.html"]').forEach(a=>{
+  a.addEventListener('click',()=>{a.href='book.html?svc='+encodeURIComponent(heroSvc)});
+});
+</script>
+</body>
+</html>
