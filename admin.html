@@ -157,7 +157,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 </div>
 
 <script>
-let TOKEN=null, bkFilter='', pollTimer=null;
+let TOKEN=null, bkFilter='', pollTimer=null, TECHS=[];
 const tradeAr={"ac":"AC","satellite":"Satellite","cctv":"CCTV","wifi":"WiFi","intercom":"Intercom","smart-home":"Smart Home"};
 
 async function api(path,opts={}){
@@ -194,6 +194,7 @@ async function loadAll(){
       api('/api/admin/bookings'+(bkFilter?'?status='+bkFilter:'')),
       api('/api/admin/applications')
     ]);
+    TECHS=a.applications.filter(t=>t.status==='approved');
     renderStats(s.stats);renderBookings(b.bookings);renderApps(a.applications);
     document.getElementById('lastSync').textContent='synced '+new Date().toLocaleTimeString();
   }catch(e){ if(e.message==='auth') logout(); }
@@ -225,7 +226,7 @@ function renderBookings(rows){
       <td>${esc(b.area)}<div class="sub">${esc(b.day)} · ${esc(b.time_window)}</div></td>
       <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}</td>
       <td><span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></td>
-      <td class="hide-m">${b.technician_id?('#'+b.technician_id):'—'}</td>
+      <td class="hide-m">${esc(b.tech_name||'—')}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
     </tr>`).join('');
 }
 
@@ -263,6 +264,24 @@ async function approve(id,btn){
   }catch(e){btn.disabled=false;btn.textContent='Approve ✓'}
 }
 
+function assignCtl(b){
+  const matches=TECHS.filter(t=>(t.trades||'').split(',').includes(b.service_slug));
+  if(!matches.length)return '<div class="sub">no matching tech</div>';
+  const opts=matches.map(t=>`<option value="${t.id}">${esc(t.full_name)} — ${esc(t.district||'')}</option>`).join('');
+  return `<div style="margin-top:5px;display:flex;gap:5px;align-items:center">
+    <select id="as-${b.code}" style="font-family:Cairo,sans-serif;font-size:12px;padding:4px 6px;border:1.5px solid var(--line);border-radius:8px;max-width:150px">${opts}</select>
+    <button class="approve-btn" style="padding:4px 12px" onclick="assign('${b.code}',this)">${b.technician_id?'Re-assign':'Assign'}</button>
+  </div>`;
+}
+async function assign(code,btn){
+  const sel=document.getElementById('as-'+code);
+  btn.disabled=true;btn.textContent='…';
+  try{
+    const d=await api('/api/admin/bookings/'+code+'/assign',{method:'POST',body:JSON.stringify({technician_id:+sel.value})});
+    if(d.ok){loadAll()}
+    else{alert(d.error);btn.disabled=false;btn.textContent='Assign'}
+  }catch(e){btn.disabled=false;btn.textContent='Assign'}
+}
 document.querySelectorAll('#bkFilters .f-chip').forEach(c=>{
   c.addEventListener('click',()=>{
     document.querySelectorAll('#bkFilters .f-chip').forEach(x=>x.classList.remove('on'));

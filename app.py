@@ -618,7 +618,11 @@ def tech_quote_part(code):
 def admin_bookings():
     db = get_db()
     status = request.args.get("status")
-    q = "SELECT * FROM bookings" + (" WHERE status=?" if status else "") + " ORDER BY created_at DESC"
+    q = ("SELECT b.*, j.title AS job_title, t.full_name AS tech_name FROM bookings b"
+         " JOIN jobs_catalog j ON j.id=b.job_catalog_id"
+         " LEFT JOIN technicians t ON t.id=b.technician_id"
+         + (" WHERE b.status=?" if status else "")
+         + " ORDER BY b.created_at DESC")
     rows = db.execute(q, (status,) if status else ()).fetchall()
     return jsonify({"ok": True, "bookings": [dict(r) for r in rows]})
 
@@ -649,6 +653,36 @@ def admin_approve(tech_id):
     db.commit()
     return jsonify({"ok": True, "tech_id": tech_id, "api_token": token,
                     "note": "Deliver this token to the technician's app securely."})
+
+
+@app.post("/api/admin/bookings/<code>/assign")
+@require_admin
+def admin_assign(code):
+    d = request.get_json(silent=True) or {}
+    tech_id = d.get("technician_id")
+    if not isinstance(tech_id, int):
+        return err("technician_id (integer) required")
+    db = get_db()
+    b = db.execute("SELECT * FROM bookings WHERE code=?", (code.upper(),)).fetchone()
+    if not b:
+        return err("Booking not found", 404)
+    if b["status"] not in ("new", "assigned"):
+        return err(f"Cannot assign a booking in status '{b['status']}'", 409)
+    t = db.execute(
+        "SELECT * FROM technicians WHERE id=? AND status='approved'", (tech_id,)
+    ).fetchone()
+    if not t:
+        return err("Technician not found or not approved", 404)
+    if b["service_slug"] not in t["trades"].split(","):
+        return err(f"Technician trades ({t['trades']}) do not cover '{b['service_slug']}'", 409)
+    db.execute(
+        "UPDATE bookings SET status='assigned', technician_id=?, updated_at=? WHERE id=?",
+        (tech_id, now(), b["id"]),
+    )
+    log_status(db, b["id"], "assigned")
+    db.commit()
+    return jsonify({"ok": True, "code": b["code"], "status": "assigned",
+                    "technician": t["full_name"]})
 
 
 @app.get("/api/admin/stats")
