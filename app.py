@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS technicians (
     national_id_last4 TEXT,
     governorate TEXT,
     district TEXT,
+    dob TEXT,
     trades TEXT,                          -- comma-separated service slugs
     experience TEXT,
     transport TEXT,
@@ -185,6 +186,10 @@ def close_db(_exc):
 def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
+    try:
+        db.execute("ALTER TABLE technicians ADD COLUMN dob TEXT")
+    except sqlite3.OperationalError:
+        pass  # column already exists
     cur = db.execute("SELECT COUNT(*) FROM services")
     if cur.fetchone()[0] == 0:
         for slug, en, ar in SEED_SERVICES:
@@ -481,13 +486,13 @@ def technician_apply():
     try:
         cur = db.execute(
             """INSERT INTO technicians
-               (full_name, mobile, national_id_last4, governorate, district,
+               (full_name, mobile, national_id_last4, dob, governorate, district,
                 trades, experience, transport, setup, assessment_hub,
                 assessment_slot, status, created_at)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 d["full_name"], re.sub(r"\D", "", d["mobile"]), nid[-4:],
-                d["governorate"], d["district"], ",".join(d["trades"]),
+                d.get("dob"), d["governorate"], d["district"], ",".join(d["trades"]),
                 d["experience"], d.get("transport"), ",".join(d.get("setup", [])),
                 d.get("assessment_hub"), d.get("assessment_slot"),
                 "assessment_booked" if d.get("assessment_slot") else "applied",
@@ -632,8 +637,9 @@ def admin_bookings():
 def admin_applications():
     db = get_db()
     rows = db.execute(
-        "SELECT id, full_name, mobile, governorate, district, trades, experience,"
-        " status, assessment_hub, assessment_slot, created_at"
+        "SELECT id, full_name, mobile, national_id_last4, dob, governorate, district,"
+        " trades, experience, transport, setup, status, assessment_hub,"
+        " assessment_slot, rating_avg, rating_count, jobs_done, created_at"
         " FROM technicians ORDER BY created_at DESC"
     ).fetchall()
     return jsonify({"ok": True, "applications": [dict(r) for r in rows]})

@@ -495,7 +495,7 @@ async function submitApp(){
   try{
     const r=await fetch('/api/technicians/apply',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({full_name:v('fullName'),mobile:v('mobile'),national_id:v('nid'),
-        governorate:v('gov'),district:v('district'),trades:state.trades.map(t=>tradeSlug[t]||t),
+        governorate:v('gov'),district:v('district'),dob:v('dob'),trades:state.trades.map(t=>tradeSlug[t]||t),
         experience:state.exp,transport:state.transport,setup:state.setup,
         assessment_hub:document.getElementById('hub').value,assessment_slot:state.slot})});
     const d=await r.json();

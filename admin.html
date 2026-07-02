@@ -77,6 +77,10 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 .approve-btn:disabled{opacity:.5;cursor:default;transform:none}
 .tok-box{background:var(--sand);border-radius:8px;padding:6px 10px;font-size:11px;word-break:break-all;margin-top:6px;cursor:pointer}
 .tok-box:hover{background:var(--amber-soft)}
+.detail-btn{background:none;border:none;color:var(--teal);font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer;padding:2px 0;display:block}
+.det-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 24px}
+.det-k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800}
+.det-v{font-size:13.5px;font-weight:700}
 .empty{padding:32px;text-align:center;color:var(--muted);font-size:14px}
 .table-scroll{overflow-x:auto}
 
@@ -236,7 +240,8 @@ function renderApps(rows){
   document.getElementById('apEmpty').style.display=rows.length?'none':'block';
   body.innerHTML=rows.map(a=>`
     <tr>
-      <td><b>${esc(a.full_name)}</b><div class="sub">${esc(a.experience||'')}</div></td>
+      <td><b>${esc(a.full_name)}</b><div class="sub">${esc(a.experience||'')}</div>
+        <button class="detail-btn" onclick="toggleDetail(${a.id})" id="db-${a.id}">▸ Details</button></td>
       <td class="hide-m mono">${esc(a.mobile)}</td>
       <td>${esc(a.district)}<div class="sub">${esc(a.governorate)}</div></td>
       <td>${(a.trades||'').split(',').filter(Boolean).map(t=>tradeAr[t]||t).join(' · ')}</td>
@@ -246,7 +251,34 @@ function renderApps(rows){
           ?`<button class="approve-btn" onclick="approve(${a.id},this)">Approve ✓</button>`
           :'<span class="sub">token issued</span>'}
           <div id="tok-${a.id}"></div></td>
-    </tr>`).join('');
+    </tr>
+    <tr id="det-${a.id}" style="display:none"><td colspan="7" style="background:var(--sand);padding:16px 20px">
+      <div class="det-grid">
+        ${det('Mobile', a.mobile, true)}
+        ${det('National ID', a.national_id_last4 ? '•••• •••• '+a.national_id_last4 : '—', true)}
+        ${det('Date of birth', a.dob)}
+        ${det('Governorate', a.governorate)}
+        ${det('District', a.district)}
+        ${det('Trades', (a.trades||'').split(',').filter(Boolean).map(t=>tradeAr[t]||t).join(' · '))}
+        ${det('Experience', a.experience)}
+        ${det('Transport', a.transport)}
+        ${det('Equipment & availability', a.setup ? a.setup.split(',').join(' · ') : '—')}
+        ${det('Assessment hub', a.assessment_hub)}
+        ${det('Assessment slot', a.assessment_slot)}
+        ${det('Applied on', (a.created_at||'').slice(0,10), true)}
+        ${a.status==='approved'?det('Jobs done', a.jobs_done, true):''}
+        ${a.status==='approved'?det('Rating', a.rating_count?(a.rating_avg.toFixed(1)+'★ ('+a.rating_count+')'):'no ratings yet'):''}
+      </div>
+    </td></tr>`).join('');
+}
+function det(k,v,mono){
+  return `<div><div class="det-k">${k}</div><div class="det-v${mono?' mono':''}">${esc(v==null||v===''?'—':v)}</div></div>`;
+}
+function toggleDetail(id){
+  const row=document.getElementById('det-'+id), btn=document.getElementById('db-'+id);
+  const open=row.style.display!=='none';
+  row.style.display=open?'none':'table-row';
+  btn.textContent=open?'▸ Details':'▾ Hide';
 }
 
 async function approve(id,btn){
