@@ -225,7 +225,8 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
   .foot-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
-  .nav-links{display:none}
+  .nav-links{gap:14px}
+  .nav-links a:not(.btn):not(.lang){display:none}
   .svc-grid{grid-template-columns:1fr}
   .why-grid{grid-template-columns:1fr}
   .svc-chips{grid-template-columns:repeat(3,1fr)}
