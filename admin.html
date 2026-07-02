@@ -131,7 +131,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
       <div class="table-scroll">
         <table>
           <thead><tr>
-            <th>Code</th><th>Job</th><th class="hide-m">Customer</th><th>Area · Schedule</th><th>Total</th><th>Status</th><th class="hide-m">Technician</th>
+            <th>Code</th><th>Job</th><th class="hide-m">Customer</th><th>Area · Schedule</th><th>Total</th><th>Status</th><th>Technician</th>
           </tr></thead>
           <tbody id="bkBody"></tbody>
         </table>
@@ -226,7 +226,7 @@ function renderBookings(rows){
       <td>${esc(b.area)}<div class="sub">${esc(b.day)} · ${esc(b.time_window)}</div></td>
       <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}</td>
       <td><span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></td>
-      <td class="hide-m">${esc(b.tech_name||'—')}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
+      <td>${esc(b.tech_name||'—')}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
     </tr>`).join('');
 }
 
