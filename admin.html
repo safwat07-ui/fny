@@ -426,6 +426,14 @@ async function openTech(id){
       ${det('Jobs done',t.jobs_done,true)}
       ${det('Joined',(t.created_at||'').slice(0,10),true)}
     </div>
+    ${t.status==='approved'?`
+      <div class="det-k" style="margin-top:16px">Portal login token</div>
+      <div class="tok-box" title="Tap to copy" onclick="navigator.clipboard.writeText('${esc(t.api_token||'')}');toastCopy(this)">${esc(t.api_token||'—')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <a class="approve-btn" style="text-decoration:none;background:#25D366" target="_blank"
+           href="https://wa.me/2${esc(t.mobile)}?text=${encodeURIComponent('أهلًا '+t.full_name.split(' ')[0]+'، تم اعتمادك في فنّي ✓\nبوابتك: '+location.origin+'/tech.html\nكود الدخول: '+(t.api_token||''))}">Send via WhatsApp</a>
+        <button class="approve-btn" onclick="resetToken(${t.id})">↻ Reset token</button>
+      </div>`:''}
     <div class="det-k" style="margin-top:16px">Eligibility documents</div>
     <div class="doc-grid" id="docGrid">${t.documents.length?t.documents.map(k=>`
       <div class="doc-card"><img id="doc-${t.id}-${k}" alt="${docLabels[k]||k}"><div class="dl">${docLabels[k]||k}</div></div>`).join('')
@@ -447,6 +455,12 @@ async function openTech(id){
       .then(bl=>{if(bl){const el=document.getElementById('doc-'+t.id+'-'+k);
         if(el){el.src=URL.createObjectURL(bl);el.onclick=()=>window.open(el.src,'_blank')}}});
   }
+}
+function toastCopy(el){const o=el.textContent;el.textContent='Copied ✓';setTimeout(()=>el.textContent=o,1200)}
+async function resetToken(id){
+  if(!confirm('Reset this technician\'s token? His current login stops working immediately and you must send him the new one.'))return;
+  const d=await api('/api/admin/technicians/'+id+'/reset-token',{method:'POST'});
+  if(d.ok){openTech(id)}else alert(d.error);
 }
 async function deleteTech(id,name){
   if(!confirm('Remove '+name+' permanently? Their open jobs return to the pool and documents are deleted.'))return;

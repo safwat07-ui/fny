@@ -848,7 +848,6 @@ def admin_tech_profile(tech_id):
     if not t:
         return err("Technician not found", 404)
     rec = dict(t)
-    rec.pop("api_token", None)
     rec["documents"] = sorted(json.loads(rec["documents"]).keys()) if rec["documents"] else []
     jobs = db.execute(
         "SELECT b.code, b.status, b.day, b.time_window, b.area, b.total_egp, j.title"
@@ -872,6 +871,20 @@ def admin_tech_doc(tech_id, key):
     if not fname or not os.path.isfile(os.path.join(DOCS_DIR, fname)):
         return err("Document not found", 404)
     return send_from_directory(DOCS_DIR, fname)
+
+
+@app.post("/api/admin/technicians/<int:tech_id>/reset-token")
+@require_admin
+def admin_tech_reset_token(tech_id):
+    db = get_db()
+    t = db.execute("SELECT * FROM technicians WHERE id=? AND status='approved'", (tech_id,)).fetchone()
+    if not t:
+        return err("Approved technician not found", 404)
+    token = secrets.token_urlsafe(24)
+    db.execute("UPDATE technicians SET api_token=? WHERE id=?", (token, tech_id))
+    db.commit()
+    return jsonify({"ok": True, "tech_id": tech_id, "api_token": token,
+                    "note": "Old token is now invalid — the technician must log in again."})
 
 
 @app.delete("/api/admin/technicians/<int:tech_id>")
