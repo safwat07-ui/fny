@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فنّي — Fanni | Book a trusted technician in Egypt</title>
+<title>فنّي — Services & Pricing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -228,7 +228,8 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
   .nav-links{gap:14px}
   .nav-links a:not(.btn):not(.lang){display:none}
   .nav-links{gap:8px}
-  .nav-links .btn-primary{padding:7px 13px;font-size:12.5px}
+  .nav-links .btn-ghost{padding:5px 11px;font-size:12px}
+  .nav-links .btn-primary{padding:8px 16px;font-size:13px}
   .logo .en{display:none}
   .svc-grid{grid-template-columns:1fr}
   .why-grid{grid-template-columns:1fr}
@@ -241,224 +242,58 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
   *,*::before,*::after{transition:none!important;animation:none!important}
   html{scroll-behavior:auto}
 }
+
+.svc-card{text-decoration:none;color:var(--ink);display:block}
 </style>
 </head>
 <body>
-
-<!-- NAV -->
 <nav>
   <div class="container nav-inner">
-    <a href="#" class="logo">
-      <span class="ar">فنّي</span>
-      <span class="en">Fanni</span>
-    </a>
+    <a href="index.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
     <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="join.html" class="btn btn-primary">Apply as a فنّي</a>
-      <a href="index-ar.html" class="lang" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;color:var(--muted)">العربية</a>
+      <a href="index.html" class="btn btn-ghost" style="padding:7px 18px;font-size:13.5px">Home</a>
+      <a href="index.html#how">How it works</a>
+      <a href="services-ar.html" class="lang" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;color:var(--muted)">العربية</a>
       <a href="book.html" class="btn btn-primary">Book now</a>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<header class="hero">
-  <div class="container hero-grid">
-    <div>
-      <a href="services.html" class="eyebrow" style="text-decoration:none;cursor:pointer">Home services · Egypt ›</a>
-      <h1>A trusted <span class="hl">فنّي</span> at your door — vetted, priced, guaranteed.</h1>
-      <p class="lead">Book certified technicians for AC, satellite, CCTV, WiFi, intercom and smart home — with upfront prices in EGP and a 30-day workmanship warranty.</p>
-      <div class="hero-ctas">
-        <a href="book.html" class="btn btn-primary">Book a technician</a>
-        <a href="join.html" class="btn btn-ghost">Apply as a فنّي</a>
-      </div>
-      <div class="trust-row">
-        <div class="trust-item"><span class="num">1,200+</span><span class="lbl">Vetted technicians</span></div>
-        <div class="trust-item"><span class="num">4.8★</span><span class="lbl">Average rating</span></div>
-        <div class="trust-item"><span class="num">27</span><span class="lbl">Governorates covered</span></div>
-      </div>
-    </div>
-
-    <!-- BOOKING CARD -->
-    <div class="book-card" id="book">
-      <h3>Book in 60 seconds</h3>
-      <div class="svc-chips">
-        <button class="chip active" data-svc="AC"><span class="ic">❄️</span>AC</button>
-        <button class="chip" data-svc="Satellite & TV"><span class="ic">📡</span>Satellite</button>
-        <button class="chip" data-svc="CCTV"><span class="ic">🎥</span>CCTV</button>
-        <button class="chip" data-svc="WiFi"><span class="ic">📶</span>WiFi</button>
-        <button class="chip" data-svc="Intercom"><span class="ic">🔔</span>Intercom</button>
-        <button class="chip" data-svc="Smart Home"><span class="ic">🏠</span>Smart home</button>
-      </div>
-      <div class="field">
-        <label>What do you need?</label>
-        <select id="heroJobs"><option>AC deep cleaning & maintenance</option><option>AC not cooling — diagnosis</option><option>Freon refill</option><option>New AC installation</option></select>
-      </div>
-      <div class="field">
-        <label>Area</label>
-        <select id="heroArea"><option>Nasr City</option><option>New Cairo</option><option>Maadi</option><option>6th of October</option><option>Heliopolis</option><option>Alexandria</option></select>
-      </div>
-      <div class="field">
-        <label>Mobile number</label>
-        <input type="tel" id="heroMob" placeholder="01X XXXX XXXX">
-      </div>
-      <a href="book.html" class="btn btn-dark" style="display:block;text-align:center">Get price &amp; book</a>
-      <p class="book-note">Fixed price shown before you confirm · <span class="mono">from EGP 250</span></p>
-    </div>
-  </div>
-</header>
-
-<!-- HOW IT WORKS -->
-<section class="how" id="how">
-  <div class="how-bg-ar">فنّي</div>
+<section id="services" style="background:var(--mist)">
   <div class="container">
     <div class="sec-head">
-      <h2>From request to fixed — three steps</h2>
-      <p>No haggling at the door. No strangers without a name.</p>
+      <a href="index.html" class="eyebrow" style="text-decoration:none;cursor:pointer">Home services · Egypt ›</a>
+      <h2>Every wire, screen and signal in your home</h2>
+      <p>Tap a service to book it. Every فنّي is ID-verified, skill-tested and rated by real customers.</p>
     </div>
-    <div style="position:relative">
-      <div class="cable">
-        <svg viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,30 C 180,30 200,5 340,5 S 520,55 660,55 S 860,30 1000,30"
-                fill="none" stroke="#F08A24" stroke-width="2.5" stroke-dasharray="8 7" opacity=".7"/>
-        </svg>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="dot">01</div>
-          <h3>Choose & price</h3>
-          <p>Pick the service and see the fixed price in EGP before you confirm — parts quoted separately with your approval.</p>
-        </div>
-        <div class="step">
-          <div class="dot">02</div>
-          <h3>Meet your فنّي</h3>
-          <p>You get his name, photo, rating and live arrival time. Every technician is ID-verified and skill-certified.</p>
-        </div>
-        <div class="step">
-          <div class="dot">03</div>
-          <h3>Fixed, rated, guaranteed</h3>
-          <p>Pay cash or card after the job. Rate the work. Every job carries a 30-day workmanship warranty.</p>
-        </div>
-      </div>
+    <div class="svc-grid">
+      <a class="svc-card" href="book.html?svc=AC"><span class="arrow">→</span><div class="ic">❄️</div><h3>Air Conditioning</h3><div class="ar-name">تكييف</div><p>Installation, deep cleaning, freon refill, compressor repair — all brands.</p><span class="from">from EGP 300</span></a>
+      <a class="svc-card" href="book.html?svc=Satellite%20%26%20TV"><span class="arrow">→</span><div class="ic">📡</div><h3>Satellite & TV</h3><div class="ar-name">دش وتلفزيون</div><p>Dish installation and alignment, receiver setup, TV wall mounting.</p><span class="from">from EGP 250</span></a>
+      <a class="svc-card" href="book.html?svc=CCTV"><span class="arrow">→</span><div class="ic">🎥</div><h3>CCTV & Security</h3><div class="ar-name">كاميرات مراقبة</div><p>Camera and NVR installation, remote viewing setup, maintenance contracts.</p><span class="from">from EGP 500</span></a>
+      <a class="svc-card" href="book.html?svc=WiFi"><span class="arrow">→</span><div class="ic">📶</div><h3>WiFi & Networking</h3><div class="ar-name">شبكات وإنترنت</div><p>Router setup, mesh coverage, cabling, dead-zone elimination.</p><span class="from">from EGP 250</span></a>
+      <a class="svc-card" href="book.html?svc=Intercom"><span class="arrow">→</span><div class="ic">🔔</div><h3>Video Intercom</h3><div class="ar-name">إنتركم</div><p>Apartment and villa intercom installation, upgrades and repair.</p><span class="from">from EGP 400</span></a>
+      <a class="svc-card" href="book.html?svc=Smart%20Home"><span class="arrow">→</span><div class="ic">🏠</div><h3>Smart Home</h3><div class="ar-name">منزل ذكي</div><p>Smart lighting, locks, cameras and sensors — installed and configured.</p><span class="from">from EGP 600</span></a>
     </div>
   </div>
 </section>
 
-<!-- WHY -->
-<section>
+<section class="pricing" id="pricing" style="background:#fff">
   <div class="container">
     <div class="sec-head">
-      <h2>Why homes choose فنّي</h2>
+      <h2>Transparent pricing, in EGP</h2>
+      <p>Sample fixed prices for the most requested jobs. Final price confirmed before you book.</p>
     </div>
-    <div class="why-grid">
-      <div class="why-card">
-        <span class="ic">🪪</span>
-        <h3>ID-verified technicians</h3>
-        <p>National ID check, background screening and in-person skill assessment before anyone joins.</p>
-      </div>
-      <div class="why-card">
-        <span class="ic">🏷️</span>
-        <h3>Upfront fixed prices</h3>
-        <p>The price you see is the price you pay. Spare parts are quoted and approved before installation.</p>
-      </div>
-      <div class="why-card">
-        <span class="ic">🛡️</span>
-        <h3>30-day warranty</h3>
-        <p>If the same fault returns within 30 days, we send a فنّي back at no charge.</p>
-      </div>
-      <div class="why-card">
-        <span class="ic">🔩</span>
-        <h3>Genuine parts</h3>
-        <p>Original spare parts and equipment supplied through authorized distributors — with receipts.</p>
-      </div>
+    <div class="price-table">
+      <div class="price-row head"><span>Service</span><span>Fixed price</span><span></span></div>
+      <div class="price-row"><span class="svc">Split AC deep cleaning <small>1.5 HP unit, indoor + outdoor</small></span><span class="val">EGP 350</span><span class="tag">Most booked</span></div>
+      <div class="price-row"><span class="svc">Satellite dish install & alignment <small>Single receiver, incl. 10m cable</small></span><span class="val">EGP 400</span><span></span></div>
+      <div class="price-row"><span class="svc">4-camera CCTV package install <small>Labor only, equipment quoted separately</small></span><span class="val">EGP 1,200</span><span></span></div>
+      <div class="price-row"><span class="svc">Home WiFi mesh setup <small>Up to 3 nodes, full-home survey</small></span><span class="val">EGP 500</span><span class="tag">New</span></div>
+      <div class="price-row"><span class="svc">TV wall mounting <small>Up to 65", bracket not included</small></span><span class="val">EGP 300</span><span></span></div>
     </div>
+    <p class="price-note">* Indicative launch prices for Greater Cairo. Inspection visits from EGP 150, deducted from the job price.</p>
+    <div style="margin-top:26px"><a href="book.html" class="btn btn-primary">Book a technician</a></div>
   </div>
 </section>
-
-<!-- TECHNICIAN BAND -->
-<section class="tech-band" id="join">
-  <div class="container tech-inner">
-    <div>
-      <span class="eyebrow" style="color:var(--amber)">For technicians · للفنيين</span>
-      <h2>Skilled hands deserve steady work. <span class="ar">اشتغل معانا</span></h2>
-      <p>Join Egypt's direct-to-home technician network. You bring the craft — we bring the customers, the pricing, and the payments.</p>
-      <a href="join.html" class="btn btn-primary">Apply as a فنّي</a>
-    </div>
-    <ul class="tech-perks">
-      <li>Daily job requests in your area — no more waiting for referrals</li>
-      <li>Keep the majority of every job; commission only on completed work</li>
-      <li>Weekly payouts to your wallet or bank account</li>
-      <li>Wholesale prices on equipment and genuine spare parts</li>
-      <li>Own your maintenance contracts and repeat customers</li>
-    </ul>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="container">
-    <div class="foot-grid">
-      <div class="foot-logo">
-        <div class="ar">فنّي</div>
-        <p>Egypt's direct-to-consumer technician marketplace. Vetted craftsmen, fixed prices, guaranteed work.</p>
-      </div>
-      <div>
-        <h4>Services</h4>
-        <a href="services.html">Air conditioning</a>
-        <a href="services.html">Satellite & TV</a>
-        <a href="services.html">CCTV & security</a>
-        <a href="services.html">WiFi & networking</a>
-        <a href="services.html">Smart home</a>
-      </div>
-      <div>
-        <h4>Company</h4>
-        <a href="#">About</a>
-        <a href="#">For technicians</a>
-        <a href="#">Careers</a>
-        <a href="#">Contact</a>
-      </div>
-      <div>
-        <h4>Support</h4>
-        <a href="#">Help center</a>
-        <a href="#">Warranty policy</a>
-        <a href="#">Terms & privacy</a>
-        <a href="#" class="mono">16xxx</a>
-      </div>
-    </div>
-    <div class="foot-bottom">
-      <span>© 2026 Fanni. All rights reserved.</span>
-      <span>Cairo · Giza · Alexandria — expanding nationwide</span>
-    </div>
-  </div>
-</footer>
-
-<script>
-const heroCatalog={
-  "AC":["AC deep cleaning & maintenance","AC not cooling — diagnosis","Freon refill","New AC installation"],
-  "Satellite & TV":["Dish install & alignment","Signal loss — realignment","Receiver setup & channels","TV wall mounting"],
-  "CCTV":["4-camera package install","Camera repair","Remote viewing setup","NVR replacement / upgrade"],
-  "WiFi":["Mesh WiFi setup","Weak signal — dead-zone fix","New router install","Network cabling"],
-  "Intercom":["Video intercom install (apartment)","Villa / multi-unit intercom","Intercom repair"],
-  "Smart Home":["Smart lighting setup","Smart lock install","Smart camera & sensors","Smart-home consultation"]
-};
-let heroSvc="AC";
-document.querySelectorAll('.chip').forEach(chip=>{
-  chip.addEventListener('click',()=>{
-    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    heroSvc=chip.dataset.svc;
-    document.getElementById('heroJobs').innerHTML=heroCatalog[heroSvc].map(j=>`<option>${j}</option>`).join('');
-  });
-});
-document.querySelectorAll('a[href="book.html"]').forEach(a=>{
-  a.addEventListener('click',()=>{
-    const q=new URLSearchParams({svc:heroSvc});
-    const ar=document.getElementById('heroArea'),mb=document.getElementById('heroMob');
-    if(ar&&ar.value)q.set('area',ar.value);
-    if(mb&&mb.value.trim())q.set('mob',mb.value.trim());
-    a.href='book.html?'+q.toString();
-  });
-});
-</script>
 </body>
 </html>
