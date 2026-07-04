@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فنّي — بوابة الفنيين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
+  --amber:#F08A24; --amber-soft:#FCE9D2;
+  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
+  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* login */
+.login-wrap{max-width:420px;margin:70px auto;padding:0 20px}
+.login-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px;box-shadow:0 14px 40px rgba(12,46,51,.08);text-align:center}
+.login-card .logo-big{font-size:46px;font-weight:900;color:var(--teal);line-height:1}
+.login-card h2{font-size:21px;font-weight:900;margin:12px 0 4px}
+.login-card p{color:var(--muted);font-size:14px;margin-bottom:20px}
+.login-card input{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:14px;text-align:center;direction:ltr}
+.login-card input:focus{outline:none;border-color:var(--teal)}
+.login-err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
+.login-hint{font-size:12px;color:var(--muted);margin-top:16px}
+
+/* app shell */
+.app-head{background:var(--teal-deep);color:#fff;padding:16px 18px;position:sticky;top:0;z-index:50}
+.app-head-in{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.app-logo{display:flex;align-items:baseline;gap:8px}
+.app-logo .ar{font-size:24px;font-weight:900;line-height:1}
+.app-logo .en{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:#A9C4C7}
+.app-head .who{font-size:12.5px;color:#A9C4C7;text-align:left}
+.app-head .who b{color:#fff;display:block;font-size:14px}
+.logout{background:none;border:none;color:#A9C4C7;font-size:11.5px;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:underline}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 90px}
+
+/* tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr 1fr;z-index:60}
+.tab{padding:10px 4px 12px;text-align:center;background:none;border:none;font-family:'Cairo',sans-serif;cursor:pointer;position:relative}
+.tab .ic{font-size:20px;display:block;filter:grayscale(1);opacity:.5}
+.tab .l{font-size:11px;font-weight:800;color:var(--muted)}
+.tab.on .ic{filter:none;opacity:1}
+.tab.on .l{color:var(--teal)}
+.tab .pip{position:absolute;top:6px;right:calc(50% - 20px);min-width:17px;height:17px;border-radius:99px;background:var(--red);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+.screen{display:none}
+.screen.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec-title{font-size:13px;font-weight:900;color:var(--muted);margin:8px 0 10px}
+
+/* stat strip */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+.stat .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;color:var(--teal)}
+.stat .l{font-size:11px;color:var(--muted);font-weight:700}
+
+/* request cards */
+.req{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.req.mine::before{content:"";position:absolute;right:0;top:0;bottom:0;width:4px;background:var(--green)}
+.req-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px}
+.req .t{font-weight:900;font-size:15.5px}
+.req .price{text-align:left;flex-shrink:0}
+.req .price .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:var(--teal)}
+.req .price .lbl{font-size:10.5px;color:var(--muted);font-weight:800}
+.req .meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:8px}
+.req .note{font-size:12.5px;background:var(--sand);border-radius:8px;padding:7px 10px;margin-bottom:10px}
+.req .earn{font-size:12.5px;color:var(--green);font-weight:800;margin-bottom:10px}
+.offer-status{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 12px;border-radius:99px;background:#E0F0EA;color:var(--green);margin-bottom:8px}
+
+/* offer builder */
+.offer-box{border-top:1.5px dashed var(--line);padding-top:12px;margin-top:4px;display:none}
+.offer-box.open{display:block}
+.offer-box h4{font-size:13px;font-weight:900;margin-bottom:8px}
+.item-row{display:flex;gap:7px;margin-bottom:7px}
+.item-row input{padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px}
+.item-row input.nm{flex:1}
+.item-row input.pr{width:92px;font-family:'IBM Plex Mono',monospace;direction:ltr;text-align:center}
+.item-row .rm{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;font-weight:900}
+.add-item{background:none;border:none;color:var(--teal);font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Cairo',sans-serif;padding:2px 0 8px}
+.offer-note input{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px;margin-bottom:8px}
+.offer-sum{display:flex;justify-content:space-between;font-size:13px;font-weight:800;padding:8px 0;border-top:1px solid var(--line)}
+.offer-sum .mono{color:var(--teal)}
+
+.btn{padding:11px 20px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:transform .12s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5}
+.btn-primary{background:var(--amber);color:var(--ink)}
+.btn-ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
+.btn-full{width:100%}
+.btn-row{display:flex;gap:8px}
+.btn-row .btn{flex:1}
+
+/* my jobs */
+.job-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.job-card .chip{display:inline-block;font-size:11px;font-weight:800;padding:2px 12px;border-radius:99px;margin-bottom:6px}
+.st-assigned{background:#E4EEF8;color:#2563A8}
+.st-en_route,.st-arrived,.st-working{background:#E0F0EA;color:var(--green)}
+.st-done{background:var(--teal);color:#fff}
+.job-card .addr{font-size:13px;background:var(--sand);border-radius:8px;padding:8px 10px;margin:8px 0}
+.job-card .contact{display:flex;gap:8px;margin:8px 0}
+.job-card .contact a{flex:1;text-align:center;border:1.5px solid var(--teal);color:var(--teal);border-radius:99px;padding:8px;font-weight:800;font-size:13px;text-decoration:none}
+.parts-mini{border-top:1.5px dashed var(--line);margin-top:10px;padding-top:10px}
+.empty{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px}
+.empty .big{font-size:36px;display:block;margin-bottom:8px}
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* earnings */
+.earn-hero{background:var(--teal-deep);color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+.earn-hero .bgar{position:absolute;left:-14px;bottom:-34px;font-size:110px;font-weight:900;color:rgba(255,255,255,.05);line-height:1}
+.earn-hero .l{font-size:12.5px;color:#A9C4C7;font-weight:700}
+.earn-hero .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:32px;margin-top:2px}
+.done-row{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.done-row .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login-wrap"><div class="login-card">
+    <div class="logo-big">فنّي</div>
+    <h2>بوابة الفنيين</h2>
+    <p>ادخل كود الدخول اللي استلمته بعد اعتمادك.</p>
+    <input type="password" id="tokenInput" placeholder="كود الدخول" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn btn-primary btn-full" onclick="login()">دخول</button>
+    <p class="login-err" id="loginErr">الكود مش صحيح — راجع الرسالة اللي وصلتك أو كلم الدعم 16xxx.</p>
+    <p class="login-hint">لسه ماقدمتش؟ <a href="join-ar.html" style="color:var(--teal);font-weight:800">قدّم كفنّي من هنا</a></p>
+  </div></div>
+</div>
+
+<!-- APP -->
+<div id="appView" style="display:none">
+  <div class="app-head"><div class="app-head-in">
+    <div class="app-logo"><span class="ar">فنّي</span><span class="en">PARTNER</span></div>
+    <div class="who"><b id="whoName"></b><span id="whoMeta"></span> · <button class="logout" onclick="logout()">خروج</button></div>
+  </div></div>
+
+  <div class="wrap">
+    <!-- REQUESTS -->
+    <div class="screen active" id="scr-req">
+      <div class="stat-strip">
+        <div class="stat"><div class="v" id="stRating">—</div><div class="l">تقييمك</div></div>
+        <div class="stat"><div class="v" id="stDone">—</div><div class="l">شغلانات خلصت</div></div>
+        <div class="stat"><div class="v" id="stOpen">—</div><div class="l">طلبات متاحة</div></div>
+      </div>
+      <div class="sec-title">طلبات في تخصصك — السعر ثابت، وتقدر تضيف معدات أو خدمات إضافية</div>
+      <div id="reqList"></div>
+      <div class="empty" id="reqEmpty" style="display:none"><span class="big">📭</span>مفيش طلبات متاحة دلوقتي في تخصصك.<br>الطلبات بتتجدد تلقائيًا كل شوية.</div>
+    </div>
+
+    <!-- MY JOBS -->
+    <div class="screen" id="scr-jobs">
+      <div class="sec-title">شغلاناتك الحالية</div>
+      <div id="jobList"></div>
+      <div class="empty" id="jobEmpty" style="display:none"><span class="big">🧰</span>مفيش شغلانات نشطة.<br>قدّم عروض من تبويب الطلبات.</div>
+    </div>
+
+    <!-- EARNINGS -->
+    <div class="screen" id="scr-earn">
+      <div class="earn-hero"><div class="bgar">فنّي</div>
+        <div class="l">إجمالي أرباحك (بعد العمولة)</div>
+        <div class="v" id="earnTotal">—</div>
+      </div>
+      <div class="sec-title">شغلانات مكتملة</div>
+      <div id="doneList"></div>
+      <div class="empty" id="doneEmpty" style="display:none"><span class="big">💰</span>أول شغلانة تخلص، أرباحها هتظهر هنا.</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="go('req',this)"><span class="pip" id="reqPip" style="display:none"></span><span class="ic">📋</span><span class="l">الطلبات</span></button>
+    <button class="tab" onclick="go('jobs',this)"><span class="pip" id="jobPip" style="display:none"></span><span class="ic">🧰</span><span class="l">شغلاناتي</span></button>
+    <button class="tab" onclick="go('earn',this)"><span class="ic">💰</span><span class="l">أرباحي</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let TOKEN=null,pollTimer=null,OPEN=[],MY=null;
+const NEXT={assigned:['en_route','أنا في الطريق 🛵'],en_route:['arrived','وصلت ✓'],arrived:['working','بدأت الشغل 🔧'],working:['done','خلصت الشغلانة ✓']};
+const store={get k(){try{return localStorage.getItem('fanni_tech')}catch(e){return null}},
+  set(v){try{v?localStorage.setItem('fanni_tech',v):localStorage.removeItem('fanni_tech')}catch(e){}}};
+
+function esc(x){const d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2600)}
+function normNum(s){return (s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'')}
+
+async function api(path,opts={}){
+  const r=await fetch(path,{...opts,headers:{'X-Tech-Token':TOKEN,'Content-Type':'application/json',...(opts.headers||{})}});
+  if(r.status===401)throw new Error('auth');
+  return r.json();
+}
+
+async function login(silent){
+  TOKEN=silent?store.k:document.getElementById('tokenInput').value.trim();
+  if(!TOKEN)return;
+  try{
+    const d=await api('/api/tech/my');
+    if(!d.ok)throw new Error('auth');
+    store.set(TOKEN);
+    document.getElementById('loginView').style.display='none';
+    document.getElementById('appView').style.display='block';
+    render(d);loadReqs();
+    pollTimer=setInterval(()=>{loadReqs();loadMy()},30000);
+  }catch(e){
+    store.set(null);
+    if(!silent)document.getElementById('loginErr').style.display='block';
+  }
+}
+function logout(){TOKEN=null;store.set(null);clearInterval(pollTimer);location.reload()}
+
+function go(scr,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scr-'+scr).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function render(d){
+  MY=d;
+  const p=d.profile;
+  document.getElementById('whoName').textContent=p.name.split(' ').slice(0,2).join(' ');
+  document.getElementById('whoMeta').textContent=p.district||'';
+  document.getElementById('stRating').textContent=p.rating_count?p.rating_avg+'★':'جديد';
+  document.getElementById('stDone').textContent=p.jobs_done;
+  document.getElementById('earnTotal').textContent=d.earnings_egp.toLocaleString()+' جنيه';
+  renderJobs(d.active_jobs);renderDone(d.done_jobs);
+  const pip=document.getElementById('jobPip');
+  pip.style.display=d.active_jobs.length?'flex':'none';pip.textContent=d.active_jobs.length;
+}
+async function loadMy(){try{const d=await api('/api/tech/my');if(d.ok)render(d)}catch(e){if(e.message==='auth')logout()}}
+async function loadReqs(){
+  try{
+    const d=await api('/api/tech/jobs');
+    if(!d.ok)return;
+    OPEN=d.jobs;
+    document.getElementById('stOpen').textContent=OPEN.length;
+    const pip=document.getElementById('reqPip');
+    const fresh=OPEN.filter(j=>!j.my_offer).length;
+    pip.style.display=fresh?'flex':'none';pip.textContent=fresh;
+    renderReqs();
+  }catch(e){if(e.message==='auth')logout()}
+}
+
+function renderReqs(){
+  const el=document.getElementById('reqList');
+  document.getElementById('reqEmpty').style.display=OPEN.length?'none':'block';
+  el.innerHTML=OPEN.map((j,i)=>`
+    <div class="req ${j.my_offer?'mine':''}">
+      <div class="req-top">
+        <div class="t">${esc(j.title)}</div>
+        <div class="price"><div class="amt">${j.listed_price_egp} جنيه</div><div class="lbl">سعر المصنعية الثابت</div></div>
+      </div>
+      <div class="meta"><span>📍 ${esc(j.area)}</span><span>🕐 ${esc(j.day)} · ${esc(j.time_window)}</span>${j.offer_count?`<span>👥 ${j.offer_count} عرض مقدم</span>`:''}</div>
+      ${j.notes?`<div class="note">"${esc(j.notes)}"</div>`:''}
+      <div class="earn">نصيبك من المصنعية: ${j.you_earn_at_listed} جنيه · الإضافات ليك بالكامل</div>
+      ${j.my_offer?`<span class="offer-status">✓ قدمت عرض${j.my_offer.extras_egp?' — إضافات '+j.my_offer.extras_egp+' جنيه':' بالسعر الثابت'} · في انتظار الرد</span>`:''}
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitOffer(${i},this,true)">${j.my_offer?'جدد عرضك بالسعر الثابت':'اقبل بالسعر الثابت ✓'}</button>
+        <button class="btn btn-ghost" onclick="toggleOffer(${i})">+ إضافات</button>
+      </div>
+      <div class="offer-box" id="ob-${i}">
+        <h4>معدات أو خدمات إضافية الطلب محتاجها</h4>
+        <div id="items-${i}"><div class="item-row"><input class="nm" placeholder="مثال: حامل شاشة 65 بوصة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})">✕</button></div></div>
+        <button class="add-item" onclick="addItem(${i})">+ سطر كمان</button>
+        <div class="offer-note"><input id="note-${i}" placeholder="ملاحظة للإدارة (اختياري)"></div>
+        <div class="offer-sum"><span>إجمالي الإضافات</span><span class="mono" id="sum-${i}">0 جنيه</span></div>
+        <button class="btn btn-primary btn-full" onclick="submitOffer(${i},this,false)">ابعت العرض: ${j.listed_price_egp} جنيه + الإضافات</button>
+      </div>
+    </div>`).join('');
+  OPEN.forEach((_,i)=>{document.querySelectorAll(`#items-${i} input.pr, #items-${i} input.nm`).forEach(inp=>inp.addEventListener('input',()=>sumOffer(i)))});
+}
+function toggleOffer(i){document.getElementById('ob-'+i).classList.toggle('open')}
+function addItem(i){
+  const row=document.createElement('div');row.className='item-row';
+  row.innerHTML=`<input class="nm" placeholder="اسم المعدة أو الخدمة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})">✕</button>`;
+  document.getElementById('items-'+i).appendChild(row);
+  row.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>sumOffer(i)));
+}
+function readItems(i){
+  const out=[];
+  document.querySelectorAll(`#items-${i} .item-row`).forEach(r=>{
+    const nm=r.querySelector('.nm').value.trim();
+    const pr=parseInt(normNum(r.querySelector('.pr').value),10);
+    if(nm&&pr>0)out.push({name:nm,price_egp:pr});
+  });
+  return out;
+}
+function sumOffer(i){
+  const s=readItems(i).reduce((a,x)=>a+x.price_egp,0);
+  document.getElementById('sum-'+i).textContent=s+' جنيه';
+}
+async function submitOffer(i,btn,plain){
+  const j=OPEN[i];
+  const items=plain?[]:readItems(i);
+  if(!plain&&!items.length){toast('اكتب اسم وسعر للإضافة الأول');return}
+  btn.disabled=true;
+  try{
+    const d=await api('/api/tech/jobs/'+j.code+'/offer',{method:'POST',
+      body:JSON.stringify({items,note:plain?'':document.getElementById('note-'+i).value.trim()})});
+    if(d.ok){toast('تم إرسال عرضك ✓ هيوصلك رد قريب');loadReqs()}
+    else{toast(d.error);btn.disabled=false}
+  }catch(e){btn.disabled=false;toast('في مشكلة في الاتصال — جرب تاني')}
+}
+
+function renderJobs(rows){
+  const el=document.getElementById('jobList');
+  document.getElementById('jobEmpty').style.display=rows.length?'none':'block';
+  el.innerHTML=rows.map(j=>{
+    const nx=NEXT[j.status];
+    return `<div class="job-card">
+      <span class="chip st-${esc(j.status)}">${({assigned:'اتقبل عرضك — استعد',en_route:'في الطريق',arrived:'وصلت',working:'الشغل جاري'})[j.status]||esc(j.status)}</span>
+      <div style="font-weight:900;font-size:15.5px">${esc(j.title)} <span class="mono" style="font-size:12px;color:var(--muted)">${esc(j.code)}</span></div>
+      <div style="font-size:12.5px;color:var(--muted)">📍 ${esc(j.area)} · 🕐 ${esc(j.day)} · ${esc(j.time_window)}</div>
+      ${j.address?`<div class="addr">🏠 ${esc(j.address)}${j.notes?'<br>📝 '+esc(j.notes):''}</div>`:''}
+      <div class="earn" style="font-size:13px;color:var(--green);font-weight:800">مصنعيتك: ${j.you_earn_egp} جنيه${j.parts_egp?' + إضافات/قطع '+j.parts_egp+' جنيه':''}</div>
+      ${j.customer_mobile?`<div class="contact">
+        <a href="tel:+2${esc(j.customer_mobile)}">📞 اتصل بالعميل</a>
+        <a href="https://wa.me/2${esc(j.customer_mobile)}?text=${encodeURIComponent('السلام عليكم، أنا فنّي بخصوص طلبك '+j.code)}" target="_blank">💬 واتساب</a>
+      </div>`:''}
+      ${nx?`<button class="btn btn-primary btn-full" onclick="advance('${esc(j.code)}','${nx[0]}',this)">${nx[1]}</button>`:''}
+      ${(j.status==='arrived'||j.status==='working')?`
+        <div class="parts-mini">
+          <div style="font-size:12.5px;font-weight:900;margin-bottom:6px">🔩 قطعة غيار طلعت أثناء الشغل؟ سعّرها لموافقة العميل</div>
+          <div class="item-row"><input class="nm" id="pn-${esc(j.code)}" placeholder="اسم القطعة"><input class="pr" id="pp-${esc(j.code)}" inputmode="numeric" placeholder="جنيه"></div>
+          <button class="btn btn-ghost btn-full" style="padding:8px" onclick="quotePart('${esc(j.code)}',this)">ابعت للعميل للموافقة</button>
+        </div>`:''}
+    </div>`;
+  }).join('');
+}
+async function advance(code,status,btn){
+  btn.disabled=true;
+  try{
+    const d=await api('/api/tech/jobs/'+code+'/status',{method:'POST',body:JSON.stringify({status})});
+    if(d.ok){toast(status==='done'?('تم! نصيبك '+(d.payout_egp||'')+' جنيه هيتضاف لأرباحك 🛡️'):'تم التحديث ✓');loadMy()}
+    else{toast(d.error);btn.disabled=false}
+  }catch(e){btn.disabled=false}
+}
+async function quotePart(code,btn){
+  const nm=document.getElementById('pn-'+code).value.trim();
+  const pr=parseInt(normNum(document.getElementById('pp-'+code).value),10);
+  if(!nm||!(pr>0)){toast('اكتب اسم القطعة وسعرها');return}
+  btn.disabled=true;
+  try{
+    const d=await api('/api/tech/jobs/'+code+'/parts',{method:'POST',body:JSON.stringify({part_name:nm,price_egp:pr})});
+    if(d.ok){toast('اتبعتت للعميل — استنى موافقته قبل التركيب');document.getElementById('pn-'+code).value='';document.getElementById('pp-'+code).value=''}
+    else toast(d.error);
+  }catch(e){}
+  btn.disabled=false;
+}
+function renderDone(rows){
+  const el=document.getElementById('doneList');
+  document.getElementById('doneEmpty').style.display=rows.length?'none':'block';
+  el.innerHTML=rows.map(j=>`
+    <div class="done-row"><span><b>${esc(j.title)}</b><br><span style="font-size:11.5px;color:var(--muted)" class="mono">${esc(j.code)} · ${esc(j.area)}</span></span>
+    <span class="amt">+ ${j.you_earn_egp+(j.parts_egp||0)} جنيه</span></div>`).join('');
+}
+
+/* auto-login if a token is saved on this device */
+login(true);
+</script>
+</body>
+</html>

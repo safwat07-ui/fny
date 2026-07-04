@@ -115,6 +115,18 @@ CREATE TABLE IF NOT EXISTS ratings (
     created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS job_quotes (
+    id INTEGER PRIMARY KEY,
+    booking_id INTEGER NOT NULL REFERENCES bookings(id),
+    technician_id INTEGER NOT NULL REFERENCES technicians(id),
+    extras_json TEXT,                     -- [{"name":..,"price_egp":..}] equipment/extra services
+    extras_egp INTEGER NOT NULL DEFAULT 0,
+    note TEXT,
+    status TEXT DEFAULT 'pending',        -- pending|accepted|rejected
+    created_at TEXT NOT NULL,
+    UNIQUE(booking_id, technician_id)
+);
+
 CREATE TABLE IF NOT EXISTS status_log (
     id INTEGER PRIMARY KEY,
     booking_id INTEGER NOT NULL REFERENCES bookings(id),
@@ -557,13 +569,93 @@ def tech_open_jobs():
     ).fetchall()
     jobs = []
     for b in rows:
+        mine = db.execute(
+            "SELECT extras_egp, extras_json, status FROM job_quotes"
+            " WHERE booking_id=? AND technician_id=?",
+            (b["id"], g.tech["id"]),
+        ).fetchone()
         jobs.append({
             "code": b["code"], "title": b["title"], "service": b["service_slug"],
             "area": b["area"], "day": b["day"], "time_window": b["time_window"],
-            "notes": b["notes"], "customer_price_egp": b["labor_egp"],
-            "you_earn_egp": round(b["labor_egp"] * (1 - COMMISSION_RATE)),
+            "notes": b["notes"], "listed_price_egp": b["labor_egp"],
+            "you_earn_at_listed": round(b["labor_egp"] * (1 - COMMISSION_RATE)),
+            "offer_count": db.execute(
+                "SELECT COUNT(*) c FROM job_quotes WHERE booking_id=?", (b["id"],)
+            ).fetchone()["c"],
+            "my_offer": ({"extras_egp": mine["extras_egp"],
+                          "extras": json.loads(mine["extras_json"] or "[]"),
+                          "status": mine["status"]} if mine else None),
         })
-    return jsonify({"ok": True, "jobs": jobs})
+    return jsonify({"ok": True, "jobs": jobs, "commission_rate": COMMISSION_RATE})
+
+
+@app.post("/api/tech/jobs/<code>/offer")
+@require_technician
+def tech_offer_job(code):
+    """Offer = take the job at the fixed labor price, plus optional
+    equipment / extra-service line items quoted upfront."""
+    d = request.get_json(silent=True) or {}
+    items = d.get("items") or []
+    if not isinstance(items, list) or len(items) > 15:
+        return err("items must be a list (max 15)")
+    clean = []
+    for it in items:
+        name = (it.get("name") or "").strip()[:120] if isinstance(it, dict) else ""
+        price = it.get("price_egp") if isinstance(it, dict) else None
+        if not name or not isinstance(price, int) or not 10 <= price <= 100000:
+            return err("Each item needs a name and integer price_egp (10–100000)")
+        clean.append({"name": name, "price_egp": price})
+    extras = sum(i["price_egp"] for i in clean)
+    db = get_db()
+    b = db.execute("SELECT * FROM bookings WHERE code=? AND status='new'", (code.upper(),)).fetchone()
+    if not b:
+        return err("Request not open for offers", 409)
+    if b["service_slug"] not in g.tech["trades"].split(","):
+        return err("This request is outside your trades", 403)
+    db.execute(
+        "INSERT INTO job_quotes (booking_id, technician_id, extras_json, extras_egp, note, created_at)"
+        " VALUES (?,?,?,?,?,?)"
+        " ON CONFLICT(booking_id, technician_id)"
+        " DO UPDATE SET extras_json=excluded.extras_json, extras_egp=excluded.extras_egp,"
+        " note=excluded.note, created_at=excluded.created_at, status='pending'",
+        (b["id"], g.tech["id"], json.dumps(clean, ensure_ascii=False), extras,
+         (d.get("note") or "")[:300], now()),
+    )
+    db.commit()
+    return jsonify({"ok": True, "code": b["code"], "labor_egp": b["labor_egp"],
+                    "extras_egp": extras, "customer_total_add": extras,
+                    "you_earn_egp": round(b["labor_egp"] * (1 - COMMISSION_RATE)) + extras,
+                    "status": "pending"}), 201
+
+
+@app.get("/api/tech/my")
+@require_technician
+def tech_my():
+    db = get_db()
+    t = g.tech
+    jobs = db.execute(
+        "SELECT b.code, b.status, b.day, b.time_window, b.area, b.address, b.notes,"
+        " b.labor_egp, b.parts_egp, b.total_egp, b.customer_mobile, j.title"
+        " FROM bookings b JOIN jobs_catalog j ON j.id=b.job_catalog_id"
+        " WHERE b.technician_id=? AND b.status!='cancelled'"
+        " ORDER BY CASE WHEN b.status='done' THEN 1 ELSE 0 END, b.updated_at DESC LIMIT 50",
+        (t["id"],),
+    ).fetchall()
+    active, done = [], []
+    for j in jobs:
+        rec = dict(j)
+        rec["you_earn_egp"] = round(j["labor_egp"] * (1 - COMMISSION_RATE))
+        # customer contact only once the job is truly his and underway
+        if j["status"] not in ("assigned", "en_route", "arrived", "working"):
+            rec.pop("customer_mobile", None)
+            rec.pop("address", None)
+        (done if j["status"] == "done" else active).append(rec)
+    earnings = round(sum(j["labor_egp"] for j in jobs if j["status"] == "done") * (1 - COMMISSION_RATE))
+    return jsonify({"ok": True, "profile": {
+        "name": t["full_name"], "trades": t["trades"].split(","),
+        "district": t["district"], "rating_avg": round(t["rating_avg"], 1),
+        "rating_count": t["rating_count"], "jobs_done": t["jobs_done"],
+    }, "active_jobs": active, "done_jobs": done, "earnings_egp": earnings})
 
 
 @app.post("/api/tech/jobs/<code>/accept")
@@ -654,7 +746,10 @@ def tech_quote_part(code):
 def admin_bookings():
     db = get_db()
     status = request.args.get("status")
-    q = ("SELECT b.*, j.title AS job_title, t.full_name AS tech_name, t.rating_avg AS tech_rating, t.jobs_done AS tech_jobs FROM bookings b"
+    q = ("SELECT b.*, j.title AS job_title, t.full_name AS tech_name,"
+         " t.rating_avg AS tech_rating, t.jobs_done AS tech_jobs,"
+         " (SELECT COUNT(*) FROM job_quotes jq WHERE jq.booking_id=b.id"
+         "   AND jq.status='pending') AS offer_count FROM bookings b"
          " JOIN jobs_catalog j ON j.id=b.job_catalog_id"
          " LEFT JOIN technicians t ON t.id=b.technician_id"
          + (" WHERE b.status=?" if status else "")
@@ -802,6 +897,7 @@ def admin_tech_delete(tech_id):
                 os.remove(os.path.join(DOCS_DIR, fname))
             except OSError:
                 pass
+    db.execute("DELETE FROM job_quotes WHERE technician_id=?", (tech_id,))
     db.execute("DELETE FROM technicians WHERE id=?", (tech_id,))
     db.commit()
     return jsonify({"ok": True, "deleted": tech_id, "jobs_released": len(open_jobs)})
@@ -821,6 +917,18 @@ def admin_booking_full(code):
     if not b:
         return err("Booking not found", 404)
     rec = dict(b)
+    offers = db.execute(
+        "SELECT q.id, q.extras_json, q.extras_egp, q.note, q.status, q.created_at,"
+        " t.id AS technician_id, t.full_name, t.rating_avg, t.jobs_done,"
+        " (SELECT COUNT(*) FROM bookings x WHERE x.technician_id=t.id"
+        "   AND x.status IN ('assigned','en_route','arrived','working')) AS active_jobs"
+        " FROM job_quotes q JOIN technicians t ON t.id=q.technician_id"
+        " WHERE q.booking_id=? ORDER BY q.extras_egp", (b["id"],)).fetchall()
+    rec["offers"] = []
+    for q in offers:
+        o = dict(q)
+        o["items"] = json.loads(o.pop("extras_json") or "[]")
+        rec["offers"].append(o)
     rec["parts_quotes"] = [dict(p) for p in db.execute(
         "SELECT id, part_name, price_egp, status, created_at FROM parts_quotes WHERE booking_id=?",
         (b["id"],)).fetchall()]
@@ -831,6 +939,41 @@ def admin_booking_full(code):
     return jsonify({"ok": True, "booking": rec})
 
 
+@app.post("/api/admin/offers/<int:offer_id>/accept")
+@require_admin
+def admin_accept_offer(offer_id):
+    db = get_db()
+    q = db.execute("SELECT * FROM job_quotes WHERE id=? AND status='pending'", (offer_id,)).fetchone()
+    if not q:
+        return err("Pending offer not found", 404)
+    b = db.execute("SELECT * FROM bookings WHERE id=?", (q["booking_id"],)).fetchone()
+    if b["status"] != "new":
+        return err(f"Booking is already '{b['status']}'", 409)
+    # labor stays at the fixed catalog price; extras become pre-approved parts
+    items = json.loads(q["extras_json"] or "[]")
+    for it in items:
+        db.execute(
+            "INSERT INTO parts_quotes (booking_id, part_name, price_egp, status, created_at)"
+            " VALUES (?,?,?,'approved',?)",
+            (b["id"], it["name"], it["price_egp"], now()),
+        )
+    new_total = b["labor_egp"] + b["service_fee_egp"] + b["parts_egp"] + q["extras_egp"]
+    db.execute(
+        "UPDATE bookings SET status='assigned', technician_id=?,"
+        " parts_egp=parts_egp+?, total_egp=?, updated_at=? WHERE id=?",
+        (q["technician_id"], q["extras_egp"], new_total, now(), b["id"]),
+    )
+    db.execute("UPDATE job_quotes SET status='accepted' WHERE id=?", (offer_id,))
+    db.execute("UPDATE job_quotes SET status='rejected' WHERE booking_id=? AND id!=?",
+               (b["id"], offer_id))
+    log_status(db, b["id"], "assigned")
+    db.commit()
+    t = db.execute("SELECT full_name FROM technicians WHERE id=?", (q["technician_id"],)).fetchone()
+    return jsonify({"ok": True, "code": b["code"], "technician": t["full_name"],
+                    "labor_egp": b["labor_egp"], "extras_egp": q["extras_egp"],
+                    "total_egp": new_total})
+
+
 @app.delete("/api/admin/bookings/<code>")
 @require_admin
 def admin_booking_delete(code):
@@ -838,6 +981,7 @@ def admin_booking_delete(code):
     b = db.execute("SELECT id FROM bookings WHERE code=?", (code.upper(),)).fetchone()
     if not b:
         return err("Booking not found", 404)
+    db.execute("DELETE FROM job_quotes WHERE booking_id=?", (b["id"],))
     db.execute("DELETE FROM parts_quotes WHERE booking_id=?", (b["id"],))
     db.execute("DELETE FROM ratings WHERE booking_id=?", (b["id"],))
     db.execute("DELETE FROM status_log WHERE booking_id=?", (b["id"],))

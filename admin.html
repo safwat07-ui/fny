@@ -269,7 +269,7 @@ function renderBookings(rows){
       <td><b>${esc(b.job_title||b.service_slug)}</b></td>
       <td class="hide-m">${esc(b.customer_name||'—')}<div class="sub mono">${esc(b.customer_mobile)}</div></td>
       <td>${esc(b.area)}<div class="sub">${esc(b.day)} · ${esc(b.time_window)}</div></td>
-      <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}</td>
+      <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}${b.offer_count?`<div class="sub" style="color:var(--amber);font-weight:800">💬 ${b.offer_count} offer(s)</div>`:''}</td>
       <td><span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></td>
       <td>${b.technician_id?`<button class="link-btn" onclick="openTech(${b.technician_id})">${esc(b.tech_name)}</button><div class="sub">${(b.tech_rating||0).toFixed(1)}★ · ${b.tech_jobs||0} jobs</div>`:'—'}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
     </tr>
@@ -476,6 +476,17 @@ async function openBooking(code){
       ${det('Technician',b.tech_name?b.tech_name+' ('+(b.tech_rating||0).toFixed(1)+'★)':'unassigned')}
       ${b.rating?det('Customer rating',b.rating.stars+'★ '+(b.rating.tags||'')):''}
     </div>
+    ${(b.offers&&b.offers.length)?`<div class="det-k" style="margin-top:14px">Technician offers — fixed labor EGP ${b.labor_egp} + extras</div>
+      <div class="hist">${b.offers.map(o=>`
+        <div style="padding:6px 0">
+          <button class="link-btn" onclick="openTech(${o.technician_id})">${esc(o.full_name)}</button>
+          ${(o.rating_avg||0).toFixed(1)}★ · ${o.jobs_done} jobs · <span class="avail ${o.active_jobs?'busy':'free'}">${o.active_jobs?'busy':'free'}</span>
+          — extras: <span class="mono">EGP ${o.extras_egp}</span>
+          <span class="chip st-${o.status==='accepted'?'done':o.status==='pending'?'new':'cancelled'}">${o.status}</span>
+          ${o.items.length?`<div class="sub">${o.items.map(x=>esc(x.name)+' (EGP '+x.price_egp+')').join(' · ')}</div>`:'<div class="sub">at fixed price, no extras</div>'}
+          ${o.note?`<div class="sub">📝 ${esc(o.note)}</div>`:''}
+          ${(o.status==='pending'&&b.status==='new')?`<button class="approve-btn" style="margin-top:4px" onclick="acceptOffer(${o.id},'${esc(b.code)}')">Accept — total EGP ${b.labor_egp+b.service_fee_egp+b.parts_egp+o.extras_egp} ✓</button>`:''}
+        </div>`).join('')}</div>`:''}
     ${b.parts_quotes.length?`<div class="det-k" style="margin-top:14px">Parts quotes</div>
       <div class="hist">${b.parts_quotes.map(p=>`<div>${esc(p.part_name)} — <span class="mono">EGP ${p.price_egp}</span> <span class="chip st-${p.status==='approved'?'done':p.status==='pending'?'new':'cancelled'}">${p.status}</span></div>`).join('')}</div>`:''}
     <div class="det-k" style="margin-top:14px">Status history</div>
@@ -486,6 +497,11 @@ async function openBooking(code){
       ${(b.status!=='done'&&b.status!=='cancelled')?`<button class="approve-btn" style="background:var(--red);color:#fff" onclick="cancelBk('${esc(b.code)}',this);closeModal()">✕ Cancel</button>`:''}
       <button class="danger-btn" onclick="deleteBk('${esc(b.code)}')">🗑 Delete booking</button>
     </div>`);
+}
+async function acceptOffer(id,code){
+  if(!confirm('Accept this offer? Labor stays fixed; extras are added to the bill and the job is assigned.'))return;
+  const d=await api('/api/admin/offers/'+id+'/accept',{method:'POST'});
+  if(d.ok){closeModal();loadAll();}else alert(d.error);
 }
 async function deleteBk(code){
   if(!confirm('Delete '+code+' permanently? This removes all its history and cannot be undone.'))return;
