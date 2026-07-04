@@ -9,6 +9,8 @@ Env:      FANNI_ADMIN_TOKEN  (default: change-me-admin)
           FANNI_DB           (default: fanni.db)
 """
 
+import base64
+import json
 import os
 import re
 import secrets
@@ -22,8 +24,11 @@ from flask import Flask, g, jsonify, request, send_from_directory
 DB_PATH = os.environ.get("FANNI_DB", "fanni.db")
 ADMIN_TOKEN = os.environ.get("FANNI_ADMIN_TOKEN", "change-me-admin")
 STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
+DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(DB_PATH)) if os.path.dirname(DB_PATH) else ".", "fanni_docs")
+os.makedirs(DOCS_DIR, exist_ok=True)
 
 app = Flask(__name__, static_folder=None)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # document uploads
 
 # --------------------------------------------------------------------------
 # Database
@@ -54,6 +59,7 @@ CREATE TABLE IF NOT EXISTS technicians (
     governorate TEXT,
     district TEXT,
     dob TEXT,
+    documents TEXT,                       -- JSON {doc_key: filename}
     trades TEXT,                          -- comma-separated service slugs
     experience TEXT,
     transport TEXT,
@@ -186,10 +192,11 @@ def close_db(_exc):
 def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
-    try:
-        db.execute("ALTER TABLE technicians ADD COLUMN dob TEXT")
-    except sqlite3.OperationalError:
-        pass  # column already exists
+    for col in ("dob TEXT", "documents TEXT"):
+        try:
+            db.execute(f"ALTER TABLE technicians ADD COLUMN {col}")
+        except sqlite3.OperationalError:
+            pass  # column already exists
     cur = db.execute("SELECT COUNT(*) FROM services")
     if cur.fetchone()[0] == 0:
         for slug, en, ar in SEED_SERVICES:
@@ -501,8 +508,32 @@ def technician_apply():
         )
     except sqlite3.IntegrityError:
         return err("An application with this mobile already exists", 409)
+    tech_id = cur.lastrowid
+    # persist uploaded documents (base64 data URLs)
+    docs_in = d.get("documents") or {}
+    saved = {}
+    for key in ("id_front", "id_back", "photo", "certificate"):
+        data_url = docs_in.get(key)
+        if not data_url or not isinstance(data_url, str):
+            continue
+        m = re.match(r"data:image/(png|jpe?g);base64,(.+)", data_url, re.I | re.S)
+        if not m:
+            continue
+        ext = "png" if m.group(1).lower() == "png" else "jpg"
+        try:
+            blob = base64.b64decode(m.group(2), validate=True)
+        except Exception:
+            continue
+        if len(blob) > 5 * 1024 * 1024:
+            continue
+        fname = f"tech{tech_id}_{key}.{ext}"
+        with open(os.path.join(DOCS_DIR, fname), "wb") as f:
+            f.write(blob)
+        saved[key] = fname
+    if saved:
+        db.execute("UPDATE technicians SET documents=? WHERE id=?", (json.dumps(saved), tech_id))
     db.commit()
-    ref = f"FN-2026-{cur.lastrowid:04d}"
+    ref = f"FN-2026-{tech_id:04d}"
     return jsonify({"ok": True, "reference": ref,
                     "next": "Documents review within 48h, then practical assessment."}), 201
 
@@ -623,7 +654,7 @@ def tech_quote_part(code):
 def admin_bookings():
     db = get_db()
     status = request.args.get("status")
-    q = ("SELECT b.*, j.title AS job_title, t.full_name AS tech_name FROM bookings b"
+    q = ("SELECT b.*, j.title AS job_title, t.full_name AS tech_name, t.rating_avg AS tech_rating, t.jobs_done AS tech_jobs FROM bookings b"
          " JOIN jobs_catalog j ON j.id=b.job_catalog_id"
          " LEFT JOIN technicians t ON t.id=b.technician_id"
          + (" WHERE b.status=?" if status else "")
@@ -637,12 +668,20 @@ def admin_bookings():
 def admin_applications():
     db = get_db()
     rows = db.execute(
-        "SELECT id, full_name, mobile, national_id_last4, dob, governorate, district,"
-        " trades, experience, transport, setup, status, assessment_hub,"
-        " assessment_slot, rating_avg, rating_count, jobs_done, created_at"
-        " FROM technicians ORDER BY created_at DESC"
+        "SELECT t.id, t.full_name, t.mobile, t.national_id_last4, t.dob, t.governorate,"
+        " t.district, t.trades, t.experience, t.transport, t.setup, t.status,"
+        " t.assessment_hub, t.assessment_slot, t.rating_avg, t.rating_count,"
+        " t.jobs_done, t.created_at, t.documents,"
+        " (SELECT COUNT(*) FROM bookings b WHERE b.technician_id=t.id"
+        "   AND b.status IN ('assigned','en_route','arrived','working')) AS active_jobs"
+        " FROM technicians t ORDER BY t.created_at DESC"
     ).fetchall()
-    return jsonify({"ok": True, "applications": [dict(r) for r in rows]})
+    out = []
+    for r in rows:
+        rec = dict(r)
+        rec["documents"] = sorted(json.loads(rec["documents"]).keys()) if rec["documents"] else []
+        out.append(rec)
+    return jsonify({"ok": True, "applications": out})
 
 
 @app.post("/api/admin/technicians/<int:tech_id>/approve")
@@ -704,6 +743,107 @@ def admin_cancel(code):
     log_status(db, b["id"], "cancelled")
     db.commit()
     return jsonify({"ok": True, "code": b["code"], "status": "cancelled"})
+
+
+@app.get("/api/admin/technicians/<int:tech_id>")
+@require_admin
+def admin_tech_profile(tech_id):
+    db = get_db()
+    t = db.execute("SELECT * FROM technicians WHERE id=?", (tech_id,)).fetchone()
+    if not t:
+        return err("Technician not found", 404)
+    rec = dict(t)
+    rec.pop("api_token", None)
+    rec["documents"] = sorted(json.loads(rec["documents"]).keys()) if rec["documents"] else []
+    jobs = db.execute(
+        "SELECT b.code, b.status, b.day, b.time_window, b.area, b.total_egp, j.title"
+        " FROM bookings b JOIN jobs_catalog j ON j.id=b.job_catalog_id"
+        " WHERE b.technician_id=? ORDER BY b.created_at DESC LIMIT 50", (tech_id,)
+    ).fetchall()
+    rec["bookings"] = [dict(x) for x in jobs]
+    rec["active_jobs"] = sum(1 for x in jobs if x["status"] in ("assigned", "en_route", "arrived", "working"))
+    return jsonify({"ok": True, "technician": rec})
+
+
+@app.get("/api/admin/technicians/<int:tech_id>/doc/<key>")
+@require_admin
+def admin_tech_doc(tech_id, key):
+    db = get_db()
+    t = db.execute("SELECT documents FROM technicians WHERE id=?", (tech_id,)).fetchone()
+    if not t or not t["documents"]:
+        return err("No documents", 404)
+    docs = json.loads(t["documents"])
+    fname = docs.get(key)
+    if not fname or not os.path.isfile(os.path.join(DOCS_DIR, fname)):
+        return err("Document not found", 404)
+    return send_from_directory(DOCS_DIR, fname)
+
+
+@app.delete("/api/admin/technicians/<int:tech_id>")
+@require_admin
+def admin_tech_delete(tech_id):
+    db = get_db()
+    t = db.execute("SELECT * FROM technicians WHERE id=?", (tech_id,)).fetchone()
+    if not t:
+        return err("Technician not found", 404)
+    # release their open jobs back to the pool
+    open_jobs = db.execute(
+        "SELECT id FROM bookings WHERE technician_id=?"
+        " AND status IN ('assigned','en_route','arrived','working')", (tech_id,)
+    ).fetchall()
+    for j in open_jobs:
+        db.execute("UPDATE bookings SET status='new', technician_id=NULL, updated_at=? WHERE id=?",
+                   (now(), j["id"]))
+        log_status(db, j["id"], "new")
+    db.execute("UPDATE bookings SET technician_id=NULL WHERE technician_id=?", (tech_id,))
+    if t["documents"]:
+        for fname in json.loads(t["documents"]).values():
+            try:
+                os.remove(os.path.join(DOCS_DIR, fname))
+            except OSError:
+                pass
+    db.execute("DELETE FROM technicians WHERE id=?", (tech_id,))
+    db.commit()
+    return jsonify({"ok": True, "deleted": tech_id, "jobs_released": len(open_jobs)})
+
+
+@app.get("/api/admin/bookings/<code>/full")
+@require_admin
+def admin_booking_full(code):
+    db = get_db()
+    b = db.execute(
+        "SELECT b.*, j.title AS job_title, t.full_name AS tech_name, t.mobile AS tech_mobile,"
+        " t.rating_avg AS tech_rating FROM bookings b"
+        " JOIN jobs_catalog j ON j.id=b.job_catalog_id"
+        " LEFT JOIN technicians t ON t.id=b.technician_id"
+        " WHERE b.code=?", (code.upper(),)
+    ).fetchone()
+    if not b:
+        return err("Booking not found", 404)
+    rec = dict(b)
+    rec["parts_quotes"] = [dict(p) for p in db.execute(
+        "SELECT id, part_name, price_egp, status, created_at FROM parts_quotes WHERE booking_id=?",
+        (b["id"],)).fetchall()]
+    rec["history"] = [dict(h) for h in db.execute(
+        "SELECT status, at FROM status_log WHERE booking_id=? ORDER BY id", (b["id"],)).fetchall()]
+    r = db.execute("SELECT stars, tags, comment FROM ratings WHERE booking_id=?", (b["id"],)).fetchone()
+    rec["rating"] = dict(r) if r else None
+    return jsonify({"ok": True, "booking": rec})
+
+
+@app.delete("/api/admin/bookings/<code>")
+@require_admin
+def admin_booking_delete(code):
+    db = get_db()
+    b = db.execute("SELECT id FROM bookings WHERE code=?", (code.upper(),)).fetchone()
+    if not b:
+        return err("Booking not found", 404)
+    db.execute("DELETE FROM parts_quotes WHERE booking_id=?", (b["id"],))
+    db.execute("DELETE FROM ratings WHERE booking_id=?", (b["id"],))
+    db.execute("DELETE FROM status_log WHERE booking_id=?", (b["id"],))
+    db.execute("DELETE FROM bookings WHERE id=?", (b["id"],))
+    db.commit()
+    return jsonify({"ok": True, "deleted": code.upper()})
 
 
 @app.get("/api/admin/stats")

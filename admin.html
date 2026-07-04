@@ -81,6 +81,28 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 .det-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 24px}
 .det-k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800}
 .det-v{font-size:13.5px;font-weight:700}
+
+.modal-bg{position:fixed;inset:0;background:rgba(12,46,51,.55);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:30px 14px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:18px;max-width:720px;width:100%;padding:26px;position:relative;margin-bottom:40px}
+.modal .close{position:absolute;top:14px;right:16px;background:var(--mist);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;font-weight:900;color:var(--muted)}
+.modal h3{font-size:19px;font-weight:900;margin-bottom:2px}
+.modal .msub{color:var(--muted);font-size:13.5px;margin-bottom:16px}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:12px 0}
+.doc-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--sand)}
+.doc-card img{width:100%;height:110px;object-fit:cover;display:block;cursor:pointer}
+.doc-card .dl{font-size:11px;font-weight:800;padding:5px 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.hist{border-inline-start:2px solid var(--line);padding-inline-start:14px;display:grid;gap:6px;margin:10px 0}
+.hist div{font-size:13px}
+.hist .mono{color:var(--muted);font-size:11.5px}
+.danger-btn{background:var(--red);color:#fff;border:none;font-family:'Cairo',sans-serif;font-weight:800;font-size:12.5px;padding:7px 18px;border-radius:99px;cursor:pointer}
+.link-btn{background:none;border:none;color:var(--teal);font-family:'Cairo',sans-serif;font-weight:900;cursor:pointer;padding:0;font-size:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.link-btn:hover{text-decoration-color:var(--teal)}
+.stat{cursor:pointer;transition:transform .12s}
+.stat:hover{transform:translateY(-2px)}
+.avail{font-size:11px;font-weight:800}
+.avail.free{color:var(--green)}
+.avail.busy{color:var(--amber)}
 .empty{padding:32px;text-align:center;color:var(--muted);font-size:14px}
 .table-scroll{overflow-x:auto}
 
@@ -124,6 +146,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
     <div class="sec">
       <div class="sec-head">
         <h3>Booking requests <span class="count" id="bkCount"></span></h3>
+        <input type="search" id="bkSearch" placeholder="Search code / mobile / area…" oninput="renderBookings(BK_CACHE)" style="font-family:Cairo,sans-serif;font-size:13px;padding:7px 12px;border:1.5px solid var(--line);border-radius:99px;min-width:200px">
         <div class="filters" id="bkFilters">
           <button class="f-chip on" data-f="">All</button>
           <button class="f-chip" data-f="new">New</button>
@@ -160,8 +183,12 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
   </div>
 </div>
 
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><button class="close" onclick="closeModal()">✕</button><div id="modalBody"></div></div>
+</div>
+
 <script>
-let TOKEN=null, bkFilter='', pollTimer=null, TECHS=[];
+let TOKEN=null, bkFilter='', pollTimer=null, TECHS=[], BK_CACHE=[];
 const tradeAr={"ac":"AC","satellite":"Satellite","cctv":"CCTV","wifi":"WiFi","intercom":"Intercom","smart-home":"Smart Home"};
 
 async function api(path,opts={}){
@@ -199,39 +226,84 @@ async function loadAll(){
       api('/api/admin/applications')
     ]);
     TECHS=a.applications.filter(t=>t.status==='approved');
-    renderStats(s.stats);renderBookings(b.bookings);renderApps(a.applications);
+    BK_CACHE=b.bookings;
+    renderStats(s.stats);renderBookings(BK_CACHE);renderApps(a.applications);
+    const newCount=BK_CACHE.filter(x=>x.status==='new').length + a.applications.filter(x=>x.status!=='approved').length;
+    document.title=(newCount?`(${newCount}) `:'')+'فنّي — Admin';
     document.getElementById('lastSync').textContent='synced '+new Date().toLocaleTimeString();
   }catch(e){ if(e.message==='auth') logout(); }
 }
 
 function renderStats(s){
   document.getElementById('statGrid').innerHTML=`
-    <div class="stat hl"><div class="v">${s.bookings_total}</div><div class="l">Total bookings</div></div>
-    <div class="stat"><div class="v">${s.bookings_done}</div><div class="l">Completed jobs</div></div>
+    <div class="stat hl" onclick="setFilter('')"><div class="v">${s.bookings_total}</div><div class="l">Total bookings ›</div></div>
+    <div class="stat" onclick="setFilter('done')"><div class="v">${s.bookings_done}</div><div class="l">Completed jobs ›</div></div>
     <div class="stat"><div class="v">EGP ${s.gmv_egp.toLocaleString()}</div><div class="l">GMV (completed)</div></div>
     <div class="stat"><div class="v">EGP ${s.platform_revenue_egp.toLocaleString()}</div><div class="l">Platform revenue</div></div>
-    <div class="stat"><div class="v">${s.technicians_approved}</div><div class="l">Approved technicians</div></div>
-    <div class="stat warn"><div class="v">${s.applications_pending}</div><div class="l">Pending applications</div></div>
+    <div class="stat" onclick="scrollApps()"><div class="v">${s.technicians_approved}</div><div class="l">Approved technicians ›</div></div>
+    <div class="stat warn" onclick="scrollApps()"><div class="v">${s.applications_pending}</div><div class="l">Pending applications ›</div></div>
     <div class="stat"><div class="v">${s.avg_rating||'—'}</div><div class="l">Avg rating</div></div>
     <div class="stat"><div class="v mono" style="font-size:15px;padding-top:8px">20% + 25</div><div class="l">Commission + fee</div></div>`;
 }
 
 function esc(x){const d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML}
 
+function ago(iso){
+  if(!iso)return'';
+  const s=(Date.now()-new Date(iso).getTime())/1000;
+  if(s<60)return'just now';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
 function renderBookings(rows){
+  const q=(document.getElementById('bkSearch').value||'').trim().toLowerCase();
+  if(q)rows=rows.filter(b=>(b.code+' '+b.customer_mobile+' '+(b.customer_name||'')+' '+b.area).toLowerCase().includes(q));
   const body=document.getElementById('bkBody');
   document.getElementById('bkCount').textContent='· '+rows.length;
   document.getElementById('bkEmpty').style.display=rows.length?'none':'block';
   body.innerHTML=rows.map(b=>`
     <tr>
-      <td class="mono">${esc(b.code)}<div class="sub">${esc((b.created_at||'').slice(0,10))}</div></td>
-      <td><b>${esc(b.job_title||b.service_slug)}</b><div class="sub">${esc(b.notes||'')}</div></td>
+      <td class="mono"><button class="link-btn mono" onclick="openBooking('${esc(b.code)}')">${esc(b.code)}</button><div class="sub">${ago(b.created_at)}</div>
+        <button class="detail-btn" onclick="toggleBk('${esc(b.code)}')" id="bdb-${esc(b.code)}">▸ Details</button></td>
+      <td><b>${esc(b.job_title||b.service_slug)}</b></td>
       <td class="hide-m">${esc(b.customer_name||'—')}<div class="sub mono">${esc(b.customer_mobile)}</div></td>
       <td>${esc(b.area)}<div class="sub">${esc(b.day)} · ${esc(b.time_window)}</div></td>
       <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}</td>
       <td><span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></td>
-      <td>${esc(b.tech_name||'—')}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
-    </tr>`).join('');
+      <td>${b.technician_id?`<button class="link-btn" onclick="openTech(${b.technician_id})">${esc(b.tech_name)}</button><div class="sub">${(b.tech_rating||0).toFixed(1)}★ · ${b.tech_jobs||0} jobs</div>`:'—'}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
+    </tr>
+    <tr id="bdet-${esc(b.code)}" style="display:none"><td colspan="7" style="background:var(--sand);padding:16px 20px">
+      <div class="det-grid">
+        ${det('Address', b.address)}
+        ${det('Notes', b.notes)}
+        ${det('Customer mobile', b.customer_mobile, true)}
+        ${det('Payment', b.payment_method)}
+        ${det('Labor', 'EGP '+b.labor_egp, true)}
+        ${det('Parts (approved)', 'EGP '+(b.parts_egp||0), true)}
+        ${det('Created', (b.created_at||'').replace('T',' ').slice(0,16), true)}
+        ${det('Updated', (b.updated_at||'').replace('T',' ').slice(0,16), true)}
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <a class="approve-btn" style="text-decoration:none" href="tel:+2${esc(b.customer_mobile)}">📞 Call customer</a>
+        <a class="approve-btn" style="text-decoration:none;background:#25D366" href="https://wa.me/2${esc(b.customer_mobile)}?text=${encodeURIComponent('فنّي — بخصوص طلبك '+b.code)}" target="_blank">WhatsApp</a>
+        ${(b.status!=='done'&&b.status!=='cancelled')?`<button class="approve-btn" style="background:var(--red);color:#fff" onclick="cancelBk('${esc(b.code)}',this)">✕ Cancel booking</button>`:''}
+      </div>
+    </td></tr>`).join('');
+}
+function toggleBk(code){
+  const row=document.getElementById('bdet-'+code), btn=document.getElementById('bdb-'+code);
+  const open=row.style.display!=='none';
+  row.style.display=open?'none':'table-row';
+  btn.textContent=open?'▸ Details':'▾ Hide';
+}
+async function cancelBk(code,btn){
+  if(!confirm('Cancel booking '+code+'? The customer should be informed.'))return;
+  btn.disabled=true;
+  try{
+    const d=await api('/api/admin/bookings/'+code+'/cancel',{method:'POST'});
+    if(d.ok)loadAll();else{alert(d.error);btn.disabled=false}
+  }catch(e){btn.disabled=false}
 }
 
 function renderApps(rows){
@@ -240,7 +312,9 @@ function renderApps(rows){
   document.getElementById('apEmpty').style.display=rows.length?'none':'block';
   body.innerHTML=rows.map(a=>`
     <tr>
-      <td><b>${esc(a.full_name)}</b><div class="sub">${esc(a.experience||'')}</div>
+      <td><button class="link-btn" onclick="openTech(${a.id})">${esc(a.full_name)}</button>
+        <div class="sub">${esc(a.experience||'')}</div>
+        ${a.status==='approved'?`<span class="avail ${a.active_jobs?'busy':'free'}">${a.active_jobs?('● busy · '+a.active_jobs+' active'):'● available'}</span>`:''}
         <button class="detail-btn" onclick="toggleDetail(${a.id})" id="db-${a.id}">▸ Details</button></td>
       <td class="hide-m mono">${esc(a.mobile)}</td>
       <td>${esc(a.district)}<div class="sub">${esc(a.governorate)}</div></td>
@@ -255,6 +329,10 @@ function renderApps(rows){
     <tr id="det-${a.id}" style="display:none"><td colspan="7" style="background:var(--sand);padding:16px 20px">
       <div class="det-grid">
         ${det('Mobile', a.mobile, true)}
+        <div><div class="det-k">Contact</div><div style="display:flex;gap:6px;margin-top:2px">
+          <a class="approve-btn" style="text-decoration:none;padding:4px 12px" href="tel:+2${esc(a.mobile)}">📞</a>
+          <a class="approve-btn" style="text-decoration:none;padding:4px 12px;background:#25D366" href="https://wa.me/2${esc(a.mobile)}" target="_blank">WA</a>
+        </div></div>
         ${det('National ID', a.national_id_last4 ? '•••• •••• '+a.national_id_last4 : '—', true)}
         ${det('Date of birth', a.dob)}
         ${det('Governorate', a.governorate)}
@@ -265,6 +343,7 @@ function renderApps(rows){
         ${det('Equipment & availability', a.setup ? a.setup.split(',').join(' · ') : '—')}
         ${det('Assessment hub', a.assessment_hub)}
         ${det('Assessment slot', a.assessment_slot)}
+        ${det('Documents', (a.documents&&a.documents.length)?a.documents.length+' uploaded — open profile to view':'none uploaded')}
         ${det('Applied on', (a.created_at||'').slice(0,10), true)}
         ${a.status==='approved'?det('Jobs done', a.jobs_done, true):''}
         ${a.status==='approved'?det('Rating', a.rating_count?(a.rating_avg.toFixed(1)+'★ ('+a.rating_count+')'):'no ratings yet'):''}
@@ -299,7 +378,7 @@ async function approve(id,btn){
 function assignCtl(b){
   const matches=TECHS.filter(t=>(t.trades||'').split(',').includes(b.service_slug));
   if(!matches.length)return '<div class="sub">no matching tech</div>';
-  const opts=matches.map(t=>`<option value="${t.id}">${esc(t.full_name)} — ${esc(t.district||'')}</option>`).join('');
+  const opts=matches.map(t=>`<option value="${t.id}">${esc(t.full_name)}${t.active_jobs?' (busy·'+t.active_jobs+')':' (free)'} — ${esc(t.district||'')}</option>`).join('');
   return `<div style="margin-top:5px;display:flex;gap:5px;align-items:center">
     <select id="as-${b.code}" style="font-family:Cairo,sans-serif;font-size:12px;padding:4px 6px;border:1.5px solid var(--line);border-radius:8px;max-width:150px">${opts}</select>
     <button class="approve-btn" style="padding:4px 12px" onclick="assign('${b.code}',this)">${b.technician_id?'Re-assign':'Assign'}</button>
@@ -313,6 +392,105 @@ async function assign(code,btn){
     if(d.ok){loadAll()}
     else{alert(d.error);btn.disabled=false;btn.textContent='Assign'}
   }catch(e){btn.disabled=false;btn.textContent='Assign'}
+}
+function setFilter(f){
+  bkFilter=f;
+  document.querySelectorAll('#bkFilters .f-chip').forEach(x=>x.classList.toggle('on',x.dataset.f===f));
+  loadAll();
+  document.getElementById('bkBody').closest('.sec').scrollIntoView({behavior:'smooth'});
+}
+function scrollApps(){document.getElementById('apBody').closest('.sec').scrollIntoView({behavior:'smooth'})}
+function closeModal(){document.getElementById('modalBg').classList.remove('open')}
+function openModal(html){document.getElementById('modalBody').innerHTML=html;document.getElementById('modalBg').classList.add('open')}
+
+async function openTech(id){
+  openModal('<p class="msub">Loading…</p>');
+  const d=await api('/api/admin/technicians/'+id);
+  if(!d.ok){openModal('<p class="msub">'+esc(d.error)+'</p>');return}
+  const t=d.technician;
+  const docLabels={id_front:'ID — front',id_back:'ID — back',photo:'Personal photo',certificate:'Certificate'};
+  openModal(`
+    <h3>${esc(t.full_name)}</h3>
+    <div class="msub">${esc(t.district||'')}, ${esc(t.governorate||'')} · <span class="chip st-${esc(t.status)}">${esc(t.status.replace('_',' '))}</span>
+      ${t.status==='approved'?`<span class="avail ${t.active_jobs?'busy':'free'}"> ${t.active_jobs?'● busy — '+t.active_jobs+' active job(s)':'● available now'}</span>`:''}</div>
+    <div class="det-grid">
+      ${det('Mobile',t.mobile,true)}
+      ${det('National ID',t.national_id_last4?'•••• •••• '+t.national_id_last4:'—',true)}
+      ${det('Date of birth',t.dob)}
+      ${det('Trades',(t.trades||'').split(',').filter(Boolean).map(x=>tradeAr[x]||x).join(' · '))}
+      ${det('Experience',t.experience)}
+      ${det('Transport',t.transport)}
+      ${det('Equipment',t.setup?t.setup.split(',').join(' · '):'—')}
+      ${det('Assessment',(t.assessment_slot||'—')+' · '+((t.assessment_hub||'').replace(/مركز فنّي —|Fanni Hub —/,'')))}
+      ${det('Rating',t.rating_count?t.rating_avg.toFixed(1)+'★ ('+t.rating_count+')':'no ratings yet')}
+      ${det('Jobs done',t.jobs_done,true)}
+      ${det('Joined',(t.created_at||'').slice(0,10),true)}
+    </div>
+    <div class="det-k" style="margin-top:16px">Eligibility documents</div>
+    <div class="doc-grid" id="docGrid">${t.documents.length?t.documents.map(k=>`
+      <div class="doc-card"><img id="doc-${t.id}-${k}" alt="${docLabels[k]||k}"><div class="dl">${docLabels[k]||k}</div></div>`).join('')
+      :'<p class="msub">No documents uploaded with this application.</p>'}</div>
+    <div class="det-k" style="margin-top:6px">Job history (${t.bookings.length})</div>
+    ${t.bookings.length?`<div class="hist">${t.bookings.slice(0,8).map(b=>`
+      <div><button class="link-btn mono" onclick="openBooking('${esc(b.code)}')">${esc(b.code)}</button>
+      ${esc(b.title)} · ${esc(b.area)} · <span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></div>`).join('')}</div>`
+      :'<p class="msub">No jobs yet.</p>'}
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <a class="approve-btn" style="text-decoration:none" href="tel:+2${esc(t.mobile)}">📞 Call</a>
+      <a class="approve-btn" style="text-decoration:none;background:#25D366" href="https://wa.me/2${esc(t.mobile)}" target="_blank">WhatsApp</a>
+      <button class="danger-btn" onclick="deleteTech(${t.id},'${esc(t.full_name)}')">🗑 Remove technician</button>
+    </div>`);
+  // documents require the admin header, so fetch as blobs
+  for(const k of t.documents){
+    fetch('/api/admin/technicians/'+t.id+'/doc/'+k,{headers:{'X-Admin-Token':TOKEN}})
+      .then(r=>r.ok?r.blob():null)
+      .then(bl=>{if(bl){const el=document.getElementById('doc-'+t.id+'-'+k);
+        if(el){el.src=URL.createObjectURL(bl);el.onclick=()=>window.open(el.src,'_blank')}}});
+  }
+}
+async function deleteTech(id,name){
+  if(!confirm('Remove '+name+' permanently? Their open jobs return to the pool and documents are deleted.'))return;
+  const d=await api('/api/admin/technicians/'+id,{method:'DELETE'});
+  if(d.ok){closeModal();loadAll()}else alert(d.error);
+}
+
+async function openBooking(code){
+  openModal('<p class="msub">Loading…</p>');
+  const d=await api('/api/admin/bookings/'+code+'/full');
+  if(!d.ok){openModal('<p class="msub">'+esc(d.error)+'</p>');return}
+  const b=d.booking;
+  openModal(`
+    <h3 class="mono">${esc(b.code)}</h3>
+    <div class="msub">${esc(b.job_title)} · <span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></div>
+    <div class="det-grid">
+      ${det('Customer',b.customer_name||'—')}
+      ${det('Mobile',b.customer_mobile,true)}
+      ${det('Address',b.address)}
+      ${det('Area',b.area)}
+      ${det('Schedule',b.day+' · '+b.time_window)}
+      ${det('Notes',b.notes)}
+      ${det('Payment',b.payment_method)}
+      ${det('Labor','EGP '+b.labor_egp,true)}
+      ${det('Parts','EGP '+(b.parts_egp||0),true)}
+      ${det('Total','EGP '+b.total_egp,true)}
+      ${det('Technician',b.tech_name?b.tech_name+' ('+(b.tech_rating||0).toFixed(1)+'★)':'unassigned')}
+      ${b.rating?det('Customer rating',b.rating.stars+'★ '+(b.rating.tags||'')):''}
+    </div>
+    ${b.parts_quotes.length?`<div class="det-k" style="margin-top:14px">Parts quotes</div>
+      <div class="hist">${b.parts_quotes.map(p=>`<div>${esc(p.part_name)} — <span class="mono">EGP ${p.price_egp}</span> <span class="chip st-${p.status==='approved'?'done':p.status==='pending'?'new':'cancelled'}">${p.status}</span></div>`).join('')}</div>`:''}
+    <div class="det-k" style="margin-top:14px">Status history</div>
+    <div class="hist">${b.history.map(h=>`<div>${esc(h.status.replace('_',' '))} <span class="mono">${esc(h.at.replace('T',' ').slice(0,16))}</span></div>`).join('')}</div>
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <a class="approve-btn" style="text-decoration:none" href="tel:+2${esc(b.customer_mobile)}">📞 Call</a>
+      <a class="approve-btn" style="text-decoration:none;background:#25D366" href="https://wa.me/2${esc(b.customer_mobile)}?text=${encodeURIComponent('فنّي — بخصوص طلبك '+b.code)}" target="_blank">WhatsApp</a>
+      ${(b.status!=='done'&&b.status!=='cancelled')?`<button class="approve-btn" style="background:var(--red);color:#fff" onclick="cancelBk('${esc(b.code)}',this);closeModal()">✕ Cancel</button>`:''}
+      <button class="danger-btn" onclick="deleteBk('${esc(b.code)}')">🗑 Delete booking</button>
+    </div>`);
+}
+async function deleteBk(code){
+  if(!confirm('Delete '+code+' permanently? This removes all its history and cannot be undone.'))return;
+  const d=await api('/api/admin/bookings/'+code,{method:'DELETE'});
+  if(d.ok){closeModal();loadAll()}else alert(d.error);
 }
 document.querySelectorAll('#bkFilters .f-chip').forEach(c=>{
   c.addEventListener('click',()=>{
