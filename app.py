@@ -691,6 +691,21 @@ def admin_assign(code):
                     "technician": t["full_name"]})
 
 
+@app.post("/api/admin/bookings/<code>/cancel")
+@require_admin
+def admin_cancel(code):
+    db = get_db()
+    b = db.execute("SELECT * FROM bookings WHERE code=?", (code.upper(),)).fetchone()
+    if not b:
+        return err("Booking not found", 404)
+    if b["status"] in ("done", "cancelled"):
+        return err(f"Cannot cancel a booking in status '{b['status']}'", 409)
+    db.execute("UPDATE bookings SET status='cancelled', updated_at=? WHERE id=?", (now(), b["id"]))
+    log_status(db, b["id"], "cancelled")
+    db.commit()
+    return jsonify({"ok": True, "code": b["code"], "status": "cancelled"})
+
+
 @app.get("/api/admin/stats")
 @require_admin
 def admin_stats():
