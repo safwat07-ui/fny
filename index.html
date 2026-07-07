@@ -57,6 +57,8 @@ nav{
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
 .btn-dark{background:var(--teal);color:#fff}
 .btn-dark:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(15,91,99,.3)}
+.btn-white{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 2px 10px rgba(12,46,51,.06)}
+.btn-white:hover{transform:translateY(-1px);border-color:var(--teal)}
 .btn-ghost{background:transparent;color:var(--teal);border:2px solid var(--teal)}
 .btn-ghost:hover{background:var(--mist)}
 
@@ -80,7 +82,9 @@ h1 .hl::after{
   background:var(--amber-soft);z-index:-1;border-radius:3px;
 }
 .hero p.lead{font-size:18px;color:var(--muted);margin:18px 0 28px;max-width:520px}
-.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+.hero-ctas{display:flex;gap:10px;flex-wrap:nowrap;margin-bottom:28px}
+.hero-ctas .btn{flex:1;text-align:center;white-space:nowrap;padding:12px 10px}
+@media(max-width:400px){.hero-ctas .btn{font-size:13.5px;padding:11px 6px}}
 .trust-row{display:flex;gap:26px;flex-wrap:wrap}
 .trust-item{display:flex;flex-direction:column}
 .trust-item .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:20px;color:var(--teal)}
@@ -248,14 +252,15 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
 <!-- NAV -->
 <nav>
   <div class="container nav-inner">
-    <a href="#" class="logo">
-      <span class="ar">فنّي</span>
-      <span class="en">Fanni</span>
-    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="#" class="logo">
+        <span class="ar">فنّي</span>
+        <span class="en">Fanni</span>
+      </a>
+      <a href="index-ar.html" class="lang" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:4px 13px;color:var(--muted);text-decoration:none">العربية</a>
+    </div>
     <div class="nav-links">
-      <a href="#how">How it works</a>
       <a href="join.html" class="btn btn-primary">Apply as a فنّي</a>
-      <a href="index-ar.html" class="lang" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;color:var(--muted)">العربية</a>
       <a href="book.html" class="btn btn-primary">Book now</a>
     </div>
   </div>
@@ -269,8 +274,8 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
       <h1>A trusted <span class="hl">فنّي</span> at your door — vetted, priced, guaranteed.</h1>
       <p class="lead">Book certified technicians for AC, satellite, CCTV, WiFi, intercom and smart home — with upfront prices in EGP and a 30-day workmanship warranty.</p>
       <div class="hero-ctas">
-        <a href="book.html" class="btn btn-primary">Book a technician</a>
-        <a href="join.html" class="btn btn-ghost">Apply as a فنّي</a>
+        <a href="book.html" class="btn btn-white">Book a technician</a>
+        <a href="join.html" class="btn btn-primary">Apply as a فنّي</a>
       </div>
       <div class="trust-row">
         <div class="trust-item"><span class="num">1,200+</span><span class="lbl">Vetted technicians</span></div>
@@ -307,42 +312,6 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
     </div>
   </div>
 </header>
-
-<!-- HOW IT WORKS -->
-<section class="how" id="how">
-  <div class="how-bg-ar">فنّي</div>
-  <div class="container">
-    <div class="sec-head">
-      <h2>From request to fixed — three steps</h2>
-      <p>No haggling at the door. No strangers without a name.</p>
-    </div>
-    <div style="position:relative">
-      <div class="cable">
-        <svg viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,30 C 180,30 200,5 340,5 S 520,55 660,55 S 860,30 1000,30"
-                fill="none" stroke="#F08A24" stroke-width="2.5" stroke-dasharray="8 7" opacity=".7"/>
-        </svg>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="dot">01</div>
-          <h3>Choose & price</h3>
-          <p>Pick the service and see the fixed price in EGP before you confirm — parts quoted separately with your approval.</p>
-        </div>
-        <div class="step">
-          <div class="dot">02</div>
-          <h3>Meet your فنّي</h3>
-          <p>You get his name, photo, rating and live arrival time. Every technician is ID-verified and skill-certified.</p>
-        </div>
-        <div class="step">
-          <div class="dot">03</div>
-          <h3>Fixed, rated, guaranteed</h3>
-          <p>Pay cash or card after the job. Rate the work. Every job carries a 30-day workmanship warranty.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- WHY -->
 <section>

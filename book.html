@@ -146,6 +146,7 @@ h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
 .btn-dark{background:var(--teal);color:#fff}
 .btn-back{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
 .btn-full{width:100%}
+.field input.invalid,.field select.invalid{border-color:var(--red)}
 .err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
 .err.show{display:block}
 .demo-hint{text-align:center;font-size:12px;color:var(--muted);margin-top:14px}
@@ -408,12 +409,17 @@ document.querySelectorAll('.pay').forEach(p=>{
   });
 });
 
+function normDigits(s){return (s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))}
 function v(id){return document.getElementById(id).value.trim()}
+function vNum(id){return normDigits(v(id)).replace(/\D/g,'')}
+function mark(id,bad){document.getElementById(id).classList.toggle('invalid',bad)}
 function next(n){
   if(n===1){if(!state.svc){showErr(1,true);return}showErr(1,false);buildJobs()}
   if(n===2){if(!state.job){showErr(2,true);return}showErr(2,false)}
   if(n===3){
-    if(!state.day||!state.time||v('mob').length<10||!v('addr')){showErr(3,true);return}
+    const badMob=vNum('mob').length!==11, badAddr=!v('addr');
+    mark('mob',badMob);mark('addr',badAddr);
+    if(!state.day||!state.time||badMob||badAddr){showErr(3,true);return}
     showErr(3,false);buildQuote();
   }
   step=n+1;render();
@@ -429,15 +435,20 @@ function buildQuote(){
 }
 const slugMap={"AC":"ac","Satellite & TV":"satellite","CCTV":"cctv","WiFi":"wifi","Intercom":"intercom","Smart Home":"smart-home"};
 async function confirmBooking(){
+  const btn=event.target;
+  if(btn.disabled)return;
+  btn.disabled=true;const orig=btn.textContent;btn.textContent='Booking…';
   const total=state.job.p+25;
   let code='FN-'+String(Math.floor(10000+Math.random()*90000));
   try{
     const r=await fetch('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({job_catalog_id:state.job.id,customer_mobile:v('mob'),area:v('area'),
+      body:JSON.stringify({job_catalog_id:state.job.id,customer_mobile:vNum('mob'),area:v('area'),
         address:v('addr'),notes:v('notes'),day:state.day,time_window:state.time,payment_method:state.pay.toLowerCase()})});
     const d=await r.json();
-    if(d.ok){code=d.code;state.code=code}
+    if(d.ok){location.href='track.html?code='+d.code+'&lang=en';return}
+    else{alert(d.error||'Could not complete the booking — please check your details.');btn.disabled=false;btn.textContent=orig;return}
   }catch(e){/* offline demo mode */}
+  btn.disabled=false;btn.textContent=orig;
   document.getElementById('jobCode').textContent=code;
   document.getElementById('tlPrice').textContent='EGP '+total;
   step=5;render();
@@ -484,6 +495,10 @@ function finishRating(){
   btn.textContent=rating>0?'Thank you! ★'.replace('★','★'.repeat(0))+' Rating submitted ✓':'Rating submitted ✓';
   btn.disabled=true;btn.style.opacity=.6;
 }
+/* prefill from homepage card */
+const P=new URLSearchParams(location.search);
+if(P.get('mob'))document.getElementById('mob').value=P.get('mob');
+if(P.get('area')){const ar=document.getElementById('area');[...ar.options].forEach(o=>{if(o.text===P.get('area'))ar.value=o.text})}
 /* preselect service from homepage */
 const urlSvc=new URLSearchParams(location.search).get('svc');
 if(urlSvc&&jobs[urlSvc]){

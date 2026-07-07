@@ -34,6 +34,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .btn-primary{background:var(--amber);color:var(--ink)}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
 .btn-dark{background:var(--teal);color:#fff}
+.btn-white{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 2px 10px rgba(12,46,51,.06)}
+.btn-white:hover{transform:translateY(-1px);border-color:var(--teal)}
 .btn-ghost{background:transparent;color:var(--teal);border:2px solid var(--teal)}
 .btn-ghost:hover{background:var(--mist)}
 
@@ -45,7 +47,9 @@ h1{font-size:clamp(32px,4.6vw,52px);font-weight:900;line-height:1.35}
 h1 .hl{color:var(--teal);position:relative;white-space:nowrap}
 h1 .hl::after{content:"";position:absolute;right:0;left:0;bottom:6px;height:10px;background:var(--amber-soft);z-index:-1;border-radius:3px}
 .hero p.lead{font-size:18px;color:var(--muted);margin:18px 0 28px;max-width:540px}
-.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+.hero-ctas{display:flex;gap:10px;flex-wrap:nowrap;margin-bottom:28px}
+.hero-ctas .btn{flex:1;text-align:center;white-space:nowrap;padding:12px 10px}
+@media(max-width:400px){.hero-ctas .btn{font-size:13.5px;padding:11px 6px}}
 .trust-row{display:flex;gap:30px;flex-wrap:wrap}
 .trust-item{display:flex;flex-direction:column}
 .trust-item .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:20px;color:var(--teal)}
@@ -155,11 +159,15 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
 
 <nav>
   <div class="container nav-inner">
-    <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
-    <div class="nav-links">
-      <a href="#how">كيف نعمل</a>
-      <a href="join-ar.html" class="btn btn-primary">قدّم كفنّي</a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="display:flex;align-items:center;gap:12px">
+      <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
       <a href="index.html" class="lang">EN</a>
+    </div>
+      <a href="index.html" class="lang">EN</a>
+    </div>
+    <div class="nav-links">
+      <a href="join-ar.html" class="btn btn-primary">قدّم كفنّي</a>
       <a href="book-ar.html" class="btn btn-primary">احجز الآن</a>
     </div>
   </div>
@@ -172,8 +180,8 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
       <h1><span class="hl">فنّي</span> موثوق على باب بيتك — معتمد، بسعر ثابت، وبضمان.</h1>
       <p class="lead">احجز فنيين معتمدين للتكييف والدش والكاميرات والواي فاي والإنتركم والسمارت هوم — بأسعار معلنة مقدمًا بالجنيه المصري، وضمان ٣٠ يوم على الشغل.</p>
       <div class="hero-ctas">
-        <a href="book-ar.html" class="btn btn-primary">احجز فنّي</a>
-        <a href="join-ar.html" class="btn btn-ghost">قدّم كفنّي</a>
+        <a href="book-ar.html" class="btn btn-white">احجز فنّي</a>
+        <a href="join-ar.html" class="btn btn-primary">قدّم كفنّي</a>
       </div>
       <div class="trust-row">
         <div class="trust-item"><span class="num">+1,200</span><span class="lbl">فني معتمد</span></div>
@@ -209,28 +217,6 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
     </div>
   </div>
 </header>
-
-<section class="how" id="how">
-  <div class="how-bg-ar">فنّي</div>
-  <div class="container">
-    <div class="sec-head">
-      <h2>من الطلب للتصليح — ثلاث خطوات</h2>
-      <p>من غير فصال على الباب. ومن غير غريب من غير اسم.</p>
-    </div>
-    <div style="position:relative">
-      <div class="cable">
-        <svg viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,30 C 180,30 200,5 340,5 S 520,55 660,55 S 860,30 1000,30" fill="none" stroke="#F08A24" stroke-width="2.5" stroke-dasharray="8 7" opacity=".7"/>
-        </svg>
-      </div>
-      <div class="steps">
-        <div class="step"><div class="dot">01</div><h3>اختار وشوف السعر</h3><p>اختار الخدمة وشوف السعر الثابت بالجنيه قبل ما تأكد — قطع الغيار بتتسعّر على حدة وبموافقتك.</p></div>
-        <div class="step"><div class="dot">02</div><h3>اعرف فنّيك</h3><p>هيوصلك اسمه وصورته وتقييمه وموعد وصوله لحظة بلحظة. كل فني متحقق من هويته ومعتمد عمليًا.</p></div>
-        <div class="step"><div class="dot">03</div><h3>اتصلّح، قيّم، ومضمون</h3><p>ادفع كاش أو بالكارت بعد الشغل. قيّم الفني. وكل شغلانة عليها ضمان ٣٠ يوم.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section>
   <div class="container">

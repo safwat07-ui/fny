@@ -10,7 +10,11 @@ Env:      FANNI_ADMIN_TOKEN  (default: change-me-admin)
 """
 
 import base64
+import hashlib
+import hmac as hmac_lib
 import json
+import threading
+import urllib.request
 import os
 import re
 import secrets
@@ -23,6 +27,16 @@ from flask import Flask, g, jsonify, request, send_from_directory
 
 DB_PATH = os.environ.get("FANNI_DB", "fanni.db")
 ADMIN_TOKEN = os.environ.get("FANNI_ADMIN_TOKEN", "change-me-admin")
+# WhatsApp Cloud API (optional — notifications no-op until configured)
+WA_TOKEN = os.environ.get("WA_TOKEN", "")
+WA_PHONE_ID = os.environ.get("WA_PHONE_ID", "")
+ADMIN_WHATSAPP = os.environ.get("ADMIN_WHATSAPP", "")          # e.g. 2010XXXXXXXX
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+# Paymob (optional — online payment disabled until configured)
+PAYMOB_API_KEY = os.environ.get("PAYMOB_API_KEY", "")
+PAYMOB_INTEGRATION_ID = os.environ.get("PAYMOB_INTEGRATION_ID", "")
+PAYMOB_IFRAME_ID = os.environ.get("PAYMOB_IFRAME_ID", "")
+PAYMOB_HMAC = os.environ.get("PAYMOB_HMAC", "")
 STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
 DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(DB_PATH)) if os.path.dirname(DB_PATH) else ".", "fanni_docs")
 os.makedirs(DOCS_DIR, exist_ok=True)
@@ -91,6 +105,9 @@ CREATE TABLE IF NOT EXISTS bookings (
     parts_egp INTEGER NOT NULL DEFAULT 0,
     total_egp INTEGER NOT NULL,
     payment_method TEXT DEFAULT 'cash',
+    payment_status TEXT DEFAULT 'unpaid',  -- unpaid|paid|refunded
+    paymob_order_id TEXT,
+    txn_id TEXT,
     status TEXT DEFAULT 'new',            -- new|assigned|en_route|arrived|working|done|cancelled
     technician_id INTEGER REFERENCES technicians(id),
     created_at TEXT NOT NULL,
@@ -204,9 +221,11 @@ def close_db(_exc):
 def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
-    for col in ("dob TEXT", "documents TEXT"):
+    for tbl, col in (("technicians", "dob TEXT"), ("technicians", "documents TEXT"),
+                     ("bookings", "payment_status TEXT DEFAULT 'unpaid'"),
+                     ("bookings", "paymob_order_id TEXT"), ("bookings", "txn_id TEXT")):
         try:
-            db.execute(f"ALTER TABLE technicians ADD COLUMN {col}")
+            db.execute(f"ALTER TABLE {tbl} ADD COLUMN {col}")
         except sqlite3.OperationalError:
             pass  # column already exists
     cur = db.execute("SELECT COUNT(*) FROM services")
@@ -255,6 +274,33 @@ def log_status(db, booking_id, status):
         "INSERT INTO status_log (booking_id,status,at) VALUES (?,?,?)",
         (booking_id, status, now()),
     )
+
+
+def _wa_send(phone, text):
+    try:
+        req = urllib.request.Request(
+            f"https://graph.facebook.com/v19.0/{WA_PHONE_ID}/messages",
+            data=json.dumps({"messaging_product": "whatsapp", "to": phone,
+                             "type": "text", "text": {"body": text}}).encode(),
+            headers={"Authorization": f"Bearer {WA_TOKEN}",
+                     "Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=8)
+    except Exception as e:
+        print(f"[notify] failed to {phone}: {e}")
+
+
+def notify(phone, text):
+    """Fire-and-forget WhatsApp message. No-ops if the gateway isn't configured."""
+    if not (WA_TOKEN and WA_PHONE_ID and phone):
+        print(f"[notify-skip] {phone}: {text[:70]}")
+        return
+    to = "2" + re.sub(r"\D", "", phone)[-11:] if not str(phone).startswith("2") else str(phone)
+    threading.Thread(target=_wa_send, args=(to, text), daemon=True).start()
+
+
+def track_link(code, lang="ar"):
+    base = PUBLIC_BASE_URL or ""
+    return f"{base}/track.html?code={code}&lang={lang}"
 
 
 def require_admin(f):
@@ -321,6 +367,8 @@ def booking_public(db, b):
         "parts_egp": b["parts_egp"],
         "total_egp": b["total_egp"],
         "payment_method": b["payment_method"],
+        "payment_status": b["payment_status"] if "payment_status" in b.keys() else "unpaid",
+        "payment_available": bool(PAYMOB_API_KEY and PAYMOB_INTEGRATION_ID and PAYMOB_IFRAME_ID),
         "technician": tech,
         "parts_quotes": parts,
         "history": history,
@@ -409,6 +457,9 @@ def create_booking():
     )
     log_status(db, cur.lastrowid, "new")
     db.commit()
+    notify(ADMIN_WHATSAPP,
+           f"فنّي — طلب جديد {code}\n{job['title']}\n{d['area']} · {d['day']} {d['time_window']}\n"
+           f"موبايل العميل: {re.sub(r'[^0-9]', '', d['customer_mobile'])}\nافتح اللوحة لتوزيعه.")
     return jsonify({"ok": True, "code": code, "total_egp": total,
                     "fixed_price": True, "warranty_days": 30}), 201
 
@@ -478,6 +529,97 @@ def rate_booking(code):
             (new_avg, new_count, t["id"]),
         )
     db.commit()
+    return jsonify({"ok": True})
+
+
+# --------------------------------------------------------------------------
+# Payments — Paymob (cards & wallets, Egypt)
+# --------------------------------------------------------------------------
+
+def _paymob_post(url, payload, token=None):
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)
+    with urllib.request.urlopen(req, timeout=15) as r:
+        return json.loads(r.read().decode())
+
+
+@app.post("/api/bookings/<code>/pay")
+def start_payment(code):
+    if not (PAYMOB_API_KEY and PAYMOB_INTEGRATION_ID and PAYMOB_IFRAME_ID):
+        return err("Online payment is not configured yet — pay cash after the job.", 503)
+    db = get_db()
+    b = db.execute("SELECT * FROM bookings WHERE code=?", (code.upper(),)).fetchone()
+    if not b:
+        return err("Booking not found", 404)
+    if b["payment_status"] == "paid":
+        return err("Already paid", 409)
+    try:
+        auth = _paymob_post("https://accept.paymob.com/api/auth/tokens",
+                            {"api_key": PAYMOB_API_KEY})
+        token = auth["token"]
+        order = _paymob_post("https://accept.paymob.com/api/ecommerce/orders",
+                             {"auth_token": token, "delivery_needed": "false",
+                              "amount_cents": b["total_egp"] * 100, "currency": "EGP",
+                              "merchant_order_id": f"{b['code']}-{int(datetime.now().timestamp())}",
+                              "items": []})
+        db.execute("UPDATE bookings SET paymob_order_id=?, payment_method='card' WHERE id=?",
+                   (str(order["id"]), b["id"]))
+        db.commit()
+        pk = _paymob_post("https://accept.paymob.com/api/acceptance/payment_keys",
+                          {"auth_token": token, "amount_cents": b["total_egp"] * 100,
+                           "expiration": 3600, "order_id": order["id"],
+                           "billing_data": {"first_name": (b["customer_name"] or "Customer").split(" ")[0],
+                                            "last_name": (b["customer_name"] or "Fanni").split(" ")[-1],
+                                            "phone_number": "+2" + b["customer_mobile"],
+                                            "email": "na@fanni.eg", "apartment": "NA", "floor": "NA",
+                                            "street": b["address"][:80], "building": "NA",
+                                            "city": b["area"][:40], "country": "EG",
+                                            "state": "NA", "postal_code": "NA", "shipping_method": "NA"},
+                           "currency": "EGP", "integration_id": int(PAYMOB_INTEGRATION_ID)})
+        iframe = (f"https://accept.paymob.com/api/acceptance/iframes/"
+                  f"{PAYMOB_IFRAME_ID}?payment_token={pk['token']}")
+        return jsonify({"ok": True, "iframe_url": iframe, "amount_egp": b["total_egp"]})
+    except Exception as e:
+        print(f"[paymob] {e}")
+        return err("Payment gateway error — try again or pay cash.", 502)
+
+
+@app.post("/api/payments/webhook")
+def paymob_webhook():
+    data = request.get_json(silent=True) or {}
+    obj = data.get("obj") or {}
+    if PAYMOB_HMAC:
+        fields = ["amount_cents", "created_at", "currency", "error_occured",
+                  "has_parent_transaction", "id", "integration_id", "is_3d_secure",
+                  "is_auth", "is_capture", "is_refunded", "is_standalone_payment",
+                  "is_voided", "order", "owner", "pending",
+                  "source_data.pan", "source_data.sub_type", "source_data.type", "success"]
+        def dig(o, path):
+            cur = o
+            for p in path.split("."):
+                cur = (cur or {}).get(p) if isinstance(cur, dict) else None
+            if path == "order" and isinstance(cur, dict):
+                cur = cur.get("id")
+            return cur
+        concat = "".join(str(dig(obj, f)).lower() if isinstance(dig(obj, f), bool)
+                         else str(dig(obj, f)) for f in fields)
+        calc = hmac_lib.new(PAYMOB_HMAC.encode(), concat.encode(), hashlib.sha512).hexdigest()
+        if calc != (request.args.get("hmac") or data.get("hmac") or ""):
+            return err("Invalid HMAC", 403)
+    if not obj.get("success"):
+        return jsonify({"ok": True, "ignored": True})
+    order_id = str((obj.get("order") or {}).get("id", ""))
+    db = get_db()
+    b = db.execute("SELECT * FROM bookings WHERE paymob_order_id=?", (order_id,)).fetchone()
+    if not b:
+        return err("Unknown order", 404)
+    db.execute("UPDATE bookings SET payment_status='paid', txn_id=?, updated_at=? WHERE id=?",
+               (str(obj.get("id", "")), now(), b["id"]))
+    db.commit()
+    notify(b["customer_mobile"], f"فنّي ✓ تم استلام دفعتك {b['total_egp']} جنيه لطلب {b['code']}. شكرًا!")
+    notify(ADMIN_WHATSAPP, f"فنّي 💳 دفع أونلاين مؤكد: {b['code']} — {b['total_egp']} جنيه")
     return jsonify({"ok": True})
 
 
@@ -650,7 +792,10 @@ def tech_my():
             rec.pop("customer_mobile", None)
             rec.pop("address", None)
         (done if j["status"] == "done" else active).append(rec)
-    earnings = round(sum(j["labor_egp"] for j in jobs if j["status"] == "done") * (1 - COMMISSION_RATE))
+    earnings = round(sum(
+        j["labor_egp"] * (1 - COMMISSION_RATE) + (j["parts_egp"] or 0)
+        for j in jobs if j["status"] == "done"
+    ))
     return jsonify({"ok": True, "profile": {
         "name": t["full_name"], "trades": t["trades"].split(","),
         "district": t["district"], "rating_avg": round(t["rating_avg"], 1),
@@ -669,9 +814,12 @@ def tech_accept(code):
     )
     if cur.rowcount == 0:
         return err("Job not available (already taken or not found)", 409)
-    b = db.execute("SELECT id FROM bookings WHERE code=?", (code.upper(),)).fetchone()
+    b = db.execute("SELECT * FROM bookings WHERE code=?", (code.upper(),)).fetchone()
     log_status(db, b["id"], "assigned")
     db.commit()
+    notify(b["customer_mobile"],
+           f"فنّي ✓ الفني {g.tech['full_name']} ({round(g.tech['rating_avg'],1)}★) قبل طلبك {b['code']}\n"
+           f"تابع طلبك: {track_link(b['code'])}")
     return jsonify({"ok": True, "code": code.upper(), "status": "assigned"})
 
 
@@ -711,6 +859,13 @@ def tech_status(code):
     )
     log_status(db, b["id"], new_status)
     db.commit()
+    if new_status == "done":
+        fresh = db.execute("SELECT total_egp FROM bookings WHERE id=?", (b["id"],)).fetchone()
+        notify(b["customer_mobile"],
+               f"فنّي ✓ اكتمل طلبك {b['code']}\nالإجمالي: {fresh['total_egp']} جنيه\n"
+               f"ضمان ٣٠ يوم على الشغل 🛡️\nقيّم الفني: {track_link(b['code'])}")
+    elif new_status == "en_route":
+        notify(b["customer_mobile"], f"فنّي 🛵 الفني في الطريق إليك الآن — طلب {b['code']}")
     payout = round(b["labor_egp"] * (1 - COMMISSION_RATE)) if new_status == "done" else None
     return jsonify({"ok": True, "status": new_status, "payout_egp": payout})
 
@@ -981,7 +1136,11 @@ def admin_accept_offer(offer_id):
                (b["id"], offer_id))
     log_status(db, b["id"], "assigned")
     db.commit()
-    t = db.execute("SELECT full_name FROM technicians WHERE id=?", (q["technician_id"],)).fetchone()
+    t = db.execute("SELECT full_name, rating_avg FROM technicians WHERE id=?", (q["technician_id"],)).fetchone()
+    notify(b["customer_mobile"],
+           f"فنّي ✓ تم تعيين فني لطلبك {b['code']}\n"
+           f"الفني: {t['full_name']} ({round(t['rating_avg'],1)}★)\n"
+           f"الإجمالي: {new_total} جنيه\nتابع طلبك: {track_link(b['code'])}")
     return jsonify({"ok": True, "code": b["code"], "technician": t["full_name"],
                     "labor_egp": b["labor_egp"], "extras_egp": q["extras_egp"],
                     "total_egp": new_total})

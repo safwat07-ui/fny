@@ -269,7 +269,7 @@ function renderBookings(rows){
       <td><b>${esc(b.job_title||b.service_slug)}</b></td>
       <td class="hide-m">${esc(b.customer_name||'—')}<div class="sub mono">${esc(b.customer_mobile)}</div></td>
       <td>${esc(b.area)}<div class="sub">${esc(b.day)} · ${esc(b.time_window)}</div></td>
-      <td class="mono">EGP ${b.total_egp}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}${b.offer_count?`<div class="sub" style="color:var(--amber);font-weight:800">💬 ${b.offer_count} offer(s)</div>`:''}</td>
+      <td class="mono">EGP ${b.total_egp}${b.payment_status==='paid'?`<div class="sub" style="color:var(--green);font-weight:800">PAID ✓</div>`:''}${b.parts_egp?`<div class="sub">incl. parts ${b.parts_egp}</div>`:''}${b.offer_count?`<div class="sub" style="color:var(--amber);font-weight:800">💬 ${b.offer_count} offer(s)</div>`:''}</td>
       <td><span class="chip st-${esc(b.status)}">${esc(b.status.replace('_',' '))}</span></td>
       <td>${b.technician_id?`<button class="link-btn" onclick="openTech(${b.technician_id})">${esc(b.tech_name)}</button><div class="sub">${(b.tech_rating||0).toFixed(1)}★ · ${b.tech_jobs||0} jobs</div>`:'—'}${(b.status==='new'||b.status==='assigned')?assignCtl(b):''}</td>
     </tr>
@@ -483,7 +483,7 @@ async function openBooking(code){
       ${det('Area',b.area)}
       ${det('Schedule',b.day+' · '+b.time_window)}
       ${det('Notes',b.notes)}
-      ${det('Payment',b.payment_method)}
+      ${det('Payment',b.payment_method+' — '+(b.payment_status||'unpaid')+(b.txn_id?' · txn '+b.txn_id:''))}
       ${det('Labor','EGP '+b.labor_egp,true)}
       ${det('Parts','EGP '+(b.parts_egp||0),true)}
       ${det('Total','EGP '+b.total_egp,true)}

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فنّي — تابع طلبك</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
+  --amber:#F08A24; --amber-soft:#FCE9D2;
+  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
+  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace}
+.topbar{background:#fff;border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:560px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:baseline;gap:8px;text-decoration:none}
+.logo .ar{font-size:24px;font-weight:900;color:var(--teal);line-height:1}
+.logo .en{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--muted)}
+.wrap{max-width:560px;margin:18px auto 60px;padding:0 18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 14px 40px rgba(12,46,51,.07);margin-bottom:14px}
+
+.lookup input{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:15px;text-align:center;margin-bottom:12px;direction:ltr}
+.lookup input:focus{outline:none;border-color:var(--teal)}
+
+.head-strip{background:var(--teal-deep);color:#fff;border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.head-strip .l{font-size:12px;color:#A9C4C7}
+.head-strip .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:18px}
+.head-strip .st{font-size:14px;font-weight:900}
+h2{font-size:19px;font-weight:900;margin-bottom:4px}
+.sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+
+.timeline{position:relative;padding-right:28px;margin:6px 0}
+.timeline::before{content:"";position:absolute;right:9px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl{position:relative;padding-bottom:18px}
+.tl:last-child{padding-bottom:0}
+.tl .nd{position:absolute;right:-28px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px}
+.tl.done .nd{background:var(--green);border-color:var(--green);color:#fff}
+.tl.now .nd{background:var(--amber);border-color:var(--amber);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,138,36,.4)}50%{box-shadow:0 0 0 8px rgba(240,138,36,0)}}
+.tl.pending{opacity:.4}
+.tl .t{font-weight:800;font-size:14px}
+.tl .d{font-size:12px;color:var(--muted)}
+
+.tech-card{display:flex;gap:12px;align-items:center;background:var(--sand);border-radius:14px;padding:14px;margin:10px 0}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tech-card .nm{font-weight:900;font-size:15px}
+.tech-card .meta{font-size:12px;color:var(--muted)}
+.tech-card .r{margin-inline-start:auto;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal)}
+
+.bill{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:10px 0}
+.bill .row{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13.5px}
+.bill .row:last-child{border-bottom:none}
+.bill .row.total{background:var(--sand);font-weight:900}
+.bill .row .mono{color:var(--teal)}
+.paid-chip{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 12px;border-radius:99px}
+.paid{background:var(--teal);color:#fff}
+.unpaid{background:var(--amber-soft);color:#9A5A0F}
+
+.part-pending{border:1.5px solid var(--amber);border-radius:12px;padding:12px 14px;margin:10px 0;background:var(--amber-soft)}
+.part-pending .t{font-weight:900;font-size:13.5px;margin-bottom:6px}
+.part-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13.5px}
+.part-row .btns{display:flex;gap:6px}
+.pbtn{border:none;border-radius:99px;padding:5px 14px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer}
+.pbtn.ok{background:var(--green);color:#fff}
+.pbtn.no{background:#fff;color:var(--red);border:1.5px solid var(--red)}
+
+.btn{padding:12px 24px;border-radius:999px;font-weight:800;font-size:14.5px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;width:100%}
+.btn-primary{background:var(--amber);color:var(--ink)}
+.btn-pay{background:var(--teal);color:#fff;margin-top:8px}
+.btn:disabled{opacity:.5}
+.err{color:var(--red);font-size:13px;font-weight:700;text-align:center;display:none}
+.err.show{display:block}
+.stars{display:flex;gap:8px;justify-content:center;margin:10px 0;direction:ltr}
+.star{cursor:pointer;color:var(--line);background:none;border:none;font-size:32px}
+.star.lit{color:var(--amber)}
+.rate-tags{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:8px 0 14px}
+.rtag{border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;font-size:12.5px;font-weight:700;cursor:pointer;background:#fff;font-family:'Cairo',sans-serif}
+.rtag.selected{border-color:var(--teal);background:var(--teal);color:#fff}
+.sync{text-align:center;font-size:11px;color:var(--muted);margin-top:10px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner">
+  <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
+  <span style="font-size:13px;font-weight:800;color:var(--muted)" id="hdrLbl">تابع طلبك</span>
+</div></div>
+
+<div class="wrap">
+  <!-- LOOKUP -->
+  <div class="card lookup" id="lookupCard">
+    <h2 id="luTitle">تابع طلبك</h2>
+    <p class="sub" id="luSub">اكتب كود الطلب اللي وصلك عند الحجز (FN-XXXXX)</p>
+    <input id="codeInput" placeholder="FN-12345" onkeydown="if(event.key==='Enter')lookup()">
+    <button class="btn btn-primary" onclick="lookup()" id="luBtn">عرض الطلب</button>
+    <p class="err" id="luErr">الكود مش موجود — اتأكد منه وجرب تاني.</p>
+  </div>
+
+  <!-- TRACKER -->
+  <div id="tracker" style="display:none">
+    <div class="head-strip">
+      <div><div class="l" id="lblStatus">الحالة</div><div class="st" id="stText">—</div></div>
+      <div style="text-align:left"><div class="l" id="lblCode">كود الطلب</div><div class="v" id="stCode">—</div></div>
+    </div>
+
+    <div class="card">
+      <h2 id="jobTitle">—</h2>
+      <p class="sub" id="jobMeta">—</p>
+      <div class="timeline" id="tl"></div>
+      <div id="techBox"></div>
+    </div>
+
+    <div class="card" id="partsCard" style="display:none"></div>
+
+    <div class="card">
+      <h2 id="lblBill" style="font-size:16px">الفاتورة</h2>
+      <div class="bill" id="bill"></div>
+      <div id="payBox"></div>
+    </div>
+
+    <div class="card" id="rateCard" style="display:none">
+      <h2 style="font-size:16px" id="lblRate">قيّم الفني</h2>
+      <div class="stars" id="stars">
+        <button class="star" data-s="1">★</button><button class="star" data-s="2">★</button><button class="star" data-s="3">★</button><button class="star" data-s="4">★</button><button class="star" data-s="5">★</button>
+      </div>
+      <div class="rate-tags" id="rtags"></div>
+      <button class="btn btn-primary" onclick="sendRating(this)" id="rateBtn">ابعت التقييم</button>
+    </div>
+    <p class="sync" id="syncLbl"></p>
+  </div>
+</div>
+
+<script>
+const P=new URLSearchParams(location.search);
+const LANG=(P.get('lang')==='en')?'en':'ar';
+if(LANG==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}
+const L=LANG==='en'?{
+  hdr:'Track your request',luT:'Track your request',luS:'Enter the booking code you received (FN-XXXXX)',luB:'Show my booking',luE:'Code not found — check it and try again.',
+  status:'Status',code:'Booking code',bill:'Your bill',labor:'Labor (fixed)',fee:'Service fee',parts:'Parts & extras',total:'Total',
+  pay:'Pay online (card / wallet)',paid:'PAID ✓',unpaid:'to be paid',payNA:'Pay cash after the job',
+  rate:'Rate your technician',rateB:'Submit rating',rated:'Thank you! ✓',
+  partsT:'🔩 Parts awaiting your approval',ok:'Approve',no:'Reject',
+  tags:['On time','Clean work','Fair with parts','Explained everything','Polite'],
+  states:{new:['Finding your technician','We are matching the best فنّي for your job'],
+    assigned:['Technician assigned','Your فنّي is preparing for the visit'],
+    en_route:['On the way','Your فنّي is heading to your address'],
+    arrived:['Arrived','Reviewing the fault with you'],
+    working:['Work in progress','Parts are quoted for your approval before installing'],
+    done:['Done — 30-day warranty active 🛡️','Same fault returns? We send a فنّي back free'],
+    cancelled:['Cancelled','This booking was cancelled']},
+  steps:[['new','Request received'],['assigned','Technician assigned'],['en_route','On the way'],['working','Work in progress'],['done','Done & guaranteed']],
+  sync:'Updates automatically · last sync ',jobs:' jobs'
+}:{
+  hdr:'تابع طلبك',luT:'تابع طلبك',luS:'اكتب كود الطلب اللي وصلك عند الحجز (FN-XXXXX)',luB:'عرض الطلب',luE:'الكود مش موجود — اتأكد منه وجرب تاني.',
+  status:'الحالة',code:'كود الطلب',bill:'الفاتورة',labor:'المصنعية (ثابتة)',fee:'رسوم الخدمة',parts:'قطع وإضافات',total:'الإجمالي',
+  pay:'ادفع أونلاين (كارت / محفظة)',paid:'مدفوع ✓',unpaid:'غير مدفوع',payNA:'الدفع كاش بعد الشغل',
+  rate:'قيّم الفني',rateB:'ابعت التقييم',rated:'شكرًا لك! ✓',
+  partsT:'🔩 قطع غيار في انتظار موافقتك',ok:'موافق',no:'رفض',
+  tags:['جه في معاده','شغل نضيف','أمين في قطع الغيار','شرح كل حاجة','محترم'],
+  states:{new:['بندور على أنسب فنّي','بنرشح أفضل فني لشغلانتك'],
+    assigned:['تم تعيين الفني','فنّيك بيستعد للزيارة'],
+    en_route:['في الطريق','فنّيك متوجه لعنوانك'],
+    arrived:['وصل','بيراجع العطل معاك'],
+    working:['الشغل جاري','أي قطع غيار بتتسعّر لموافقتك قبل التركيب'],
+    done:['خلص — الضمان ٣٠ يوم شغال 🛡️','لو نفس العطل رجع بنبعتلك فني مجانًا'],
+    cancelled:['ملغي','تم إلغاء الطلب']},
+  steps:[['new','استلمنا طلبك'],['assigned','تم تعيين الفني'],['en_route','في الطريق'],['working','الشغل جاري'],['done','خلص ومضمون']],
+  sync:'بيتحدث تلقائيًا · آخر تحديث ',jobs:' شغلانة'
+};
+['hdrLbl','luTitle','luSub','luBtn','luErr'].forEach((id,i)=>document.getElementById(id).textContent=[L.hdr,L.luT,L.luS,L.luB,L.luE][i]);
+document.getElementById('lblStatus').textContent=L.status;
+document.getElementById('lblCode').textContent=L.code;
+document.getElementById('lblBill').textContent=L.bill;
+document.getElementById('lblRate').textContent=L.rate;
+document.getElementById('rateBtn').textContent=L.rateB;
+document.getElementById('rtags').innerHTML=L.tags.map(t=>`<button class="rtag">${t}</button>`).join('');
+document.querySelectorAll('.rtag').forEach(t=>t.addEventListener('click',()=>t.classList.toggle('selected')));
+
+let CODE=null,pollTimer=null,rating=0,rated=false;
+function esc(x){const d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML}
+const ORDER=['new','assigned','en_route','arrived','working','done'];
+
+async function lookup(auto){
+  CODE=(auto||document.getElementById('codeInput').value).trim().toUpperCase();
+  if(!CODE)return;
+  try{
+    const r=await fetch('/api/bookings/'+CODE);
+    const d=await r.json();
+    if(!d.ok)throw 0;
+    document.getElementById('lookupCard').style.display='none';
+    document.getElementById('tracker').style.display='block';
+    render(d.booking);
+    clearInterval(pollTimer);
+    pollTimer=setInterval(refresh,15000);
+    history.replaceState(null,'','track.html?code='+CODE+'&lang='+LANG);
+  }catch(e){document.getElementById('luErr').classList.add('show')}
+}
+async function refresh(){
+  try{const r=await fetch('/api/bookings/'+CODE);const d=await r.json();if(d.ok)render(d.booking)}catch(e){}
+}
+
+function render(b){
+  const st=L.states[b.status]||[b.status,''];
+  document.getElementById('stText').textContent=st[0];
+  document.getElementById('stCode').textContent=b.code;
+  document.getElementById('jobTitle').textContent=st[0];
+  document.getElementById('jobMeta').textContent=st[1]+' · '+b.day+' · '+b.time_window+' · '+b.area;
+
+  // timeline
+  const reached=b.status==='arrived'?'working':b.status;
+  const idx=ORDER.indexOf(reached==='cancelled'?'new':reached);
+  document.getElementById('tl').innerHTML=L.steps.map((s,i)=>{
+    const si=ORDER.indexOf(s[0]);
+    const cls=b.status==='cancelled'?'pending':(si<idx?'done':si===idx?(b.status==='done'?'done':'now'):'pending');
+    return `<div class="tl ${cls}"><div class="nd">${cls==='done'?'✓':cls==='now'?'●':''}</div><div class="t">${s[1]}</div></div>`;
+  }).join('');
+
+  // technician
+  document.getElementById('techBox').innerHTML=b.technician?`
+    <div class="tech-card"><div class="avatar">${esc(b.technician.name[0])}</div>
+      <div><div class="nm">${esc(b.technician.name)}</div>
+      <div class="meta">✓ ${LANG==='en'?'ID-verified · skill-certified':'متحقق من هويته · معتمد عمليًا'} · ${b.technician.jobs_done}${L.jobs}</div></div>
+      <div class="r">${b.technician.rating}★</div></div>`:'';
+
+  // pending parts approvals
+  const pending=(b.parts_quotes||[]).filter(p=>p.status==='pending');
+  const pc=document.getElementById('partsCard');
+  if(pending.length){
+    pc.style.display='block';
+    pc.innerHTML=`<div class="part-pending"><div class="t">${L.partsT}</div>${pending.map(p=>`
+      <div class="part-row"><span>${esc(p.part_name)} — <b class="mono">${p.price_egp} ${LANG==='en'?'EGP':'جنيه'}</b></span>
+      <span class="btns"><button class="pbtn ok" onclick="decide(${p.id},'approved',this)">${L.ok}</button>
+      <button class="pbtn no" onclick="decide(${p.id},'rejected',this)">${L.no}</button></span></div>`).join('')}</div>`;
+  }else pc.style.display='none';
+
+  // bill
+  const cur=LANG==='en'?'EGP ':'';const curA=LANG==='en'?'':' جنيه';
+  document.getElementById('bill').innerHTML=`
+    <div class="row"><span>${L.labor}</span><span class="mono">${cur}${b.labor_egp}${curA}</span></div>
+    <div class="row"><span>${L.fee}</span><span class="mono">${cur}${b.service_fee_egp}${curA}</span></div>
+    ${b.parts_egp?`<div class="row"><span>${L.parts}</span><span class="mono">${cur}${b.parts_egp}${curA}</span></div>`:''}
+    <div class="row total"><span>${L.total} <span class="paid-chip ${b.payment_status==='paid'?'paid':'unpaid'}">${b.payment_status==='paid'?L.paid:L.unpaid}</span></span><span class="mono">${cur}${b.total_egp}${curA}</span></div>`;
+
+  // pay button
+  const pb=document.getElementById('payBox');
+  if(b.payment_status!=='paid'&&b.status!=='cancelled'){
+    pb.innerHTML=b.payment_available
+      ?`<button class="btn btn-pay" onclick="payNow(this)">💳 ${L.pay}</button>`
+      :`<p class="sub" style="text-align:center;margin:8px 0 0">💵 ${L.payNA}</p>`;
+  }else pb.innerHTML='';
+
+  // rating
+  document.getElementById('rateCard').style.display=(b.status==='done'&&!rated)?'block':'none';
+  document.getElementById('syncLbl').textContent=L.sync+new Date().toLocaleTimeString();
+}
+
+async function decide(id,decision,btn){
+  btn.disabled=true;
+  try{
+    const r=await fetch('/api/bookings/'+CODE+'/parts/'+id+'/decision',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({decision})});
+    const d=await r.json();
+    if(d.ok)render(d.booking);else{alert(d.error);btn.disabled=false}
+  }catch(e){btn.disabled=false}
+}
+async function payNow(btn){
+  btn.disabled=true;btn.textContent='…';
+  try{
+    const r=await fetch('/api/bookings/'+CODE+'/pay',{method:'POST'});
+    const d=await r.json();
+    if(d.ok)location.href=d.iframe_url;
+    else{alert(d.error);btn.disabled=false;btn.textContent='💳 '+L.pay}
+  }catch(e){btn.disabled=false;btn.textContent='💳 '+L.pay}
+}
+document.querySelectorAll('.star').forEach(s=>s.addEventListener('click',()=>{
+  rating=+s.dataset.s;
+  document.querySelectorAll('.star').forEach(x=>x.classList.toggle('lit',+x.dataset.s<=rating));
+}));
+async function sendRating(btn){
+  if(!rating)return;
+  btn.disabled=true;
+  const tags=[...document.querySelectorAll('.rtag.selected')].map(t=>t.textContent);
+  try{
+    const r=await fetch('/api/bookings/'+CODE+'/rating',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({stars:rating,tags})});
+    const d=await r.json();
+    if(d.ok){rated=true;btn.textContent=L.rated}
+    else{alert(d.error);btn.disabled=false}
+  }catch(e){btn.disabled=false}
+}
+if(P.get('code'))lookup(P.get('code'));
+</script>
+</body>
+</html>

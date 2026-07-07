@@ -139,7 +139,10 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
 <div id="appView" style="display:none">
   <div class="app-head"><div class="app-head-in">
     <div class="app-logo"><span class="ar">فنّي</span><span class="en">PARTNER</span></div>
-    <div class="who"><b id="whoName"></b><span id="whoMeta"></span> · <button class="logout" onclick="logout()">خروج</button></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="manualRefresh(this)" style="background:rgba(255,255,255,.14);border:none;color:#fff;font-family:Cairo,sans-serif;font-weight:800;font-size:12.5px;padding:7px 16px;border-radius:99px;cursor:pointer">↻ تحديث</button>
+      <div class="who"><b id="whoName"></b><span id="whoMeta"></span> · <button class="logout" onclick="logout()">خروج</button></div>
+    </div>
   </div></div>
 
   <div class="wrap">
@@ -209,11 +212,16 @@ async function login(silent){
     document.getElementById('loginView').style.display='none';
     document.getElementById('appView').style.display='block';
     render(d);loadReqs();
-    pollTimer=setInterval(()=>{loadReqs();loadMy()},30000);
   }catch(e){
     store.set(null);
     if(!silent)document.getElementById('loginErr').style.display='block';
   }
+}
+async function manualRefresh(btn){
+  btn.disabled=true;const o=btn.textContent;btn.textContent='…';
+  await Promise.all([loadReqs(),loadMy()]);
+  btn.textContent=o;btn.disabled=false;
+  toast('اتحدثت ✓');
 }
 function logout(){TOKEN=null;store.set(null);clearInterval(pollTimer);location.reload()}
 
