@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WDZRJYB4H1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WDZRJYB4H1');
+  function track(ev,params){gtag('event',ev,params||{})}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>فنّي — احجز فني</title>
@@ -150,6 +159,13 @@ h2{font-size:22px;font-weight:900;line-height:1.4;margin-bottom:4px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WDZRJYB4H1');
+  function track(ev,params){gtag('event',ev,params||{})}
+</script>
 </head>
 <body>
 
@@ -412,6 +428,7 @@ function next(n){
     showErr(3,false);buildQuote();
   }
   step=n+1;render();
+  track('booking_step',{step:step,service:state.svc||'',lang:'ar'});
 }
 function buildQuote(){
   const total=state.job.p+25;
@@ -433,7 +450,8 @@ async function confirmBooking(){
       body:JSON.stringify({job_catalog_id:state.job.id,customer_mobile:vNum('mob'),area:v('area'),
         address:v('addr'),notes:v('notes'),day:state.day,time_window:state.time,payment_method:state.pay})});
     const d=await r.json();
-    if(d.ok){location.href='track.html?code='+d.code+'&lang=ar';return}
+    if(d.ok){track('booking_completed',{value:total,currency:'EGP',service:state.svc,lang:'ar'});
+      setTimeout(()=>location.href='track.html?code='+d.code+'&lang=ar',250);return}
     else{alert(d.error||'الحجز ماكملش — راجع بياناتك من فضلك.');btn.disabled=false;btn.textContent=orig;return}
   }catch(e){/* وضع العرض */}
   btn.disabled=false;btn.textContent=orig;

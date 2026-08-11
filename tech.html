@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WDZRJYB4H1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WDZRJYB4H1');
+  function track(ev,params){gtag('event',ev,params||{})}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>فنّي — بوابة الفنيين</title>
@@ -119,6 +128,13 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
 .done-row .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);white-space:nowrap}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WDZRJYB4H1');
+  function track(ev,params){gtag('event',ev,params||{})}
+</script>
 </head>
 <body>
 
@@ -211,6 +227,7 @@ async function login(silent){
     store.set(TOKEN);
     document.getElementById('loginView').style.display='none';
     document.getElementById('appView').style.display='block';
+    track('tech_login');
     render(d);loadReqs();
   }catch(e){
     store.set(null);
@@ -314,7 +331,7 @@ async function submitOffer(i,btn,plain){
   try{
     const d=await api('/api/tech/jobs/'+j.code+'/offer',{method:'POST',
       body:JSON.stringify({items,note:plain?'':document.getElementById('note-'+i).value.trim()})});
-    if(d.ok){toast('تم إرسال عرضك ✓ هيوصلك رد قريب');loadReqs()}
+    if(d.ok){track('tech_offer_submitted',{extras:items.length});toast('تم إرسال عرضك ✓ هيوصلك رد قريب');loadReqs()}
     else{toast(d.error);btn.disabled=false}
   }catch(e){btn.disabled=false;toast('في مشكلة في الاتصال — جرب تاني')}
 }
@@ -348,7 +365,7 @@ async function advance(code,status,btn){
   btn.disabled=true;
   try{
     const d=await api('/api/tech/jobs/'+code+'/status',{method:'POST',body:JSON.stringify({status})});
-    if(d.ok){toast(status==='done'?('تم! نصيبك '+(d.payout_egp||'')+' جنيه هيتضاف لأرباحك 🛡️'):'تم التحديث ✓');loadMy()}
+    if(d.ok){track('tech_job_status',{status});toast(status==='done'?('تم! نصيبك '+(d.payout_egp||'')+' جنيه هيتضاف لأرباحك 🛡️'):'تم التحديث ✓');loadMy()}
     else{toast(d.error);btn.disabled=false}
   }catch(e){btn.disabled=false}
 }
