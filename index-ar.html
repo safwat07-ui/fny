@@ -154,6 +154,15 @@ footer{background:var(--teal-deep);color:#A9C4C7;padding:56px 0 32px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WDZRJYB4H1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WDZRJYB4H1');
+  function track(ev,params){gtag('event',ev,params||{})}
+</script>
 </head>
 <body>
 
@@ -296,6 +305,10 @@ document.querySelectorAll('.chip').forEach(chip=>{
 document.querySelectorAll('a[href="book-ar.html"]').forEach(a=>{
   a.addEventListener('click',()=>{a.href='book.html?svc='+encodeURIComponent(heroSvc)});
 });
+
+document.querySelectorAll('a.btn').forEach(a=>a.addEventListener('click',()=>{
+  track('cta_click',{cta:a.textContent.trim(),page:location.pathname});
+}));
 </script>
 </body>
 </html>
