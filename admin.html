@@ -105,6 +105,14 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 .avail.busy{color:var(--amber)}
 .empty{padding:32px;text-align:center;color:var(--muted);font-size:14px}
 .table-scroll{overflow-x:auto}
+.export-bar{display:flex;gap:6px;flex-wrap:wrap}
+.export-btn{background:var(--teal);border:none;color:#fff;font-family:'Cairo',sans-serif;font-weight:800;font-size:12.5px;padding:6px 14px;border-radius:99px;cursor:pointer;white-space:nowrap}
+.export-btn:hover{background:var(--teal-deep)}
+.export-btn:disabled{opacity:.5;cursor:default}
+.opt-row{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:13.5px}
+.opt-row:has(input:checked){border-color:var(--teal);background:var(--mist)}
+.opt-row input{margin-top:5px;accent-color:var(--teal)}
+.opt-row .sub{font-size:12px;color:var(--muted)}
 
 @media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){
@@ -134,6 +142,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
       <div class="logo"><span class="ar">فنّي</span><span class="en">Admin</span></div>
       <div class="top-right">
         <span id="lastSync"></span>
+        <button class="refresh-btn" onclick="waTest()">📲 Test WA</button>
         <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
         <button class="logout-btn" onclick="logout()">Sign out</button>
       </div>
@@ -169,6 +178,15 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
     <div class="sec">
       <div class="sec-head">
         <h3>Technician applications <span class="count" id="apCount"></span></h3>
+        <div class="filters" id="apFilters">
+          <button class="f-chip on" data-f="">All</button>
+          <button class="f-chip" data-f="pending">Pending</button>
+          <button class="f-chip" data-f="approved">Approved</button>
+        </div>
+        <div class="export-bar">
+          <button class="export-btn" onclick="openPrintOptions()">🖨 Print / PDF</button>
+          <button class="export-btn" onclick="exportAppsCSV()">⬇ Export CSV</button>
+        </div>
       </div>
       <div class="table-scroll">
         <table>
@@ -188,7 +206,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 </div>
 
 <script>
-let TOKEN=null, bkFilter='', pollTimer=null, TECHS=[], BK_CACHE=[];
+let TOKEN=null, bkFilter='', apFilter='', pollTimer=null, TECHS=[], BK_CACHE=[], AP_CACHE=[];
 const tradeAr={"ac":"AC","satellite":"Satellite","cctv":"CCTV","wifi":"WiFi","intercom":"Intercom","smart-home":"Smart Home"};
 
 async function api(path,opts={}){
@@ -218,6 +236,12 @@ function logout(){
   document.getElementById('tokenInput').value='';
 }
 
+async function waTest(){
+  const phone=prompt('Send a test WhatsApp to which number? (01XXXXXXXXX)');
+  if(!phone)return;
+  const d=await api('/api/admin/notify-test',{method:'POST',body:JSON.stringify({phone})});
+  alert(d.ok?('Sent ✓ ('+d.mode+') to '+d.to):('Failed: '+d.error));
+}
 async function loadAll(){
   try{
     const [s,b,a]=await Promise.all([
@@ -226,8 +250,8 @@ async function loadAll(){
       api('/api/admin/applications')
     ]);
     TECHS=a.applications.filter(t=>t.status==='approved');
-    BK_CACHE=b.bookings;
-    renderStats(s.stats);renderBookings(BK_CACHE);renderApps(a.applications);
+    BK_CACHE=b.bookings;AP_CACHE=a.applications;
+    renderStats(s.stats);renderBookings(BK_CACHE);renderApps(filteredApps());
     const newCount=BK_CACHE.filter(x=>x.status==='new').length + a.applications.filter(x=>x.status!=='approved').length;
     document.title=(newCount?`(${newCount}) `:'')+'فنّي — Admin';
     document.getElementById('lastSync').textContent='synced '+new Date().toLocaleTimeString();
@@ -446,6 +470,7 @@ async function openTech(id){
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
       <a class="approve-btn" style="text-decoration:none" href="tel:+2${esc(t.mobile)}">📞 Call</a>
       <a class="approve-btn" style="text-decoration:none;background:#25D366" href="https://wa.me/2${esc(t.mobile)}" target="_blank">WhatsApp</a>
+      <button class="export-btn" onclick="printTech(${t.id})">🖨 Print application</button>
       <button class="danger-btn" onclick="deleteTech(${t.id},'${esc(t.full_name)}')">🗑 Remove technician</button>
     </div>`);
   // documents require the admin header, so fetch as blobs
@@ -522,6 +547,212 @@ async function deleteBk(code){
   const d=await api('/api/admin/bookings/'+code,{method:'DELETE'});
   if(d.ok){closeModal();loadAll()}else alert(d.error);
 }
+/* ───────── Technician applications: filter + export ───────── */
+const AP_FILTER_LABEL={'':'All applications',pending:'Pending applications',approved:'Approved technicians'};
+const AP_STATUS_LABEL={applied:'Applied',assessment_booked:'Assessment booked',approved:'Approved'};
+const DOC_LABELS={id_front:'ID — front',id_back:'ID — back',photo:'Personal photo',certificate:'Certificate'};
+
+function filteredApps(){
+  if(apFilter==='pending')return AP_CACHE.filter(a=>a.status!=='approved');
+  if(apFilter==='approved')return AP_CACHE.filter(a=>a.status==='approved');
+  return AP_CACHE;
+}
+document.querySelectorAll('#apFilters .f-chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#apFilters .f-chip').forEach(x=>x.classList.toggle('on',x===c));
+    apFilter=c.dataset.f;renderApps(filteredApps());
+  });
+});
+const tradesText=a=>(a.trades||'').split(',').filter(Boolean).map(t=>tradeAr[t]||t).join(' · ');
+const setupText=a=>a.setup?a.setup.split(',').join(' · '):'';
+const hubText=a=>(a.assessment_hub||'').replace(/مركز فنّي —|Fanni Hub —/,'').trim();
+const stamp=()=>new Date().toISOString().slice(0,10);
+
+/* CSV — UTF-8 with BOM so Excel shows Arabic correctly */
+function exportAppsCSV(){
+  const rows=filteredApps();
+  if(!rows.length){alert('No applications to export.');return}
+  const cols=[
+    ['ID',a=>a.id],['Full name',a=>a.full_name],
+    ['Mobile',a=>a.mobile?'="'+a.mobile+'"':''],            // keeps the leading 0 in Excel
+    ['National ID (last 4)',a=>a.national_id_last4||''],['Date of birth',a=>a.dob],
+    ['Governorate',a=>a.governorate],['District',a=>a.district],
+    ['Trades',tradesText],['Experience',a=>a.experience],['Transport',a=>a.transport],
+    ['Equipment & availability',setupText],
+    ['Assessment hub',hubText],['Assessment slot',a=>a.assessment_slot],
+    ['Documents uploaded',a=>(a.documents||[]).map(k=>DOC_LABELS[k]||k).join(' · ')],
+    ['Status',a=>AP_STATUS_LABEL[a.status]||a.status],
+    ['Applied on',a=>(a.created_at||'').slice(0,10)],
+    ['Jobs done',a=>a.status==='approved'?(a.jobs_done||0):''],
+    ['Rating',a=>a.status==='approved'&&a.rating_count?a.rating_avg.toFixed(1)+' ('+a.rating_count+')':'']
+  ];
+  const cell=v=>{
+    let s=v==null?'':String(v);
+    if(/^[=+\-@]/.test(s)&&!s.startsWith('="'))s="'"+s;     // block formula injection from applicant input
+    return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  };
+  const csv=[cols.map(c=>c[0]),...rows.map(a=>cols.map(c=>c[1](a)))].map(r=>r.map(cell).join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=`fanni-technician-applications${apFilter?'-'+apFilter:''}-${stamp()}.csv`;
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(link.href),2000);
+}
+
+/* Print options */
+function openPrintOptions(){
+  const rows=filteredApps();
+  if(!rows.length){alert('No applications to print.');return}
+  const withDocs=rows.filter(a=>a.documents&&a.documents.length).length;
+  openModal(`
+    <h3>Print technician applications</h3>
+    <div class="msub">${AP_FILTER_LABEL[apFilter]} · ${rows.length} record(s). Use the filter chips to change what gets printed.</div>
+    <div class="det-k" style="margin-bottom:6px">Layout</div>
+    <label class="opt-row"><input type="radio" name="pLayout" value="profiles" checked>
+      <div><b>Full application forms</b><div class="sub">One application per page with every field, plus a review & sign-off box for the assessor.</div></div></label>
+    <label class="opt-row"><input type="radio" name="pLayout" value="summary">
+      <div><b>Summary list</b><div class="sub">All applications in one table: name, mobile, area, trades, assessment, status.</div></div></label>
+    <div class="det-k" style="margin:14px 0 6px">Options</div>
+    <label class="opt-row"><input type="checkbox" id="pDocs" ${withDocs?'':'disabled'}>
+      <div><b>Include uploaded documents</b><div class="sub">${withDocs
+        ?`ID and certificate photos for ${withDocs} applicant(s), full application forms only. The printout will contain ID images, so handle it carefully.`
+        :'None of these applicants uploaded documents.'}</div></div></label>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="export-btn" style="background:var(--mist);color:var(--ink)" onclick="closeModal()">Cancel</button>
+      <button class="approve-btn" id="pGo" onclick="runPrint()">🖨 Print</button>
+    </div>`);
+}
+function runPrint(){
+  const layout=document.querySelector('input[name=pLayout]:checked').value;
+  const docs=layout==='profiles'&&document.getElementById('pDocs').checked;
+  printApps(filteredApps(),{layout,docs,title:AP_FILTER_LABEL[apFilter]});
+}
+async function printTech(id){
+  const a=AP_CACHE.find(x=>x.id===id);
+  if(a)printApps([a],{layout:'profiles',docs:true,title:a.full_name});
+}
+
+async function fetchDocDataURL(id,k){
+  try{
+    const r=await fetch('/api/admin/technicians/'+id+'/doc/'+k,{headers:{'X-Admin-Token':TOKEN}});
+    if(!r.ok)return null;
+    const bl=await r.blob();
+    return await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(bl)});
+  }catch(e){return null}
+}
+
+async function printApps(rows,{layout,docs,title}){
+  // Open the window inside the click so popup blockers allow it, then fill it once data is ready
+  const w=window.open('','_blank');
+  if(!w){alert('Your browser blocked the print window. Allow pop-ups for this site and try again.');return}
+  w.document.write('<p style="font-family:sans-serif;padding:30px;color:#5C7275">Preparing printout…</p>');
+  closeModal();
+
+  let docMap={};
+  if(docs){
+    const jobs=[];
+    rows.forEach(a=>(a.documents||[]).forEach(k=>jobs.push(fetchDocDataURL(a.id,k).then(src=>{if(src)(docMap[a.id]=docMap[a.id]||[]).push({k,src})}))));
+    await Promise.all(jobs);
+  }
+
+  const v=x=>esc(x==null||x===''?'—':x);
+  const f=(k,val,mono)=>`<div class="f"><div class="k">${k}</div><div class="v${mono?' m':''}" dir="auto">${v(val)}</div></div>`;
+  const now=new Date();
+  const printedAt=now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5);
+  const head=`<header><div class="brand"><span class="ar">فنّي</span><span class="en">Fanni</span></div>
+    <div class="meta"><b>${esc(title)}</b><br>${rows.length} record(s) · printed ${printedAt}</div></header>`;
+
+  let body;
+  if(layout==='summary'){
+    body=head+`<table><thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Area</th><th>Trades</th><th>Experience</th><th>Assessment</th><th>Status</th><th>Applied</th></tr></thead><tbody>
+      ${rows.map((a,i)=>`<tr><td class="m">${i+1}</td><td dir="auto"><b>${v(a.full_name)}</b></td><td class="m">${v(a.mobile)}</td>
+        <td dir="auto">${v(a.district)}<div class="s">${esc(a.governorate||'')}</div></td><td>${v(tradesText(a))}</td><td dir="auto">${v(a.experience)}</td>
+        <td dir="auto">${v(a.assessment_slot)}<div class="s">${esc(hubText(a))}</div></td>
+        <td>${esc(AP_STATUS_LABEL[a.status]||a.status)}</td><td class="m">${v((a.created_at||'').slice(0,10))}</td></tr>`).join('')}
+      </tbody></table>`;
+  }else{
+    body=rows.map(a=>{
+      const imgs=docMap[a.id]||[];
+      return `<section class="page">${head}
+        <div class="title"><h1 dir="auto">${esc(a.full_name)}</h1><span class="status">${esc(AP_STATUS_LABEL[a.status]||a.status)}</span></div>
+        <div class="sub-title">Application #${a.id} · applied ${v((a.created_at||'').slice(0,10))}</div>
+        <h2>Personal details</h2><div class="grid">
+          ${f('Mobile',a.mobile,true)}${f('National ID',a.national_id_last4?'•••• •••• '+a.national_id_last4:'',true)}
+          ${f('Date of birth',a.dob,true)}${f('Governorate',a.governorate)}${f('District',a.district)}${f('Transport',a.transport)}</div>
+        <h2>Skills</h2><div class="grid">
+          ${f('Trades',tradesText(a))}${f('Experience',a.experience)}${f('Equipment & availability',setupText(a))}</div>
+        <h2>Assessment</h2><div class="grid">
+          ${f('Hub',hubText(a))}${f('Slot',a.assessment_slot)}
+          ${f('Documents uploaded',(a.documents||[]).map(k=>DOC_LABELS[k]||k).join(' · ')||'none')}
+          ${a.status==='approved'?f('Jobs done',a.jobs_done||0,true)+f('Rating',a.rating_count?a.rating_avg.toFixed(1)+'★ ('+a.rating_count+')':'no ratings yet'):''}</div>
+        ${imgs.length?`<h2>Documents</h2><div class="docs">${imgs.map(d=>`<figure><img src="${d.src}"><figcaption>${esc(DOC_LABELS[d.k]||d.k)}</figcaption></figure>`).join('')}</div>`:''}
+        <h2>Assessor review</h2>
+        <div class="review">
+          <div class="line">Assessor name<span></span></div><div class="line">Date<span></span></div>
+          <div class="checks">Decision: <i></i> Approve <i></i> Reject <i></i> Re-assess</div>
+          <div class="line wide">Notes<span></span></div><div class="line wide"><span></span></div>
+          <div class="line">Signature<span></span></div>
+        </div>
+      </section>`;}).join('');
+  }
+
+  w.document.open();
+  w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Fanni — ${esc(title)} — ${stamp()}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:14mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;color:#0C2E33;font-size:12px;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.m{font-family:'IBM Plex Mono',monospace}
+.bar{position:sticky;top:0;background:#0A424A;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.bar button{background:#F08A24;border:none;font-family:'Cairo',sans-serif;font-weight:800;padding:6px 18px;border-radius:99px;cursor:pointer}
+main{max-width:190mm;margin:0 auto;padding:16px 0}
+header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #0F5B63;padding-bottom:8px;margin-bottom:14px}
+.brand .ar{font-size:26px;font-weight:900;color:#0F5B63;line-height:1}
+.brand .en{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#5C7275;margin-left:8px}
+.meta{text-align:right;font-size:11px;color:#5C7275}.meta b{color:#0C2E33;font-size:12.5px}
+.page{page-break-after:always;break-after:page}.page:last-child{page-break-after:auto;break-after:auto}
+.title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{font-size:22px;font-weight:900}
+.status{border:1.5px solid #0F5B63;color:#0F5B63;font-weight:800;font-size:11px;padding:2px 12px;border-radius:99px;white-space:nowrap}
+.sub-title{color:#5C7275;font-size:11.5px;margin-bottom:6px}
+h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#5C7275;font-weight:800;border-bottom:1px solid #D8E0DE;padding-bottom:3px;margin:14px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 18px}
+.f .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:#5C7275;font-weight:800}
+.f .v{font-size:12.5px;font-weight:700}
+[dir=auto]{text-align:left}
+.docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.docs figure{border:1px solid #D8E0DE;border-radius:6px;overflow:hidden;break-inside:avoid}
+.docs img{width:100%;max-height:62mm;object-fit:contain;display:block;background:#F5F0E4}
+.docs figcaption{font-size:10px;font-weight:800;text-transform:uppercase;color:#5C7275;padding:3px 8px}
+.review{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;border:1px solid #D8E0DE;border-radius:8px;padding:14px;break-inside:avoid}
+.review .line{display:flex;gap:8px;align-items:flex-end;font-size:11px;font-weight:700;color:#5C7275}
+.review .line span{flex:1;border-bottom:1px solid #0C2E33;height:16px}
+.review .wide{grid-column:1/-1}
+.review .checks{grid-column:1/-1;font-size:12px;font-weight:700;display:flex;gap:10px;align-items:center}
+.review i{display:inline-block;width:12px;height:12px;border:1.5px solid #0C2E33;border-radius:2px;margin-left:8px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#F5F0E4;text-align:left;padding:6px 7px;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#5C7275}
+td{padding:6px 7px;border-top:1px solid #D8E0DE;vertical-align:top}
+tr{break-inside:avoid}
+thead{display:table-header-group}
+td .s{font-size:10px;color:#5C7275}
+@media print{.bar{display:none}main{padding:0;max-width:none}}
+</style></head><body>
+<div class="bar"><span>${rows.length} record(s) ready. If the print dialog didn't open, click Print.</span><button onclick="window.print()">🖨 Print</button></div>
+<main>${body}</main>
+<script>
+(async()=>{
+  try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))])}catch(e){}
+  await Promise.all([...document.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
+  setTimeout(()=>window.print(),150);
+})();
+<\/script></body></html>`);
+  w.document.close();
+}
+
 document.querySelectorAll('#bkFilters .f-chip').forEach(c=>{
   c.addEventListener('click',()=>{
     document.querySelectorAll('#bkFilters .f-chip').forEach(x=>x.classList.remove('on'));
