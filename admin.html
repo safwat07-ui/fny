@@ -56,6 +56,8 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .f-chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:4px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;color:var(--muted)}
 .f-chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.city-sel{font-family:'Cairo',sans-serif;font-size:12.5px;font-weight:800;padding:5px 10px;border:1.5px solid var(--line);border-radius:99px;background:#fff;color:var(--muted);cursor:pointer}
+.city-sel.on{border-color:var(--teal);color:var(--teal)}
 
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{background:var(--sand);text-align:left;padding:10px 14px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800;white-space:nowrap}
@@ -156,6 +158,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
       <div class="sec-head">
         <h3>Booking requests <span class="count" id="bkCount"></span></h3>
         <input type="search" id="bkSearch" placeholder="Search code / mobile / area…" oninput="renderBookings(BK_CACHE)" style="font-family:Cairo,sans-serif;font-size:13px;padding:7px 12px;border:1.5px solid var(--line);border-radius:99px;min-width:200px">
+        <select class="city-sel" id="bkCity" title="Filter by city" onchange="bkCity=this.value;this.classList.toggle('on',!!this.value);renderBookings(BK_CACHE)"><option value="">📍 All cities</option></select>
         <div class="filters" id="bkFilters">
           <button class="f-chip on" data-f="">All</button>
           <button class="f-chip" data-f="new">New</button>
@@ -183,6 +186,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
           <button class="f-chip" data-f="pending">Pending</button>
           <button class="f-chip" data-f="approved">Approved</button>
         </div>
+        <select class="city-sel" id="apCity" title="Filter by city" onchange="apCity=this.value;this.classList.toggle('on',!!this.value);renderApps(filteredApps())"><option value="">📍 All cities</option></select>
         <div class="export-bar">
           <button class="export-btn" onclick="openPrintOptions()">🖨 Print / PDF</button>
           <button class="export-btn" onclick="exportAppsCSV()">⬇ Export CSV</button>
@@ -206,7 +210,7 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 </div>
 
 <script>
-let TOKEN=null, bkFilter='', apFilter='', pollTimer=null, TECHS=[], BK_CACHE=[], AP_CACHE=[];
+let TOKEN=null, bkFilter='', apFilter='', bkCity='', apCity='', pollTimer=null, TECHS=[], BK_CACHE=[], AP_CACHE=[];
 const tradeAr={"ac":"AC","satellite":"Satellite","cctv":"CCTV","wifi":"WiFi","intercom":"Intercom","smart-home":"Smart Home"};
 
 async function api(path,opts={}){
@@ -251,6 +255,7 @@ async function loadAll(){
     ]);
     TECHS=a.applications.filter(t=>t.status==='approved');
     BK_CACHE=b.bookings;AP_CACHE=a.applications;
+    fillCitySelects();
     renderStats(s.stats);renderBookings(BK_CACHE);renderApps(filteredApps());
     const newCount=BK_CACHE.filter(x=>x.status==='new').length + a.applications.filter(x=>x.status!=='approved').length;
     document.title=(newCount?`(${newCount}) `:'')+'فنّي — Admin';
@@ -283,6 +288,7 @@ function ago(iso){
 function renderBookings(rows){
   const q=(document.getElementById('bkSearch').value||'').trim().toLowerCase();
   if(q)rows=rows.filter(b=>(b.code+' '+b.customer_mobile+' '+(b.customer_name||'')+' '+b.area).toLowerCase().includes(q));
+  if(bkCity)rows=rows.filter(b=>matchBkCity(b,bkCity));
   const body=document.getElementById('bkBody');
   document.getElementById('bkCount').textContent='· '+rows.length;
   document.getElementById('bkEmpty').style.display=rows.length?'none':'block';
@@ -553,9 +559,75 @@ const AP_STATUS_LABEL={applied:'Applied',assessment_booked:'Assessment booked',a
 const DOC_LABELS={id_front:'ID — front',id_back:'ID — back',photo:'Personal photo',certificate:'Certificate'};
 
 function filteredApps(){
-  if(apFilter==='pending')return AP_CACHE.filter(a=>a.status!=='approved');
-  if(apFilter==='approved')return AP_CACHE.filter(a=>a.status==='approved');
-  return AP_CACHE;
+  let rows=AP_CACHE;
+  if(apFilter==='pending')rows=rows.filter(a=>a.status!=='approved');
+  if(apFilter==='approved')rows=rows.filter(a=>a.status==='approved');
+  if(apCity)rows=rows.filter(a=>govCity(a.governorate)===apCity);
+  return rows;
+}
+const apTitle=()=>AP_FILTER_LABEL[apFilter]+(apCity?' — '+apCity:'');
+
+/* ───────── City filter ─────────
+   Bookings store an area (English or Arabic, from the booking form); technicians
+   store a governorate. Both are normalised to one English city name so the
+   filter works regardless of which language the customer/technician used. */
+const CITY_ORDER=['Cairo','Giza','Alexandria','Qalyubia','Sharqia','Dakahlia','Other'];
+const GOV_ALIASES={
+  'cairo':'Cairo','القاهرة':'Cairo','giza':'Giza','الجيزة':'Giza',
+  'alexandria':'Alexandria','الإسكندرية':'Alexandria','الاسكندرية':'Alexandria',
+  'qalyubia':'Qalyubia','القليوبية':'Qalyubia','sharqia':'Sharqia','الشرقية':'Sharqia',
+  'dakahlia':'Dakahlia','الدقهلية':'Dakahlia'
+};
+// booking-form areas → [English label, city]
+const AREA_MAP={
+  'nasr city':['Nasr City','Cairo'],'مدينة نصر':['Nasr City','Cairo'],
+  'new cairo':['New Cairo','Cairo'],'القاهرة الجديدة':['New Cairo','Cairo'],
+  'maadi':['Maadi','Cairo'],'المعادي':['Maadi','Cairo'],
+  'heliopolis':['Heliopolis','Cairo'],'مصر الجديدة':['Heliopolis','Cairo'],
+  'zamalek':['Zamalek','Cairo'],'الزمالك':['Zamalek','Cairo'],
+  '6th of october':['6th of October','Giza'],'٦ أكتوبر':['6th of October','Giza'],'6 أكتوبر':['6th of October','Giza'],
+  'alexandria — smouha':['Smouha','Alexandria'],'الإسكندرية — سموحة':['Smouha','Alexandria']
+};
+const escA=x=>esc(x).replace(/"/g,'&quot;');
+const norm=x=>(x||'').trim().toLowerCase();
+function govCity(g){return GOV_ALIASES[norm(g)]||'Other'}
+function areaInfo(area){
+  const hit=AREA_MAP[norm(area)];
+  if(hit)return{area:hit[0],city:hit[1]};
+  // unknown area: try to spot a city name inside it ("Giza — Haram", "الإسكندرية — ...")
+  const n=norm(area);
+  for(const k in GOV_ALIASES)if(n.includes(k))return{area:(area||'').trim(),city:GOV_ALIASES[k]};
+  return{area:(area||'').trim()||'—',city:'Other'};
+}
+function matchBkCity(b,v){
+  const i=areaInfo(b.area);
+  return v.startsWith('area:')?i.area===v.slice(5):i.city===v.slice(5);
+}
+function fillSelect(id,html,cur){
+  const el=document.getElementById(id);
+  el.innerHTML='<option value="">📍 All cities</option>'+html;
+  el.value=cur;
+  if(el.value!==cur)el.value='';   // selected city no longer present in data
+  return el.value;
+}
+function fillCitySelects(){
+  // bookings: city groups with their areas, so you can pick "all of Cairo" or one area
+  const tree={};
+  BK_CACHE.forEach(b=>{const i=areaInfo(b.area);const t=(tree[i.city]=tree[i.city]||{});t[i.area]=(t[i.area]||0)+1});
+  const cities=Object.keys(tree).sort((a,b)=>CITY_ORDER.indexOf(a)-CITY_ORDER.indexOf(b));
+  const bkHtml=cities.map(c=>{
+    const areas=Object.keys(tree[c]).sort();
+    const total=areas.reduce((n,a)=>n+tree[c][a],0);
+    return `<option value="city:${escA(c)}">${esc(c)} — all (${total})</option>`+
+      areas.map(a=>`<option value="area:${escA(a)}">&nbsp;&nbsp;↳ ${esc(a)} (${tree[c][a]})</option>`).join('');
+  }).join('');
+  bkCity=fillSelect('bkCity',bkHtml,bkCity);
+  document.getElementById('bkCity').classList.toggle('on',!!bkCity);
+  // technicians: governorate
+  const cnt={};AP_CACHE.forEach(a=>{const c=govCity(a.governorate);cnt[c]=(cnt[c]||0)+1});
+  const apHtml=CITY_ORDER.filter(c=>cnt[c]).map(c=>`<option value="${c}">${c} (${cnt[c]})</option>`).join('');
+  apCity=fillSelect('apCity',apHtml,apCity);
+  document.getElementById('apCity').classList.toggle('on',!!apCity);
 }
 document.querySelectorAll('#apFilters .f-chip').forEach(c=>{
   c.addEventListener('click',()=>{
@@ -595,7 +667,7 @@ function exportAppsCSV(){
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   const link=document.createElement('a');
   link.href=URL.createObjectURL(blob);
-  link.download=`fanni-technician-applications${apFilter?'-'+apFilter:''}-${stamp()}.csv`;
+  link.download=`fanni-technician-applications${apFilter?'-'+apFilter:''}${apCity?'-'+apCity.toLowerCase():''}-${stamp()}.csv`;
   document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(link.href),2000);
 }
@@ -607,7 +679,7 @@ function openPrintOptions(){
   const withDocs=rows.filter(a=>a.documents&&a.documents.length).length;
   openModal(`
     <h3>Print technician applications</h3>
-    <div class="msub">${AP_FILTER_LABEL[apFilter]} · ${rows.length} record(s). Use the filter chips to change what gets printed.</div>
+    <div class="msub">${esc(apTitle())} · ${rows.length} record(s). Use the filter chips and city menu to change what gets printed.</div>
     <div class="det-k" style="margin-bottom:6px">Layout</div>
     <label class="opt-row"><input type="radio" name="pLayout" value="profiles" checked>
       <div><b>Full application forms</b><div class="sub">One application per page with every field, plus a review & sign-off box for the assessor.</div></div></label>
@@ -626,7 +698,7 @@ function openPrintOptions(){
 function runPrint(){
   const layout=document.querySelector('input[name=pLayout]:checked').value;
   const docs=layout==='profiles'&&document.getElementById('pDocs').checked;
-  printApps(filteredApps(),{layout,docs,title:AP_FILTER_LABEL[apFilter]});
+  printApps(filteredApps(),{layout,docs,title:apTitle()});
 }
 async function printTech(id){
   const a=AP_CACHE.find(x=>x.id===id);
