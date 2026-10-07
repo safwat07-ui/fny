@@ -25,6 +25,8 @@ from functools import wraps
 
 from flask import Flask, g, jsonify, request, send_from_directory
 
+from catalog_seed import CATALOG
+
 DB_PATH = os.environ.get("FANNI_DB", "fanni.db")
 ADMIN_TOKEN = os.environ.get("FANNI_ADMIN_TOKEN", "change-me-admin")
 # WhatsApp Cloud API (optional — notifications no-op until configured)
@@ -150,6 +152,48 @@ CREATE TABLE IF NOT EXISTS status_log (
     status TEXT NOT NULL,
     at TEXT NOT NULL
 );
+
+-- Parts & products catalog (spare parts + devices a customer can be quoted)
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY,
+    sku TEXT UNIQUE NOT NULL,
+    services TEXT NOT NULL,               -- comma-separated service slugs
+    kind TEXT NOT NULL DEFAULT 'part',    -- part|product
+    category TEXT,
+    name_en TEXT NOT NULL,
+    name_ar TEXT NOT NULL,
+    unit TEXT NOT NULL DEFAULT 'pc',      -- pc|m|kg|pack|set|roll
+    cost_egp INTEGER NOT NULL DEFAULT 0,  -- Fanni's purchase cost (never shown to techs/customers)
+    price_egp INTEGER NOT NULL,           -- fixed customer price per unit
+    track_stock INTEGER NOT NULL DEFAULT 0, -- 1 = Fanni-supplied from inventory; 0 = tech sources it
+    stock_qty INTEGER NOT NULL DEFAULT 0,
+    reorder_level INTEGER NOT NULL DEFAULT 0,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS stock_moves (
+    id INTEGER PRIMARY KEY,
+    product_id INTEGER NOT NULL REFERENCES products(id),
+    delta INTEGER NOT NULL,               -- + in, - out
+    qty_after INTEGER NOT NULL,
+    reason TEXT NOT NULL,                 -- restock|adjust|damaged|job_use|job_return
+    booking_id INTEGER,
+    note TEXT,
+    at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS price_log (
+    id INTEGER PRIMARY KEY,
+    product_id INTEGER,                   -- set for catalog items
+    job_catalog_id INTEGER,               -- set for labor prices
+    field TEXT NOT NULL,                  -- price|cost
+    old_egp INTEGER,
+    new_egp INTEGER NOT NULL,
+    note TEXT,
+    at TEXT NOT NULL
+);
 """
 
 SEED_SERVICES = [
@@ -223,7 +267,14 @@ def init_db():
     db.executescript(SCHEMA)
     for tbl, col in (("technicians", "dob TEXT"), ("technicians", "documents TEXT"),
                      ("bookings", "payment_status TEXT DEFAULT 'unpaid'"),
-                     ("bookings", "paymob_order_id TEXT"), ("bookings", "txn_id TEXT")):
+                     ("bookings", "paymob_order_id TEXT"), ("bookings", "txn_id TEXT"),
+                     ("parts_quotes", "product_id INTEGER"),
+                     ("parts_quotes", "qty INTEGER DEFAULT 1"),
+                     ("parts_quotes", "unit_price_egp INTEGER"),
+                     ("parts_quotes", "cost_egp INTEGER DEFAULT 0"),
+                     ("parts_quotes", "supplied_by TEXT DEFAULT 'tech'"),
+                     ("parts_quotes", "part_name_en TEXT"),
+                     ("jobs_catalog", "active INTEGER DEFAULT 1")):
         try:
             db.execute(f"ALTER TABLE {tbl} ADD COLUMN {col}")
         except sqlite3.OperationalError:
@@ -245,6 +296,17 @@ def init_db():
                     " VALUES (?,?,?,?,?)",
                     (sid, title, detail, price, insp),
                 )
+    if db.execute("SELECT COUNT(*) FROM products").fetchone()[0] == 0:
+        ts = now()
+        for sku, services, kind, cat, en, ar, unit, cost, price in CATALOG:
+            tracked = 1 if kind == "product" else 0
+            db.execute(
+                "INSERT INTO products (sku, services, kind, category, name_en, name_ar, unit,"
+                " cost_egp, price_egp, track_stock, stock_qty, reorder_level, active,"
+                " created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,0,?,1,?,?)",
+                (sku, services, kind, cat, en, ar, unit, cost, price, tracked,
+                 2 if tracked else 0, ts, ts),
+            )
     db.commit()
     db.close()
 
@@ -344,7 +406,8 @@ def booking_public(db, b):
     parts = [
         dict(p)
         for p in db.execute(
-            "SELECT id, part_name, price_egp, status FROM parts_quotes WHERE booking_id=?",
+            "SELECT id, part_name, part_name_en, qty, price_egp, status"
+            " FROM parts_quotes WHERE booking_id=?",
             (b["id"],),
         ).fetchall()
     ]
@@ -376,6 +439,115 @@ def booking_public(db, b):
 
 
 # --------------------------------------------------------------------------
+# Catalog & inventory helpers
+# --------------------------------------------------------------------------
+
+PRODUCT_UNITS = ("pc", "m", "kg", "pack", "set", "roll")
+MAX_LINE_QTY = 100
+
+
+def qty_label(name, qty):
+    return name if qty == 1 else f"{name} ×{qty}"
+
+
+def resolve_items(db, items, trades):
+    """Turn technician line items into priced quote lines.
+
+    Each item is either a catalog pick  {"product_id": int, "qty": int}
+    (price, name and supply source come from the catalog — the tech can't change
+    the price) or a custom line {"name": str, "price_egp": int} for anything
+    not in the catalog. Returns (lines, error)."""
+    if not isinstance(items, list) or len(items) > 15:
+        return None, "items must be a list (max 15)"
+    lines = []
+    for it in items:
+        if not isinstance(it, dict):
+            return None, "Each item must be an object"
+        if it.get("product_id") is not None:
+            pid, qty = it.get("product_id"), it.get("qty", 1)
+            if not isinstance(pid, int) or not isinstance(qty, int) or not 1 <= qty <= MAX_LINE_QTY:
+                return None, f"Catalog items need integer product_id and qty (1–{MAX_LINE_QTY})"
+            p = db.execute("SELECT * FROM products WHERE id=? AND active=1", (pid,)).fetchone()
+            if not p:
+                return None, "Catalog item not found or no longer available"
+            if not set(p["services"].split(",")) & set(trades):
+                return None, f"{p['name_en']} is outside your trades"
+            if p["track_stock"] and p["stock_qty"] < qty:
+                return None, f"Not enough stock for {p['name_ar']} (available: {p['stock_qty']})"
+            lines.append({
+                "product_id": p["id"], "qty": qty, "sku": p["sku"],
+                "name": qty_label(p["name_ar"], qty), "name_en": qty_label(p["name_en"], qty),
+                "unit_price_egp": p["price_egp"], "price_egp": p["price_egp"] * qty,
+                "cost_egp": p["cost_egp"] * qty,
+                "supplied_by": "fanni" if p["track_stock"] else "tech",
+            })
+        else:
+            name = (it.get("name") or "").strip()[:120]
+            price = it.get("price_egp")
+            if not name or not isinstance(price, int) or not 10 <= price <= 100000:
+                return None, "Each custom item needs a name and integer price_egp (10–100000)"
+            lines.append({"product_id": None, "qty": 1, "name": name, "name_en": None,
+                          "unit_price_egp": price, "price_egp": price, "cost_egp": 0,
+                          "supplied_by": "tech"})
+    return lines, None
+
+
+def move_stock(db, product_id, delta, reason, booking_id=None, note=None):
+    """Apply a stock movement. Outgoing moves never take stock below zero.
+    Returns the new quantity, or None if there wasn't enough stock."""
+    cur = db.execute(
+        "UPDATE products SET stock_qty=stock_qty+?, updated_at=? WHERE id=? AND stock_qty+?>=0",
+        (delta, now(), product_id, delta),
+    )
+    if cur.rowcount == 0:
+        return None
+    after = db.execute("SELECT stock_qty FROM products WHERE id=?", (product_id,)).fetchone()[0]
+    db.execute(
+        "INSERT INTO stock_moves (product_id, delta, qty_after, reason, booking_id, note, at)"
+        " VALUES (?,?,?,?,?,?,?)",
+        (product_id, delta, after, reason, booking_id, note, now()),
+    )
+    return after
+
+
+def consume_part(db, part, booking_id):
+    """Deduct Fanni-supplied stock for an approved part line. Returns error or None."""
+    if part["supplied_by"] != "fanni" or not part["product_id"]:
+        return None
+    if move_stock(db, part["product_id"], -(part["qty"] or 1), "job_use", booking_id) is None:
+        return "Out of stock — this item can no longer be supplied. Contact Fanni support."
+    return None
+
+
+def release_booking_stock(db, booking_id):
+    """Return Fanni-supplied stock for a booking that won't complete."""
+    for p in db.execute(
+        "SELECT product_id, qty FROM parts_quotes WHERE booking_id=? AND status='approved'"
+        " AND supplied_by='fanni' AND product_id IS NOT NULL", (booking_id,)
+    ).fetchall():
+        move_stock(db, p["product_id"], p["qty"] or 1, "job_return", booking_id)
+
+
+def insert_part_line(db, booking_id, line, status):
+    return db.execute(
+        "INSERT INTO parts_quotes (booking_id, part_name, part_name_en, price_egp, status,"
+        " product_id, qty, unit_price_egp, cost_egp, supplied_by, created_at)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        (booking_id, line["name"], line.get("name_en"), line["price_egp"], status,
+         line.get("product_id"), line.get("qty", 1), line.get("unit_price_egp"),
+         line.get("cost_egp", 0), line.get("supplied_by", "tech"), now()),
+    )
+
+
+def tech_parts_egp(db, booking_id):
+    """Approved parts the technician supplied himself (his money, not Fanni's)."""
+    return db.execute(
+        "SELECT COALESCE(SUM(price_egp),0) FROM parts_quotes WHERE booking_id=?"
+        " AND status='approved' AND COALESCE(supplied_by,'tech')='tech'", (booking_id,)
+    ).fetchone()[0]
+
+
+# --------------------------------------------------------------------------
 # Static frontend
 # --------------------------------------------------------------------------
 
@@ -403,7 +575,7 @@ def list_services():
     for s in db.execute("SELECT * FROM services ORDER BY id").fetchall():
         jobs = db.execute(
             "SELECT id, title, detail, price_egp, is_inspection"
-            " FROM jobs_catalog WHERE service_id=? ORDER BY id",
+            " FROM jobs_catalog WHERE service_id=? AND COALESCE(active,1)=1 ORDER BY id",
             (s["id"],),
         ).fetchall()
         out.append(
@@ -434,7 +606,7 @@ def create_booking():
     db = get_db()
     job = db.execute(
         "SELECT j.*, s.slug AS service_slug FROM jobs_catalog j"
-        " JOIN services s ON s.id=j.service_id WHERE j.id=?",
+        " JOIN services s ON s.id=j.service_id WHERE j.id=? AND COALESCE(j.active,1)=1",
         (d["job_catalog_id"],),
     ).fetchone()
     if not job:
@@ -490,6 +662,10 @@ def decide_part(code, part_id):
     ).fetchone()
     if not p:
         return err("Pending part quote not found", 404)
+    if decision == "approved":
+        problem = consume_part(db, p, b["id"])
+        if problem:
+            return err(problem, 409)
     db.execute("UPDATE parts_quotes SET status=? WHERE id=?", (decision, part_id))
     if decision == "approved":
         db.execute(
@@ -737,18 +913,12 @@ def tech_offer_job(code):
     """Offer = take the job at the fixed labor price, plus optional
     equipment / extra-service line items quoted upfront."""
     d = request.get_json(silent=True) or {}
-    items = d.get("items") or []
-    if not isinstance(items, list) or len(items) > 15:
-        return err("items must be a list (max 15)")
-    clean = []
-    for it in items:
-        name = (it.get("name") or "").strip()[:120] if isinstance(it, dict) else ""
-        price = it.get("price_egp") if isinstance(it, dict) else None
-        if not name or not isinstance(price, int) or not 10 <= price <= 100000:
-            return err("Each item needs a name and integer price_egp (10–100000)")
-        clean.append({"name": name, "price_egp": price})
-    extras = sum(i["price_egp"] for i in clean)
     db = get_db()
+    clean, problem = resolve_items(db, d.get("items") or [], g.tech["trades"].split(","))
+    if problem:
+        return err(problem)
+    extras = sum(i["price_egp"] for i in clean)
+    tech_extras = sum(i["price_egp"] for i in clean if i["supplied_by"] == "tech")
     b = db.execute("SELECT * FROM bookings WHERE code=? AND status='new'", (code.upper(),)).fetchone()
     if not b:
         return err("Request not open for offers", 409)
@@ -766,7 +936,7 @@ def tech_offer_job(code):
     db.commit()
     return jsonify({"ok": True, "code": b["code"], "labor_egp": b["labor_egp"],
                     "extras_egp": extras, "customer_total_add": extras,
-                    "you_earn_egp": round(b["labor_egp"] * (1 - COMMISSION_RATE)) + extras,
+                    "you_earn_egp": round(b["labor_egp"] * (1 - COMMISSION_RATE)) + tech_extras,
                     "status": "pending"}), 201
 
 
@@ -776,7 +946,7 @@ def tech_my():
     db = get_db()
     t = g.tech
     jobs = db.execute(
-        "SELECT b.code, b.status, b.day, b.time_window, b.area, b.address, b.notes,"
+        "SELECT b.id, b.code, b.status, b.day, b.time_window, b.area, b.address, b.notes,"
         " b.labor_egp, b.parts_egp, b.total_egp, b.customer_mobile, j.title"
         " FROM bookings b JOIN jobs_catalog j ON j.id=b.job_catalog_id"
         " WHERE b.technician_id=? AND b.status!='cancelled'"
@@ -784,18 +954,23 @@ def tech_my():
         (t["id"],),
     ).fetchall()
     active, done = [], []
+    earnings = 0
     for j in jobs:
         rec = dict(j)
         rec["you_earn_egp"] = round(j["labor_egp"] * (1 - COMMISSION_RATE))
+        bid = rec.pop("id")
+        rec["tech_parts_egp"] = tech_parts_egp(db, bid)          # parts he supplied → his
+        rec["fanni_parts_egp"] = (j["parts_egp"] or 0) - rec["tech_parts_egp"]  # from Fanni stock
+        rec["parts"] = [dict(p) for p in db.execute(
+            "SELECT part_name, qty, price_egp, status, COALESCE(supplied_by,'tech') AS supplied_by"
+            " FROM parts_quotes WHERE booking_id=? ORDER BY id", (bid,)).fetchall()]
+        if j["status"] == "done":
+            earnings += rec["you_earn_egp"] + rec["tech_parts_egp"]
         # customer contact only once the job is truly his and underway
         if j["status"] not in ("assigned", "en_route", "arrived", "working"):
             rec.pop("customer_mobile", None)
             rec.pop("address", None)
         (done if j["status"] == "done" else active).append(rec)
-    earnings = round(sum(
-        j["labor_egp"] * (1 - COMMISSION_RATE) + (j["parts_egp"] or 0)
-        for j in jobs if j["status"] == "done"
-    ))
     return jsonify({"ok": True, "profile": {
         "name": t["full_name"], "trades": t["trades"].split(","),
         "district": t["district"], "rating_avg": round(t["rating_avg"], 1),
@@ -873,9 +1048,15 @@ def tech_status(code):
 @app.post("/api/tech/jobs/<code>/parts")
 @require_technician
 def tech_quote_part(code):
+    """Quote a part found during the visit. Either a catalog item
+    {"product_id", "qty"} at its fixed price, or a custom {"part_name", "price_egp"}."""
     d = request.get_json(silent=True) or {}
-    if not d.get("part_name") or not isinstance(d.get("price_egp"), int) or d["price_egp"] <= 0:
-        return err("part_name and positive integer price_egp required")
+    if d.get("product_id") is not None:
+        item = {"product_id": d.get("product_id"), "qty": d.get("qty", 1)}
+    else:
+        if not d.get("part_name") or not isinstance(d.get("price_egp"), int) or d["price_egp"] <= 0:
+            return err("part_name and positive integer price_egp required (or a catalog product_id)")
+        item = {"name": d["part_name"], "price_egp": d["price_egp"]}
     db = get_db()
     b = db.execute(
         "SELECT * FROM bookings WHERE code=? AND technician_id=? AND status IN ('arrived','working')",
@@ -883,13 +1064,39 @@ def tech_quote_part(code):
     ).fetchone()
     if not b:
         return err("Job must be yours and in arrived/working state", 409)
-    cur = db.execute(
-        "INSERT INTO parts_quotes (booking_id, part_name, price_egp, created_at) VALUES (?,?,?,?)",
-        (b["id"], d["part_name"], d["price_egp"], now()),
-    )
+    lines, problem = resolve_items(db, [item], g.tech["trades"].split(","))
+    if problem:
+        return err(problem)
+    line = lines[0]
+    cur = insert_part_line(db, b["id"], line, "pending")
     db.commit()
     return jsonify({"ok": True, "part_id": cur.lastrowid, "status": "pending",
+                    "part_name": line["name"], "price_egp": line["price_egp"],
+                    "supplied_by": line["supplied_by"],
                     "note": "Customer must approve in-app before installation."}), 201
+
+
+@app.get("/api/tech/catalog")
+@require_technician
+def tech_catalog():
+    """Parts & products for the technician's trades, at fixed customer prices.
+    Costs are never exposed here."""
+    db = get_db()
+    trades = set(g.tech["trades"].split(","))
+    out = []
+    for p in db.execute("SELECT * FROM products WHERE active=1 ORDER BY kind, category, name_ar").fetchall():
+        svcs = p["services"].split(",")
+        if not trades & set(svcs):
+            continue
+        out.append({
+            "id": p["id"], "sku": p["sku"], "services": svcs, "kind": p["kind"],
+            "category": p["category"], "name_en": p["name_en"], "name_ar": p["name_ar"],
+            "unit": p["unit"], "price_egp": p["price_egp"],
+            "supplied_by": "fanni" if p["track_stock"] else "tech",
+            "in_stock": (p["stock_qty"] if p["track_stock"] else None),
+            "available": (not p["track_stock"]) or p["stock_qty"] > 0,
+        })
+    return jsonify({"ok": True, "items": out})
 
 
 # --------------------------------------------------------------------------
@@ -989,6 +1196,7 @@ def admin_cancel(code):
         return err("Booking not found", 404)
     if b["status"] in ("done", "cancelled"):
         return err(f"Cannot cancel a booking in status '{b['status']}'", 409)
+    release_booking_stock(db, b["id"])
     db.execute("UPDATE bookings SET status='cancelled', updated_at=? WHERE id=?", (now(), b["id"]))
     log_status(db, b["id"], "cancelled")
     db.commit()
@@ -1098,7 +1306,7 @@ def admin_booking_full(code):
         o["items"] = json.loads(o.pop("extras_json") or "[]")
         rec["offers"].append(o)
     rec["parts_quotes"] = [dict(p) for p in db.execute(
-        "SELECT id, part_name, price_egp, status, created_at FROM parts_quotes WHERE booking_id=?",
+        "SELECT id, part_name, qty, price_egp, status, COALESCE(supplied_by,'tech') AS supplied_by, created_at FROM parts_quotes WHERE booking_id=?",
         (b["id"],)).fetchall()]
     rec["history"] = [dict(h) for h in db.execute(
         "SELECT status, at FROM status_log WHERE booking_id=? ORDER BY id", (b["id"],)).fetchall()]
@@ -1120,11 +1328,14 @@ def admin_accept_offer(offer_id):
     # labor stays at the fixed catalog price; extras become pre-approved parts
     items = json.loads(q["extras_json"] or "[]")
     for it in items:
-        db.execute(
-            "INSERT INTO parts_quotes (booking_id, part_name, price_egp, status, created_at)"
-            " VALUES (?,?,?,'approved',?)",
-            (b["id"], it["name"], it["price_egp"], now()),
-        )
+        it.setdefault("supplied_by", "tech")
+        it.setdefault("qty", 1)
+        it.setdefault("product_id", None)
+        problem = consume_part(db, it, b["id"])
+        if problem:
+            db.rollback()
+            return err(f"{it['name']}: {problem}", 409)
+        insert_part_line(db, b["id"], it, "approved")
     new_total = b["labor_egp"] + b["service_fee_egp"] + b["parts_egp"] + q["extras_egp"]
     db.execute(
         "UPDATE bookings SET status='assigned', technician_id=?,"
@@ -1150,9 +1361,11 @@ def admin_accept_offer(offer_id):
 @require_admin
 def admin_booking_delete(code):
     db = get_db()
-    b = db.execute("SELECT id FROM bookings WHERE code=?", (code.upper(),)).fetchone()
+    b = db.execute("SELECT id, status FROM bookings WHERE code=?", (code.upper(),)).fetchone()
     if not b:
         return err("Booking not found", 404)
+    if b["status"] not in ("done", "cancelled"):
+        release_booking_stock(db, b["id"])   # parts never got used — back on the shelf
     db.execute("DELETE FROM job_quotes WHERE booking_id=?", (b["id"],))
     db.execute("DELETE FROM parts_quotes WHERE booking_id=?", (b["id"],))
     db.execute("DELETE FROM ratings WHERE booking_id=?", (b["id"],))
@@ -1170,16 +1383,324 @@ def admin_stats():
         return db.execute(q, p).fetchone()[0]
     gmv = one("SELECT COALESCE(SUM(total_egp),0) FROM bookings WHERE status='done'")
     labor = one("SELECT COALESCE(SUM(labor_egp),0) FROM bookings WHERE status='done'")
+    supplied = "FROM parts_quotes p JOIN bookings b ON b.id=p.booking_id WHERE b.status='done'" \
+               " AND p.status='approved' AND p.supplied_by='fanni'"
+    parts_sales = one("SELECT COALESCE(SUM(p.price_egp),0) " + supplied)
+    parts_margin = parts_sales - one("SELECT COALESCE(SUM(p.cost_egp),0) " + supplied)
     return jsonify({"ok": True, "stats": {
         "bookings_total": one("SELECT COUNT(*) FROM bookings"),
         "bookings_done": one("SELECT COUNT(*) FROM bookings WHERE status='done'"),
         "gmv_egp": gmv,
         "platform_revenue_egp": round(labor * COMMISSION_RATE)
-                                + SERVICE_FEE * one("SELECT COUNT(*) FROM bookings WHERE status='done'"),
+                                + SERVICE_FEE * one("SELECT COUNT(*) FROM bookings WHERE status='done'")
+                                + parts_margin,
+        "parts_sales_egp": parts_sales,
+        "parts_margin_egp": parts_margin,
+        "inventory_value_egp": one("SELECT COALESCE(SUM(stock_qty*cost_egp),0) FROM products"
+                                   " WHERE track_stock=1 AND stock_qty>0"),
+        "low_stock_count": one("SELECT COUNT(*) FROM products WHERE active=1 AND track_stock=1"
+                               " AND stock_qty<=reorder_level"),
         "technicians_approved": one("SELECT COUNT(*) FROM technicians WHERE status='approved'"),
         "applications_pending": one("SELECT COUNT(*) FROM technicians WHERE status IN ('applied','assessment_booked')"),
         "avg_rating": round(one("SELECT COALESCE(AVG(stars),0) FROM ratings"), 2),
     }})
+
+
+# --------------------------------------------------------------------------
+# Admin — inventory & pricing (X-Admin-Token)
+# --------------------------------------------------------------------------
+
+SERVICE_SLUGS = [s[0] for s in SEED_SERVICES]
+PRODUCT_FIELDS = {  # field: (type, validator)
+    "sku": str, "services": str, "kind": str, "category": str, "name_en": str,
+    "name_ar": str, "unit": str, "cost_egp": int, "price_egp": int,
+    "track_stock": int, "reorder_level": int, "active": int,
+}
+
+
+def product_admin(p):
+    rec = dict(p)
+    rec["services"] = p["services"].split(",")
+    rec["margin_egp"] = p["price_egp"] - p["cost_egp"]
+    rec["margin_pct"] = round(100 * (p["price_egp"] - p["cost_egp"]) / p["price_egp"], 1) if p["price_egp"] else 0
+    rec["low_stock"] = bool(p["track_stock"] and p["active"] and p["stock_qty"] <= p["reorder_level"])
+    return rec
+
+
+def clean_product(d, partial=False):
+    """Validate admin input for a catalog item. Returns (fields, error)."""
+    out = {}
+    for k, typ in PRODUCT_FIELDS.items():
+        if k not in d:
+            continue
+        v = d[k]
+        if k == "services" and isinstance(v, list):
+            v = ",".join(v)
+        if typ is int:
+            if isinstance(v, bool):
+                v = int(v)
+            if not isinstance(v, int) or v < 0:
+                return None, f"{k} must be a non-negative integer"
+        else:
+            v = (v or "").strip() if isinstance(v, str) else ""
+        out[k] = v
+    if "sku" in out:
+        out["sku"] = out["sku"].upper()
+        if not re.fullmatch(r"[A-Z0-9][A-Z0-9\-]{1,39}", out["sku"]):
+            return None, "SKU: 2–40 letters, digits or dashes"
+    if "services" in out:
+        svcs = [s for s in out["services"].split(",") if s]
+        if not svcs or any(s not in SERVICE_SLUGS for s in svcs):
+            return None, f"services must be from: {', '.join(SERVICE_SLUGS)}"
+        out["services"] = ",".join(dict.fromkeys(svcs))
+    if "kind" in out and out["kind"] not in ("part", "product"):
+        return None, "kind must be 'part' or 'product'"
+    if "unit" in out and out["unit"] not in PRODUCT_UNITS:
+        return None, f"unit must be one of: {', '.join(PRODUCT_UNITS)}"
+    for k in ("name_en", "name_ar"):
+        if k in out and not out[k]:
+            return None, f"{k} is required"
+    if "price_egp" in out and out["price_egp"] <= 0:
+        return None, "price_egp must be greater than 0"
+    for k in ("track_stock", "active"):
+        if k in out:
+            out[k] = 1 if out[k] else 0
+    if not partial:
+        missing = [k for k in ("sku", "services", "name_en", "name_ar", "price_egp") if k not in out]
+        if missing:
+            return None, f"Missing fields: {', '.join(missing)}"
+    return out, None
+
+
+def log_price(db, field, old, new, product_id=None, job_id=None, note=None):
+    if old != new:
+        db.execute(
+            "INSERT INTO price_log (product_id, job_catalog_id, field, old_egp, new_egp, note, at)"
+            " VALUES (?,?,?,?,?,?,?)", (product_id, job_id, field, old, new, note, now()))
+
+
+@app.get("/api/admin/inventory")
+@require_admin
+def admin_inventory():
+    db = get_db()
+    rows = db.execute("SELECT * FROM products ORDER BY services, kind, category, name_en").fetchall()
+    items = [product_admin(p) for p in rows]
+    # units sold (completed jobs) per item, for spotting fast movers
+    sold = {r["product_id"]: r["n"] for r in db.execute(
+        "SELECT p.product_id, SUM(p.qty) n FROM parts_quotes p JOIN bookings b ON b.id=p.booking_id"
+        " WHERE p.status='approved' AND p.product_id IS NOT NULL AND b.status='done'"
+        " GROUP BY p.product_id").fetchall()}
+    for it in items:
+        it["sold_qty"] = sold.get(it["id"], 0)
+    return jsonify({"ok": True, "items": items, "services": SERVICE_SLUGS, "units": PRODUCT_UNITS})
+
+
+@app.post("/api/admin/inventory")
+@require_admin
+def admin_inventory_create():
+    d = request.get_json(silent=True) or {}
+    f, problem = clean_product(d)
+    if problem:
+        return err(problem)
+    f.setdefault("kind", "part")
+    f.setdefault("unit", "pc")
+    f.setdefault("cost_egp", 0)
+    f.setdefault("track_stock", 1 if f["kind"] == "product" else 0)
+    f.setdefault("reorder_level", 0)
+    f.setdefault("active", 1)
+    f.setdefault("category", "")
+    db = get_db()
+    cols = list(f.keys()) + ["stock_qty", "created_at", "updated_at"]
+    try:
+        cur = db.execute(
+            f"INSERT INTO products ({','.join(cols)}) VALUES ({','.join('?' for _ in cols)})",
+            list(f.values()) + [0, now(), now()])
+    except sqlite3.IntegrityError:
+        return err(f"SKU {f['sku']} already exists", 409)
+    pid = cur.lastrowid
+    opening = d.get("opening_stock")
+    if isinstance(opening, int) and opening > 0:
+        move_stock(db, pid, opening, "restock", note="Opening stock")
+    db.commit()
+    p = db.execute("SELECT * FROM products WHERE id=?", (pid,)).fetchone()
+    return jsonify({"ok": True, "item": product_admin(p)}), 201
+
+
+@app.patch("/api/admin/inventory/<int:pid>")
+@require_admin
+def admin_inventory_update(pid):
+    d = request.get_json(silent=True) or {}
+    f, problem = clean_product(d, partial=True)
+    if problem:
+        return err(problem)
+    if not f:
+        return err("Nothing to update")
+    db = get_db()
+    p = db.execute("SELECT * FROM products WHERE id=?", (pid,)).fetchone()
+    if not p:
+        return err("Item not found", 404)
+    if p["track_stock"] and f.get("track_stock") == 0 and p["stock_qty"] > 0:
+        return err(f"Write off or use the {p['stock_qty']} units in stock before turning off stock tracking", 409)
+    log_price(db, "price", p["price_egp"], f.get("price_egp", p["price_egp"]), product_id=pid)
+    log_price(db, "cost", p["cost_egp"], f.get("cost_egp", p["cost_egp"]), product_id=pid)
+    sets = ", ".join(f"{k}=?" for k in f)
+    try:
+        db.execute(f"UPDATE products SET {sets}, updated_at=? WHERE id=?", list(f.values()) + [now(), pid])
+    except sqlite3.IntegrityError:
+        return err("That SKU is already used by another item", 409)
+    db.commit()
+    return jsonify({"ok": True, "item": product_admin(
+        db.execute("SELECT * FROM products WHERE id=?", (pid,)).fetchone())})
+
+
+@app.post("/api/admin/inventory/<int:pid>/stock")
+@require_admin
+def admin_inventory_stock(pid):
+    """Stock movement: {"delta": +10, "reason": "restock", "note": "..."}
+    or a count correction: {"set_qty": 7, "note": "stock take"}."""
+    d = request.get_json(silent=True) or {}
+    db = get_db()
+    p = db.execute("SELECT * FROM products WHERE id=?", (pid,)).fetchone()
+    if not p:
+        return err("Item not found", 404)
+    if not p["track_stock"]:
+        return err("Stock isn't tracked for this item — turn on 'Fanni-supplied' first", 409)
+    note = (d.get("note") or "").strip()[:200] or None
+    if "set_qty" in d:
+        target = d["set_qty"]
+        if not isinstance(target, int) or target < 0:
+            return err("set_qty must be a non-negative integer")
+        delta, reason = target - p["stock_qty"], "adjust"
+        if delta == 0:
+            return jsonify({"ok": True, "item": product_admin(p)})
+    else:
+        delta, reason = d.get("delta"), d.get("reason", "restock")
+        if not isinstance(delta, int) or delta == 0 or abs(delta) > 100000:
+            return err("delta must be a non-zero integer")
+        if reason not in ("restock", "adjust", "damaged"):
+            return err("reason must be restock, adjust or damaged")
+        if reason == "restock" and delta < 0:
+            return err("A restock must add stock")
+    if move_stock(db, pid, delta, reason, note=note) is None:
+        return err(f"Only {p['stock_qty']} in stock", 409)
+    # restock at a new purchase price → update cost (optional)
+    unit_cost = d.get("unit_cost_egp")
+    if reason == "restock" and isinstance(unit_cost, int) and unit_cost > 0 and unit_cost != p["cost_egp"]:
+        log_price(db, "cost", p["cost_egp"], unit_cost, product_id=pid, note="restock")
+        db.execute("UPDATE products SET cost_egp=? WHERE id=?", (unit_cost, pid))
+    db.commit()
+    return jsonify({"ok": True, "item": product_admin(
+        db.execute("SELECT * FROM products WHERE id=?", (pid,)).fetchone())})
+
+
+@app.get("/api/admin/inventory/<int:pid>/history")
+@require_admin
+def admin_inventory_history(pid):
+    db = get_db()
+    p = db.execute("SELECT * FROM products WHERE id=?", (pid,)).fetchone()
+    if not p:
+        return err("Item not found", 404)
+    moves = [dict(m) for m in db.execute(
+        "SELECT m.*, b.code AS booking_code FROM stock_moves m"
+        " LEFT JOIN bookings b ON b.id=m.booking_id WHERE m.product_id=?"
+        " ORDER BY m.id DESC LIMIT 100", (pid,)).fetchall()]
+    prices = [dict(x) for x in db.execute(
+        "SELECT field, old_egp, new_egp, note, at FROM price_log WHERE product_id=?"
+        " ORDER BY id DESC LIMIT 50", (pid,)).fetchall()]
+    return jsonify({"ok": True, "item": product_admin(p), "moves": moves, "prices": prices})
+
+
+@app.post("/api/admin/inventory/reprice")
+@require_admin
+def admin_inventory_reprice():
+    """Bulk price change, e.g. after a currency move:
+    {"percent": 10, "field": "price"|"cost"|"both", "services": ["ac"], "kind": "part",
+     "category": "Refrigerant", "ids": [..], "round_to": 5, "dry_run": true}"""
+    d = request.get_json(silent=True) or {}
+    pct = d.get("percent")
+    if not isinstance(pct, (int, float)) or isinstance(pct, bool) or not -90 <= pct <= 500 or pct == 0:
+        return err("percent must be a non-zero number between -90 and 500")
+    field = d.get("field", "price")
+    if field not in ("price", "cost", "both"):
+        return err("field must be price, cost or both")
+    round_to = d.get("round_to", 5)
+    if not isinstance(round_to, int) or round_to not in (1, 5, 10, 50, 100):
+        return err("round_to must be 1, 5, 10, 50 or 100")
+    db = get_db()
+    rows = db.execute("SELECT * FROM products").fetchall()
+    svcs, kind, cat, ids = d.get("services") or [], d.get("kind"), d.get("category"), d.get("ids")
+    def keep(p):
+        if ids:
+            return p["id"] in ids
+        return ((not svcs or set(p["services"].split(",")) & set(svcs))
+                and (not kind or p["kind"] == kind) and (not cat or p["category"] == cat))
+    def bump(v):
+        return max(round_to, int(round(v * (1 + pct / 100) / round_to)) * round_to) if v else v
+    changes = []
+    for p in filter(keep, rows):
+        new_price = bump(p["price_egp"]) if field in ("price", "both") else p["price_egp"]
+        new_cost = bump(p["cost_egp"]) if field in ("cost", "both") else p["cost_egp"]
+        changes.append({"id": p["id"], "sku": p["sku"], "name_en": p["name_en"],
+                        "price_from": p["price_egp"], "price_to": new_price,
+                        "cost_from": p["cost_egp"], "cost_to": new_cost})
+    if not d.get("dry_run"):
+        note = f"bulk {pct:+g}%"
+        for c in changes:
+            log_price(db, "price", c["price_from"], c["price_to"], product_id=c["id"], note=note)
+            log_price(db, "cost", c["cost_from"], c["cost_to"], product_id=c["id"], note=note)
+            db.execute("UPDATE products SET price_egp=?, cost_egp=?, updated_at=? WHERE id=?",
+                       (c["price_to"], c["cost_to"], now(), c["id"]))
+        db.commit()
+    return jsonify({"ok": True, "dry_run": bool(d.get("dry_run")), "count": len(changes),
+                    "changes": changes})
+
+
+@app.get("/api/admin/pricing/jobs")
+@require_admin
+def admin_pricing_jobs():
+    """Fixed labor prices per job type (what the customer books)."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT j.id, j.title, j.detail, j.price_egp, j.is_inspection, COALESCE(j.active,1) AS active,"
+        " s.slug AS service, s.name_en AS service_en, s.name_ar AS service_ar,"
+        " (SELECT COUNT(*) FROM bookings b WHERE b.job_catalog_id=j.id) AS bookings"
+        " FROM jobs_catalog j JOIN services s ON s.id=j.service_id ORDER BY s.id, j.id").fetchall()
+    return jsonify({"ok": True, "jobs": [dict(r) for r in rows],
+                    "service_fee_egp": SERVICE_FEE, "commission_rate": COMMISSION_RATE})
+
+
+@app.patch("/api/admin/pricing/jobs/<int:job_id>")
+@require_admin
+def admin_pricing_job_update(job_id):
+    """Change a job's labor price / text. Existing bookings keep the price they
+    were booked at — only new bookings use the new price."""
+    d = request.get_json(silent=True) or {}
+    db = get_db()
+    j = db.execute("SELECT * FROM jobs_catalog WHERE id=?", (job_id,)).fetchone()
+    if not j:
+        return err("Job type not found", 404)
+    f = {}
+    if "price_egp" in d:
+        if not isinstance(d["price_egp"], int) or isinstance(d["price_egp"], bool) or not 10 <= d["price_egp"] <= 200000:
+            return err("price_egp must be an integer 10–200000")
+        f["price_egp"] = d["price_egp"]
+    for k in ("title", "detail"):
+        if k in d:
+            v = (d[k] or "").strip()[:160]
+            if k == "title" and not v:
+                return err("title can't be empty")
+            f[k] = v
+    if "active" in d:
+        f["active"] = 1 if d["active"] else 0
+    if not f:
+        return err("Nothing to update")
+    log_price(db, "price", j["price_egp"], f.get("price_egp", j["price_egp"]), job_id=job_id)
+    db.execute(f"UPDATE jobs_catalog SET {', '.join(k + '=?' for k in f)} WHERE id=?",
+               list(f.values()) + [job_id])
+    db.commit()
+    return jsonify({"ok": True, "job": dict(db.execute(
+        "SELECT id, title, detail, price_egp, is_inspection, COALESCE(active,1) AS active"
+        " FROM jobs_catalog WHERE id=?", (job_id,)).fetchone())})
 
 
 # --------------------------------------------------------------------------

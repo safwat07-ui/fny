@@ -116,6 +116,36 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
 .opt-row input{margin-top:5px;accent-color:var(--teal)}
 .opt-row .sub{font-size:12px;color:var(--muted)}
 
+.num-in{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;width:96px;text-align:right}
+.num-in:focus,.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--teal)}
+.num-in.dirty{border-color:var(--amber);background:var(--amber-soft)}
+.mini-btn{background:var(--mist);border:1.5px solid var(--line);color:var(--teal);font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;padding:3px 10px;border-radius:99px;cursor:pointer;white-space:nowrap;margin:1px 0}
+.mini-btn:hover{border-color:var(--teal)}
+.stock-pill{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px}
+.stock-pill.low{color:var(--red)}
+.stock-pill.ok{color:var(--green)}
+.supply{font-size:11px;font-weight:800;padding:1px 9px;border-radius:99px;white-space:nowrap}
+.supply.fanni{background:#E4EEF8;color:var(--blue)}
+.supply.tech{background:var(--amber-soft);color:#9A5A0F}
+tr.inactive td{opacity:.5}
+.margin-neg{color:var(--red);font-weight:800}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.fld{display:flex;flex-direction:column;gap:3px}
+.fld.wide{grid-column:1/-1}
+.fld label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800}
+.fld input,.fld select,.fld textarea{font-family:'Cairo',sans-serif;font-size:14px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:#fff}
+.fld .hint{font-size:11.5px;color:var(--muted)}
+.fld label.opt-row{text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--ink);font-weight:400}
+.inv-scroll{max-height:620px;overflow:auto}
+.inv-scroll thead th{position:sticky;top:0;z-index:2}
+.checks-row{display:flex;flex-wrap:wrap;gap:6px}
+.checks-row label{display:flex;gap:5px;align-items:center;border:1.5px solid var(--line);border-radius:99px;padding:3px 12px;font-size:12.5px;font-weight:800;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--ink)}
+.checks-row label:has(input:checked){border-color:var(--teal);background:var(--mist)}
+.form-err{color:var(--red);font-weight:800;font-size:13px;margin-top:10px;min-height:1em}
+.svc-row td{background:var(--sand);font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.preview{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:10px}
+.preview table{font-size:12.5px}
+@media(max-width:640px){.fgrid{grid-template-columns:1fr}}
 @media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){
   th,td{padding:9px 10px;font-size:12.5px}
@@ -202,6 +232,50 @@ td.mono,.tok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
       </div>
       <div class="empty" id="apEmpty" style="display:none">No applications yet.</div>
     </div>
+
+    <div class="sec" id="invSec">
+      <div class="sec-head">
+        <h3>Inventory &amp; parts pricing <span class="count" id="invCount"></span></h3>
+        <input type="search" id="invSearch" placeholder="Search SKU / name…" oninput="renderInventory()" style="font-family:Cairo,sans-serif;font-size:13px;padding:7px 12px;border:1.5px solid var(--line);border-radius:99px;min-width:180px">
+        <select class="city-sel" id="invSvc" title="Filter by service" onchange="invSvc=this.value;this.classList.toggle('on',!!this.value);renderInventory()"><option value="">🔧 All services</option></select>
+        <div class="filters" id="invFilters">
+          <button class="f-chip on" data-f="">All</button>
+          <button class="f-chip" data-f="part">Parts</button>
+          <button class="f-chip" data-f="product">Products</button>
+          <button class="f-chip" data-f="fanni">Fanni stock</button>
+          <button class="f-chip" data-f="low">Low / out</button>
+          <button class="f-chip" data-f="inactive">Hidden</button>
+        </div>
+        <div class="export-bar">
+          <button class="export-btn" onclick="openItemForm()">＋ Add item</button>
+          <button class="export-btn" onclick="openReprice()">％ Bulk reprice</button>
+          <button class="export-btn" onclick="exportInvCSV()">⬇ CSV</button>
+        </div>
+      </div>
+      <div class="table-scroll inv-scroll">
+        <table>
+          <thead><tr>
+            <th>SKU</th><th>Item</th><th class="hide-m">Services</th><th>Supply</th><th style="text-align:right">Cost</th><th style="text-align:right">Price</th><th style="text-align:right" class="hide-m">Margin</th><th style="text-align:right">Stock</th><th class="hide-m" style="text-align:right">Sold</th><th></th>
+          </tr></thead>
+          <tbody id="invBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="invEmpty" style="display:none">No items match.</div>
+    </div>
+
+    <div class="sec" id="laborSec">
+      <div class="sec-head">
+        <h3>Service labor prices <span class="count" id="laborCount"></span></h3>
+        <div class="sub" style="font-size:12.5px;color:var(--muted);max-width:520px">Fixed price the customer books. New prices apply to new bookings only. Customer also pays the service fee; the technician nets labor minus commission.</div>
+        <div class="export-bar"><button class="export-btn" id="laborSaveAll" onclick="saveAllLabor()" disabled>Save changes</button></div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Job</th><th class="hide-m">Detail</th><th class="hide-m" style="text-align:right">Bookings</th><th style="text-align:right">Labor price</th><th style="text-align:right">Customer pays</th><th style="text-align:right">Tech nets</th><th>Listed</th></tr></thead>
+          <tbody id="laborBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -248,11 +322,15 @@ async function waTest(){
 }
 async function loadAll(){
   try{
-    const [s,b,a]=await Promise.all([
+    const [s,b,a,inv,lab]=await Promise.all([
       api('/api/admin/stats'),
       api('/api/admin/bookings'+(bkFilter?'?status='+bkFilter:'')),
-      api('/api/admin/applications')
+      api('/api/admin/applications'),
+      api('/api/admin/inventory'),
+      api('/api/admin/pricing/jobs')
     ]);
+    INV=inv.items;INV_META={services:inv.services,units:inv.units};renderInventory();
+    if(!laborDirty())renderLabor(lab);
     TECHS=a.applications.filter(t=>t.status==='approved');
     BK_CACHE=b.bookings;AP_CACHE=a.applications;
     fillCitySelects();
@@ -272,7 +350,11 @@ function renderStats(s){
     <div class="stat" onclick="scrollApps()"><div class="v">${s.technicians_approved}</div><div class="l">Approved technicians ›</div></div>
     <div class="stat warn" onclick="scrollApps()"><div class="v">${s.applications_pending}</div><div class="l">Pending applications ›</div></div>
     <div class="stat"><div class="v">${s.avg_rating||'—'}</div><div class="l">Avg rating</div></div>
-    <div class="stat"><div class="v mono" style="font-size:15px;padding-top:8px">20% + 25</div><div class="l">Commission + fee</div></div>`;
+    <div class="stat"><div class="v mono" style="font-size:15px;padding-top:8px">20% + 25</div><div class="l">Commission + fee</div></div>
+    <div class="stat" onclick="setInvFilter('fanni')"><div class="v">EGP ${(s.parts_sales_egp||0).toLocaleString()}</div><div class="l">Parts &amp; products sold ›</div></div>
+    <div class="stat"><div class="v">EGP ${(s.parts_margin_egp||0).toLocaleString()}</div><div class="l">Parts margin (in revenue)</div></div>
+    <div class="stat" onclick="setInvFilter('fanni')"><div class="v">EGP ${(s.inventory_value_egp||0).toLocaleString()}</div><div class="l">Stock value at cost ›</div></div>
+    <div class="stat ${s.low_stock_count?'warn':''}" onclick="setInvFilter('low')"><div class="v">${s.low_stock_count||0}</div><div class="l">Low / out of stock ›</div></div>`;
 }
 
 function esc(x){const d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML}
@@ -533,7 +615,7 @@ async function openBooking(code){
           ${(o.status==='pending'&&b.status==='new')?`<button class="approve-btn" style="margin-top:4px" onclick="acceptOffer(${o.id},'${esc(b.code)}')">Accept — total EGP ${b.labor_egp+b.service_fee_egp+b.parts_egp+o.extras_egp} ✓</button>`:''}
         </div>`).join('')}</div>`:''}
     ${b.parts_quotes.length?`<div class="det-k" style="margin-top:14px">Parts quotes</div>
-      <div class="hist">${b.parts_quotes.map(p=>`<div>${esc(p.part_name)} — <span class="mono">EGP ${p.price_egp}</span> <span class="chip st-${p.status==='approved'?'done':p.status==='pending'?'new':'cancelled'}">${p.status}</span></div>`).join('')}</div>`:''}
+      <div class="hist">${b.parts_quotes.map(p=>`<div>${esc(p.part_name)} — <span class="mono">EGP ${p.price_egp}</span> <span class="supply ${p.supplied_by==='fanni'?'fanni':'tech'}">${p.supplied_by==='fanni'?'Fanni stock':'tech-supplied'}</span> <span class="chip st-${p.status==='approved'?'done':p.status==='pending'?'new':'cancelled'}">${p.status}</span></div>`).join('')}</div>`:''}
     <div class="det-k" style="margin-top:14px">Status history</div>
     <div class="hist">${b.history.map(h=>`<div>${esc(h.status.replace('_',' '))} <span class="mono">${esc(h.at.replace('T',' ').slice(0,16))}</span></div>`).join('')}</div>
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
@@ -823,6 +905,256 @@ td .s{font-size:10px;color:#5C7275}
 })();
 <\/script></body></html>`);
   w.document.close();
+}
+
+/* ───────── Inventory & pricing ───────── */
+let INV=[],INV_META={services:[],units:[]},invFilter='',invSvc='',LABOR=null;
+const SVC_LABEL={ac:'AC',satellite:'Sat & TV',cctv:'CCTV',wifi:'WiFi',intercom:'Intercom','smart-home':'Smart Home'};
+const UNIT_LABEL={pc:'piece',m:'meter',kg:'kg',pack:'pack',set:'set',roll:'roll'};
+const egp=n=>(n||0).toLocaleString();
+
+function filteredInv(){
+  const q=(document.getElementById('invSearch').value||'').trim().toLowerCase();
+  return INV.filter(x=>{
+    if(invFilter!=='inactive'&&!x.active)return false;
+    if(invFilter==='inactive'&&x.active)return false;
+    if(invFilter==='part'||invFilter==='product'){if(x.kind!==invFilter)return false}
+    if(invFilter==='fanni'&&!x.track_stock)return false;
+    if(invFilter==='low'&&!x.low_stock)return false;
+    if(invSvc&&!x.services.includes(invSvc))return false;
+    return !q||(x.sku+' '+x.name_en+' '+x.name_ar+' '+(x.category||'')).toLowerCase().includes(q);
+  });
+}
+function renderInventory(){
+  const sel=document.getElementById('invSvc');
+  if(sel.options.length<2)sel.innerHTML='<option value="">🔧 All services</option>'+INV_META.services.map(s=>`<option value="${s}">${SVC_LABEL[s]||s}</option>`).join('');
+  const rows=filteredInv();
+  document.getElementById('invCount').textContent='· '+rows.length;
+  document.getElementById('invEmpty').style.display=rows.length?'none':'block';
+  document.getElementById('invBody').innerHTML=rows.map(x=>`
+    <tr class="${x.active?'':'inactive'}">
+      <td class="mono">${esc(x.sku)}</td>
+      <td><b>${esc(x.name_en)}</b><div class="sub" dir="rtl" style="text-align:left">${esc(x.name_ar)}</div><div class="sub">${esc(x.kind)} · ${esc(x.category||'—')} · per ${esc(UNIT_LABEL[x.unit]||x.unit)}</div></td>
+      <td class="hide-m">${x.services.map(s=>SVC_LABEL[s]||s).join(' · ')}</td>
+      <td><span class="supply ${x.track_stock?'fanni':'tech'}">${x.track_stock?'Fanni stock':'Tech-supplied'}</span></td>
+      <td class="mono" style="text-align:right">${egp(x.cost_egp)}</td>
+      <td class="mono" style="text-align:right"><b>${egp(x.price_egp)}</b></td>
+      <td class="mono hide-m" style="text-align:right"><span class="${x.margin_egp<0?'margin-neg':''}">${egp(x.margin_egp)}</span><div class="sub">${x.margin_pct}%</div></td>
+      <td style="text-align:right">${x.track_stock?`<span class="stock-pill ${x.low_stock?'low':'ok'}">${x.stock_qty}</span><div class="sub">reorder ≤ ${x.reorder_level}</div>`:'<span class="sub">—</span>'}</td>
+      <td class="mono hide-m" style="text-align:right">${x.sold_qty||0}</td>
+      <td style="text-align:right">
+        <button class="mini-btn" onclick="openItemForm(${x.id})">Edit</button>
+        ${x.track_stock?`<button class="mini-btn" onclick="openStock(${x.id})">± Stock</button>`:''}
+        <button class="mini-btn" onclick="openStock(${x.id},true)">History</button>
+      </td>
+    </tr>`).join('');
+}
+function setInvFilter(f){
+  invFilter=f;
+  document.querySelectorAll('#invFilters .f-chip').forEach(x=>x.classList.toggle('on',x.dataset.f===f));
+  renderInventory();document.getElementById('invSec').scrollIntoView({behavior:'smooth'});
+}
+document.querySelectorAll('#invFilters .f-chip').forEach(c=>c.addEventListener('click',()=>{
+  invFilter=c.dataset.f;document.querySelectorAll('#invFilters .f-chip').forEach(x=>x.classList.toggle('on',x===c));renderInventory();
+}));
+
+function fld(label,html,wide,hint){return `<div class="fld${wide?' wide':''}"><label>${label}</label>${html}${hint?`<div class="hint">${hint}</div>`:''}</div>`}
+function openItemForm(id){
+  const x=id?INV.find(i=>i.id===id):{sku:'',services:[],kind:'part',category:'',name_en:'',name_ar:'',unit:'pc',cost_egp:0,price_egp:'',track_stock:0,reorder_level:0,active:1};
+  const cats=[...new Set(INV.map(i=>i.category).filter(Boolean))].sort();
+  openModal(`
+    <h3>${id?'Edit '+esc(x.sku):'Add catalog item'}</h3>
+    <div class="msub">${id?'Price changes apply to new quotes only — items already quoted keep their price.':'Technicians see it in their portal immediately (for the services you tick).'}</div>
+    <div class="fgrid">
+      ${fld('SKU',`<input id="fSku" class="mono" value="${escA(x.sku)}" placeholder="AC-CAP-35">`)}
+      ${fld('Type',`<select id="fKind"><option value="part"${x.kind==='part'?' selected':''}>Spare part / consumable</option><option value="product"${x.kind==='product'?' selected':''}>Product (device)</option></select>`)}
+      ${fld('Name (English)',`<input id="fEn" value="${escA(x.name_en)}">`)}
+      ${fld('Name (Arabic)',`<input id="fAr" dir="rtl" value="${escA(x.name_ar)}">`)}
+      ${fld('Services',`<div class="checks-row">${INV_META.services.map(s=>`<label><input type="checkbox" class="fSvc" value="${s}" ${x.services.includes(s)?'checked':''}>${SVC_LABEL[s]||s}</label>`).join('')}</div>`,true)}
+      ${fld('Category',`<input id="fCat" list="catList" value="${escA(x.category||'')}"><datalist id="catList">${cats.map(c=>`<option value="${escA(c)}">`).join('')}</datalist>`)}
+      ${fld('Unit',`<select id="fUnit">${INV_META.units.map(u=>`<option value="${u}"${x.unit===u?' selected':''}>${UNIT_LABEL[u]||u}</option>`).join('')}</select>`)}
+      ${fld('Cost (EGP / unit)',`<input id="fCost" class="mono" inputmode="numeric" value="${x.cost_egp}" oninput="formMargin()">`,false,'Your purchase cost. Never shown to technicians or customers.')}
+      ${fld('Customer price (EGP / unit)',`<input id="fPrice" class="mono" inputmode="numeric" value="${x.price_egp}" oninput="formMargin()">`,false,'<span id="fMargin"></span>')}
+      ${fld('Supply',`<label class="opt-row" style="margin:0"><input type="checkbox" id="fTrack" ${x.track_stock?'checked':''} onchange="document.getElementById('stockFields').style.display=this.checked?'contents':'none'"><div><b>Fanni-supplied from stock</b><div class="sub">On: stock is tracked, deducted when the customer approves, and the sale is Fanni revenue. Off: the technician sources it at this fixed price and keeps the money.</div></div></label>`,true)}
+      <div id="stockFields" style="display:${x.track_stock?'contents':'none'}">
+        ${fld('Reorder alert at',`<input id="fReorder" class="mono" inputmode="numeric" value="${x.reorder_level}">`,false,'Flagged as low stock at or below this quantity.')}
+        ${id?fld('In stock',`<div class="mono" style="padding:9px 0;font-weight:700">${x.stock_qty} — use ± Stock to change</div>`):fld('Opening stock',`<input id="fOpen" class="mono" inputmode="numeric" value="0">`)}
+      </div>
+      ${fld('Visibility',`<label class="opt-row" style="margin:0"><input type="checkbox" id="fActive" ${x.active?'checked':''}><div><b>Listed in technician catalog</b><div class="sub">Untick to hide without deleting its history.</div></div></label>`,true)}
+    </div>
+    <div class="form-err" id="fErr"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="export-btn" style="background:var(--mist);color:var(--ink)" onclick="closeModal()">Cancel</button>
+      <button class="approve-btn" id="fSave" onclick="saveItem(${id||0})">${id?'Save changes':'Add item'}</button>
+    </div>`);
+  formMargin();
+}
+const intVal=id=>{const v=(document.getElementById(id)||{}).value;return v===undefined||v===''?null:parseInt(String(v).replace(/[^\d]/g,''),10)};
+function formMargin(){
+  const c=intVal('fCost')||0,p=intVal('fPrice')||0,el=document.getElementById('fMargin');
+  if(!el)return;
+  el.innerHTML=p?`Margin <b class="mono ${p-c<0?'margin-neg':''}">EGP ${egp(p-c)}</b> (${Math.round(100*(p-c)/p)}%)`:'';
+}
+async function saveItem(id){
+  const body={
+    sku:document.getElementById('fSku').value.trim(),kind:document.getElementById('fKind').value,
+    name_en:document.getElementById('fEn').value.trim(),name_ar:document.getElementById('fAr').value.trim(),
+    services:[...document.querySelectorAll('.fSvc:checked')].map(c=>c.value),
+    category:document.getElementById('fCat').value.trim(),unit:document.getElementById('fUnit').value,
+    cost_egp:intVal('fCost')||0,price_egp:intVal('fPrice'),
+    track_stock:document.getElementById('fTrack').checked?1:0,reorder_level:intVal('fReorder')||0,
+    active:document.getElementById('fActive').checked?1:0
+  };
+  if(!id)body.opening_stock=intVal('fOpen')||0;
+  const e=document.getElementById('fErr');
+  if(!body.services.length){e.textContent='Pick at least one service.';return}
+  if(!body.price_egp){e.textContent='Enter the customer price.';return}
+  if(body.price_egp<body.cost_egp&&!confirm('Price is below cost — this item will sell at a loss. Save anyway?'))return;
+  const btn=document.getElementById('fSave');btn.disabled=true;
+  const d=await api('/api/admin/inventory'+(id?'/'+id:''),{method:id?'PATCH':'POST',body:JSON.stringify(body)});
+  if(d.ok){closeModal();loadAll()}else{e.textContent=d.error;btn.disabled=false}
+}
+
+async function openStock(id,historyOnly){
+  openModal('<p class="msub">Loading…</p>');
+  const d=await api('/api/admin/inventory/'+id+'/history');
+  if(!d.ok){openModal('<p class="msub">'+esc(d.error)+'</p>');return}
+  const x=d.item;
+  const REASON={restock:'Received',adjust:'Count correction',damaged:'Damaged / lost',job_use:'Used on job',job_return:'Returned from job'};
+  openModal(`
+    <h3>${esc(x.name_en)}</h3>
+    <div class="msub"><span class="mono">${esc(x.sku)}</span> · ${x.track_stock?`<b class="stock-pill ${x.low_stock?'low':'ok'}">${x.stock_qty}</b> in stock · reorder at ≤ ${x.reorder_level}`:'technician-supplied (no stock)'} · cost EGP ${egp(x.cost_egp)} · price EGP ${egp(x.price_egp)}</div>
+    ${(!historyOnly&&x.track_stock)?`
+      <div class="det-k" style="margin-bottom:6px">Stock movement</div>
+      <label class="opt-row"><input type="radio" name="sMode" value="restock" checked onchange="stockMode()"><div><b>Receive stock</b><div class="sub">Add units from a supplier delivery.</div></div></label>
+      <label class="opt-row"><input type="radio" name="sMode" value="damaged" onchange="stockMode()"><div><b>Write off</b><div class="sub">Damaged, lost or returned to supplier.</div></div></label>
+      <label class="opt-row"><input type="radio" name="sMode" value="count" onchange="stockMode()"><div><b>Stock count</b><div class="sub">Set the exact quantity on the shelf.</div></div></label>
+      <div class="fgrid" style="margin-top:8px">
+        ${fld('<span id="sQtyL">Quantity received</span>',`<input id="sQty" class="mono" inputmode="numeric" placeholder="0">`)}
+        <div id="sCostWrap">${fld('Unit cost this delivery (optional)',`<input id="sCost" class="mono" inputmode="numeric" placeholder="${x.cost_egp}">`,false,'If different, updates the item cost.')}</div>
+        ${fld('Note',`<input id="sNote" placeholder="Supplier, invoice no., reason…">`,true)}
+      </div>
+      <div class="form-err" id="sErr"></div>
+      <div style="display:flex;justify-content:flex-end"><button class="approve-btn" id="sGo" onclick="saveStock(${x.id})">Apply</button></div>`:''}
+    <div class="det-k" style="margin-top:16px">Stock history</div>
+    ${d.moves.length?`<div class="hist">${d.moves.map(m=>`<div><b class="mono" style="color:${m.delta>0?'var(--green)':'var(--red)'}">${m.delta>0?'+':''}${m.delta}</b> ${REASON[m.reason]||esc(m.reason)}
+      ${m.booking_code?`<button class="link-btn mono" onclick="openBooking('${esc(m.booking_code)}')">${esc(m.booking_code)}</button>`:''}
+      → <span class="mono">${m.qty_after}</span> ${m.note?'· '+esc(m.note):''} <span class="mono">${esc(m.at.replace('T',' ').slice(0,16))}</span></div>`).join('')}</div>`:'<p class="msub">No stock movements yet.</p>'}
+    <div class="det-k" style="margin-top:14px">Price history</div>
+    ${d.prices.length?`<div class="hist">${d.prices.map(p=>`<div>${p.field}: <span class="mono">EGP ${egp(p.old_egp)} → ${egp(p.new_egp)}</span> ${p.note?'· '+esc(p.note):''} <span class="mono">${esc(p.at.replace('T',' ').slice(0,16))}</span></div>`).join('')}</div>`:'<p class="msub">No price changes yet.</p>'}
+    <div style="margin-top:14px"><button class="mini-btn" onclick="openItemForm(${x.id})">Edit item & price</button></div>`);
+}
+function stockMode(){
+  const m=document.querySelector('input[name=sMode]:checked').value;
+  document.getElementById('sQtyL').textContent={restock:'Quantity received',damaged:'Quantity to write off',count:'Quantity on the shelf'}[m];
+  document.getElementById('sCostWrap').style.display=m==='restock'?'block':'none';
+}
+async function saveStock(id){
+  const m=document.querySelector('input[name=sMode]:checked').value,q=intVal('sQty'),e=document.getElementById('sErr');
+  if(q==null||(m!=='count'&&q<=0)){e.textContent='Enter a quantity.';return}
+  const note=document.getElementById('sNote').value.trim();
+  const body=m==='count'?{set_qty:q,note}:{delta:m==='damaged'?-q:q,reason:m,note,unit_cost_egp:m==='restock'?intVal('sCost'):null};
+  const btn=document.getElementById('sGo');btn.disabled=true;
+  const d=await api('/api/admin/inventory/'+id+'/stock',{method:'POST',body:JSON.stringify(body)});
+  if(d.ok){loadAll();openStock(id)}else{e.textContent=d.error;btn.disabled=false}
+}
+
+function openReprice(){
+  const rows=filteredInv();
+  if(!rows.length){alert('No items in the current view.');return}
+  openModal(`
+    <h3>Bulk reprice</h3>
+    <div class="msub">Applies to the <b>${rows.length}</b> item(s) in the current view (search, service and filter chips). Narrow the list first to target e.g. AC refrigerant only.</div>
+    <div class="fgrid">
+      ${fld('Change by %',`<input id="rPct" class="mono" inputmode="decimal" placeholder="e.g. 10 or -5">`)}
+      ${fld('Apply to',`<select id="rField"><option value="price">Customer price</option><option value="cost">Cost</option><option value="both">Both</option></select>`)}
+      ${fld('Round to nearest EGP',`<select id="rRound"><option>1</option><option selected>5</option><option>10</option><option>50</option><option>100</option></select>`)}
+    </div>
+    <div class="form-err" id="rErr"></div>
+    <div id="rPrev"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="export-btn" style="background:var(--mist);color:var(--ink)" onclick="runReprice(true)">Preview</button>
+      <button class="approve-btn" id="rGo" onclick="runReprice(false)" disabled>Apply</button>
+    </div>`);
+  ['rPct','rField','rRound'].forEach(i=>document.getElementById(i).addEventListener('input',()=>{document.getElementById('rGo').disabled=true}));
+}
+async function runReprice(dry){
+  const pct=parseFloat(document.getElementById('rPct').value),e=document.getElementById('rErr');
+  if(!pct){e.textContent='Enter a non-zero percentage.';return}
+  e.textContent='';
+  const body={percent:pct,field:document.getElementById('rField').value,round_to:+document.getElementById('rRound').value,
+    ids:filteredInv().map(x=>x.id),dry_run:dry};
+  if(!dry&&!confirm(`Apply ${pct>0?'+':''}${pct}% to ${body.ids.length} item(s)?`))return;
+  const d=await api('/api/admin/inventory/reprice',{method:'POST',body:JSON.stringify(body)});
+  if(!d.ok){e.textContent=d.error;return}
+  if(!dry){closeModal();loadAll();return}
+  document.getElementById('rPrev').innerHTML=`<div class="preview"><table><thead><tr><th>SKU</th><th>Item</th><th style="text-align:right">Price</th><th style="text-align:right">Cost</th></tr></thead><tbody>
+    ${d.changes.map(c=>`<tr><td class="mono">${esc(c.sku)}</td><td>${esc(c.name_en)}</td>
+      <td class="mono" style="text-align:right">${egp(c.price_from)}${c.price_to!==c.price_from?' → <b>'+egp(c.price_to)+'</b>':''}</td>
+      <td class="mono" style="text-align:right">${egp(c.cost_from)}${c.cost_to!==c.cost_from?' → <b>'+egp(c.cost_to)+'</b>':''}</td></tr>`).join('')}</tbody></table></div>`;
+  document.getElementById('rGo').disabled=false;
+}
+
+function exportInvCSV(){
+  const rows=filteredInv();
+  if(!rows.length){alert('Nothing to export.');return}
+  const cols=[['SKU',x=>x.sku],['Name (EN)',x=>x.name_en],['Name (AR)',x=>x.name_ar],['Type',x=>x.kind],['Category',x=>x.category],
+    ['Services',x=>x.services.join(' ')],['Unit',x=>x.unit],['Supply',x=>x.track_stock?'Fanni stock':'Technician'],
+    ['Cost EGP',x=>x.cost_egp],['Price EGP',x=>x.price_egp],['Margin EGP',x=>x.margin_egp],['Margin %',x=>x.margin_pct],
+    ['In stock',x=>x.track_stock?x.stock_qty:''],['Reorder at',x=>x.track_stock?x.reorder_level:''],
+    ['Stock value at cost',x=>x.track_stock?x.stock_qty*x.cost_egp:''],['Sold (completed jobs)',x=>x.sold_qty||0],['Listed',x=>x.active?'yes':'no']];
+  const cell=v=>{let s=v==null?'':String(v);if(/^[=+\-@]/.test(s))s="'"+s;return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+  const csv=[cols.map(c=>c[0]),...rows.map(x=>cols.map(c=>c[1](x)))].map(r=>r.map(cell).join(',')).join('\r\n');
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  link.download=`fanni-inventory-${stamp()}.csv`;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(link.href),2000);
+}
+
+/* labor prices */
+function laborDirty(){return !!document.querySelector('#laborBody .num-in.dirty, #laborBody input[type=checkbox].dirty')}
+function renderLabor(d){
+  LABOR=d;let last='';
+  document.getElementById('laborCount').textContent='· '+d.jobs.length+' job types';
+  document.getElementById('laborBody').innerHTML=d.jobs.map(j=>{
+    const head=j.service!==last?`<tr class="svc-row"><td colspan="7">${esc(j.service_en)} · ${esc(j.service_ar)}</td></tr>`:'';last=j.service;
+    return head+`<tr class="${j.active?'':'inactive'}" data-id="${j.id}">
+      <td><b>${esc(j.title)}</b>${j.is_inspection?'<div class="sub">inspection — deducted from repair</div>':''}</td>
+      <td class="hide-m sub">${esc(j.detail||'')}</td>
+      <td class="mono hide-m" style="text-align:right">${j.bookings}</td>
+      <td style="text-align:right"><input class="num-in" inputmode="numeric" value="${j.price_egp}" data-orig="${j.price_egp}" oninput="laborEdit(this)"></td>
+      <td class="mono" style="text-align:right" data-pay>${egp(j.price_egp+d.service_fee_egp)}</td>
+      <td class="mono" style="text-align:right" data-net>${egp(Math.round(j.price_egp*(1-d.commission_rate)))}</td>
+      <td><input type="checkbox" ${j.active?'checked':''} data-orig="${j.active?1:0}" onchange="this.classList.toggle('dirty',(this.checked?1:0)!=+this.dataset.orig);laborBtn()" style="accent-color:var(--teal);width:16px;height:16px" title="Show to customers"></td>
+    </tr>`}).join('');
+  laborBtn();
+}
+function laborEdit(inp){
+  const v=parseInt(inp.value.replace(/[^\d]/g,''),10)||0,tr=inp.closest('tr');
+  inp.classList.toggle('dirty',v!==+inp.dataset.orig);
+  tr.querySelector('[data-pay]').textContent=egp(v+LABOR.service_fee_egp);
+  tr.querySelector('[data-net]').textContent=egp(Math.round(v*(1-LABOR.commission_rate)));
+  laborBtn();
+}
+function laborBtn(){
+  const n=new Set([...document.querySelectorAll('#laborBody .dirty')].map(x=>x.closest('tr').dataset.id)).size;
+  const b=document.getElementById('laborSaveAll');b.disabled=!n;b.textContent=n?`Save ${n} change(s)`:'Save changes';
+}
+async function saveAllLabor(){
+  const trs=[...new Set([...document.querySelectorAll('#laborBody .dirty')].map(x=>x.closest('tr')))];
+  for(const tr of trs){
+    const p=parseInt(tr.querySelector('.num-in').value.replace(/[^\d]/g,''),10);
+    if(!(p>=10)){alert('Labor prices must be at least EGP 10.');return}
+  }
+  if(!confirm(`Update ${trs.length} labor price(s)? Existing bookings keep their original price.`))return;
+  const btn=document.getElementById('laborSaveAll');btn.disabled=true;
+  for(const tr of trs){
+    const d=await api('/api/admin/pricing/jobs/'+tr.dataset.id,{method:'PATCH',body:JSON.stringify({
+      price_egp:parseInt(tr.querySelector('.num-in').value.replace(/[^\d]/g,''),10),active:tr.querySelector('input[type=checkbox]').checked})});
+    if(!d.ok){alert(d.error);break}
+  }
+  document.querySelectorAll('#laborBody .dirty').forEach(x=>x.classList.remove('dirty'));
+  loadAll();
 }
 
 document.querySelectorAll('#bkFilters .f-chip').forEach(c=>{

@@ -126,6 +126,50 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
 .earn-hero .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:32px;margin-top:2px}
 .done-row{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
 .done-row .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);white-space:nowrap}
+/* catalog */
+.cat-tools{display:flex;gap:8px;margin-bottom:10px}
+.cat-search{flex:1;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;background:#fff}
+.cat-search:focus{outline:none;border-color:var(--teal)}
+.cat-chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.cat-chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:4px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;color:var(--muted);white-space:nowrap}
+.cat-chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.cat-group{font-size:12px;font-weight:900;color:var(--muted);margin:14px 2px 6px}
+.cat-item{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.cat-item.na{opacity:.55}
+.cat-item .nm{font-weight:800;font-size:14px;line-height:1.4}
+.cat-item .sk{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted)}
+.cat-item .pr{text-align:left;flex-shrink:0}
+.cat-item .pr .a{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal);font-size:14.5px;white-space:nowrap}
+.cat-item .pr .u{font-size:10.5px;color:var(--muted);font-weight:700}
+.src{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 9px;border-radius:99px;margin-top:3px}
+.src.fanni{background:#E4EEF8;color:#2563A8}
+.src.tech{background:var(--amber-soft);color:#9A5A0F}
+.src.out{background:#F6E3E0;color:var(--red)}
+.btn-cat{background:var(--mist);color:var(--teal);border:1.5px dashed var(--teal)}
+.item-row.cat{align-items:center;background:var(--mist);border-radius:9px;padding:6px 8px}
+.item-row.cat .cn{flex:1;font-size:13px;font-weight:800;line-height:1.35}
+.item-row.cat .cn small{display:block;font-weight:700;color:var(--muted);font-size:11px}
+.item-row .qty{width:56px;padding:7px 4px;border:1.5px solid var(--line);border-radius:9px;font-family:'IBM Plex Mono',monospace;text-align:center;direction:ltr}
+.item-row .lp{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal);font-size:12.5px;white-space:nowrap;min-width:70px;text-align:left}
+.part-line{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:3px 0}
+.part-line .mono{white-space:nowrap}
+
+/* picker sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(12,46,51,.5);z-index:150;display:none}
+.sheet-bg.open{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:86vh;background:var(--mist);border-radius:20px 20px 0 0;z-index:160;display:none;flex-direction:column;max-width:640px;margin:0 auto}
+.sheet.open{display:flex;animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-head{padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center}
+.sheet-head h4{font-size:15.5px;font-weight:900}
+.sheet-head button{background:#fff;border:1px solid var(--line);width:32px;height:32px;border-radius:50%;cursor:pointer;font-weight:900;color:var(--muted)}
+.sheet-body{overflow-y:auto;padding:0 16px 24px}
+.pick-open{background:#fff;border:1.5px solid var(--teal);border-radius:13px;padding:11px 13px;margin-bottom:7px}
+.pick-act{display:flex;gap:8px;align-items:center;margin-top:9px}
+.step{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:99px;overflow:hidden;background:#fff}
+.step button{background:none;border:none;width:34px;height:34px;font-size:17px;font-weight:900;color:var(--teal);cursor:pointer}
+.step span{min-width:30px;text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.pick-act .btn{flex:1;padding:9px 12px;font-size:13px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script>
@@ -191,19 +235,53 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
       <div id="doneList"></div>
       <div class="empty" id="doneEmpty" style="display:none"><span class="big">💰</span>أول شغلانة تخلص، أرباحها هتظهر هنا.</div>
     </div>
+
+    <!-- CATALOG -->
+    <div class="screen" id="scr-cat">
+      <div class="sec-title">قطع الغيار والمنتجات بالأسعار الثابتة للعميل</div>
+      <div class="cat-tools"><input type="search" class="cat-search" id="catSearch" placeholder="ابحث باسم القطعة أو الكود…" oninput="renderCatalog()"></div>
+      <div class="cat-chips" id="catChips"></div>
+      <div id="catList"></div>
+      <div class="empty" id="catEmpty" style="display:none"><span class="big">📦</span>مفيش نتايج — جرّب كلمة تانية.</div>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.7">
+        <span class="src fanni">من مخزن فنّي</span> تستلمها من الإدارة وسعرها بيروح لفنّي.
+        <span class="src tech">توريدك</span> بتجيبها بنفسك وبتاخد سعرها كامل.
+        مش لاقي القطعة؟ أضفها يدوي باسمها وسعرها.</p>
+    </div>
   </div>
 
-  <div class="tabs">
+  <div class="tabs" style="grid-template-columns:repeat(4,1fr)">
     <button class="tab on" onclick="go('req',this)"><span class="pip" id="reqPip" style="display:none"></span><span class="ic">📋</span><span class="l">الطلبات</span></button>
     <button class="tab" onclick="go('jobs',this)"><span class="pip" id="jobPip" style="display:none"></span><span class="ic">🧰</span><span class="l">شغلاناتي</span></button>
+    <button class="tab" onclick="go('cat',this)"><span class="ic">📦</span><span class="l">الكتالوج</span></button>
     <button class="tab" onclick="go('earn',this)"><span class="ic">💰</span><span class="l">أرباحي</span></button>
+  </div>
+</div>
+
+<!-- catalog picker -->
+<div class="sheet-bg" id="sheetBg" onclick="closePicker()"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-head"><h4 id="sheetTitle">اختار من الكتالوج</h4><button onclick="closePicker()" aria-label="إغلاق">✕</button></div>
+  <div class="sheet-body">
+    <div class="cat-tools"><input type="search" class="cat-search" id="pickSearch" placeholder="ابحث…" oninput="renderPicker()"></div>
+    <div class="cat-chips" id="pickChips"></div>
+    <div id="pickList"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let TOKEN=null,pollTimer=null,OPEN=[],MY=null;
+let TOKEN=null,pollTimer=null,OPEN=[],MY=null,CAT=[],catKind='',pickKind='',PICK=null;
+const CAT_AR={'Electrical':'كهرباء','Refrigerant':'فريون وتبريد','Motors & fans':'مواتير ومراوح','Boards & sensors':'كروت وحساسات',
+ 'Piping & installation':'مواسير وتركيب','Consumables':'مستهلكات','AC units':'أجهزة تكييف','Dish & LNB':'أطباق و LNB','Mounting':'حوامل',
+ 'Cabling':'كابلات','TV repair':'قطع غيار شاشات','Receivers':'ريسيفرات','TVs':'شاشات','Connectors':'فيش ووصلات','Power':'باور',
+ 'Storage':'هاردات','Networking':'شبكات','Cameras':'كاميرات','Recorders':'أجهزة تسجيل','Kits':'باكدجات','Installation':'تركيبات',
+ 'Routers & mesh':'راوترات وميش','Switches & power':'سويتشات وباور','Spare units':'قطع احتياطية','Locks':'أقفال',
+ 'Intercom kits':'أطقم إنتركم','Door stations':'وحدات باب','Switches & lighting':'مفاتيح وإضاءة','Hubs & sensors':'هاب وحساسات',
+ 'Locks & motors':'أقفال ومواتير'};
+const UNIT_AR={pc:'القطعة',m:'المتر',kg:'الكيلو',pack:'العبوة',set:'الطقم',roll:'اللفة'};
+const SVC_AR={ac:'تكييف',satellite:'دش وشاشات',cctv:'كاميرات',wifi:'شبكات','smart-home':'منزل ذكي',intercom:'إنتركم'};
 const NEXT={assigned:['en_route','أنا في الطريق 🛵'],en_route:['arrived','وصلت ✓'],arrived:['working','بدأت الشغل 🔧'],working:['done','خلصت الشغلانة ✓']};
 const store={get k(){try{return localStorage.getItem('fanni_tech')}catch(e){return null}},
   set(v){try{v?localStorage.setItem('fanni_tech',v):localStorage.removeItem('fanni_tech')}catch(e){}}};
@@ -228,7 +306,7 @@ async function login(silent){
     document.getElementById('loginView').style.display='none';
     document.getElementById('appView').style.display='block';
     track('tech_login');
-    render(d);loadReqs();
+    render(d);loadReqs();loadCatalog();
   }catch(e){
     store.set(null);
     if(!silent)document.getElementById('loginErr').style.display='block';
@@ -236,7 +314,7 @@ async function login(silent){
 }
 async function manualRefresh(btn){
   btn.disabled=true;const o=btn.textContent;btn.textContent='…';
-  await Promise.all([loadReqs(),loadMy()]);
+  await Promise.all([loadReqs(),loadMy(),loadCatalog()]);
   btn.textContent=o;btn.disabled=false;
   toast('اتحدثت ✓');
 }
@@ -295,7 +373,7 @@ function renderReqs(){
       <div class="offer-box" id="ob-${i}">
         <h4>معدات أو خدمات إضافية الطلب محتاجها</h4>
         <div id="items-${i}"><div class="item-row"><input class="nm" placeholder="مثال: حامل شاشة 65 بوصة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})">✕</button></div></div>
-        <button class="add-item" onclick="addItem(${i})">+ سطر كمان</button>
+        <div style="display:flex;gap:14px;align-items:center"><button class="add-item" onclick="openPicker({type:'offer',i:${i}})">📦 من الكتالوج</button><button class="add-item" onclick="addItem(${i})">+ سطر يدوي</button></div>
         <div class="offer-note"><input id="note-${i}" placeholder="ملاحظة للإدارة (اختياري)"></div>
         <div class="offer-sum"><span>إجمالي الإضافات</span><span class="mono" id="sum-${i}">0 جنيه</span></div>
         <button class="btn btn-primary btn-full" onclick="submitOffer(${i},this,false)">ابعت العرض: ${j.listed_price_egp} جنيه + الإضافات</button>
@@ -313,6 +391,10 @@ function addItem(i){
 function readItems(i){
   const out=[];
   document.querySelectorAll(`#items-${i} .item-row`).forEach(r=>{
+    if(r.dataset.pid){
+      const q=Math.max(1,parseInt(normNum(r.querySelector('.qty').value),10)||1);
+      out.push({product_id:+r.dataset.pid,qty:q,_price:+r.dataset.price*q});return;
+    }
     const nm=r.querySelector('.nm').value.trim();
     const pr=parseInt(normNum(r.querySelector('.pr').value),10);
     if(nm&&pr>0)out.push({name:nm,price_egp:pr});
@@ -320,12 +402,12 @@ function readItems(i){
   return out;
 }
 function sumOffer(i){
-  const s=readItems(i).reduce((a,x)=>a+x.price_egp,0);
-  document.getElementById('sum-'+i).textContent=s+' جنيه';
+  const s=readItems(i).reduce((a,x)=>a+(x._price||x.price_egp),0);
+  document.getElementById('sum-'+i).textContent=s.toLocaleString()+' جنيه';
 }
 async function submitOffer(i,btn,plain){
   const j=OPEN[i];
-  const items=plain?[]:readItems(i);
+  const items=plain?[]:readItems(i).map(({_price,...x})=>x);
   if(!plain&&!items.length){toast('اكتب اسم وسعر للإضافة الأول');return}
   btn.disabled=true;
   try{
@@ -346,7 +428,11 @@ function renderJobs(rows){
       <div style="font-weight:900;font-size:15.5px">${esc(j.title)} <span class="mono" style="font-size:12px;color:var(--muted)">${esc(j.code)}</span></div>
       <div style="font-size:12.5px;color:var(--muted)">📍 ${esc(j.area)} · 🕐 ${esc(j.day)} · ${esc(j.time_window)}</div>
       ${j.address?`<div class="addr">🏠 ${esc(j.address)}${j.notes?'<br>📝 '+esc(j.notes):''}</div>`:''}
-      <div class="earn" style="font-size:13px;color:var(--green);font-weight:800">مصنعيتك: ${j.you_earn_egp} جنيه${j.parts_egp?' + إضافات/قطع '+j.parts_egp+' جنيه':''}</div>
+      <div class="earn" style="font-size:13px;color:var(--green);font-weight:800">مصنعيتك: ${j.you_earn_egp} جنيه${j.tech_parts_egp?' + قطع من توريدك '+j.tech_parts_egp+' جنيه':''}</div>
+      ${(j.parts&&j.parts.length)?`<div class="parts-mini" style="margin-top:6px">${j.parts.map(p=>`<div class="part-line"><span>${esc(p.part_name)}
+        <span class="src ${p.supplied_by==='fanni'?'fanni':'tech'}">${p.supplied_by==='fanni'?'من مخزن فنّي':'توريدك'}</span>
+        ${p.status!=='approved'?`<span class="src ${p.status==='pending'?'tech':'out'}">${p.status==='pending'?'مستني موافقة العميل':'مرفوضة'}</span>`:''}</span>
+        <span class="mono">${p.price_egp.toLocaleString()} ج</span></div>`).join('')}</div>`:''}
       ${j.customer_mobile?`<div class="contact">
         <a href="tel:+2${esc(j.customer_mobile)}">📞 اتصل بالعميل</a>
         <a href="https://wa.me/2${esc(j.customer_mobile)}?text=${encodeURIComponent('السلام عليكم، أنا فنّي بخصوص طلبك '+j.code)}" target="_blank">💬 واتساب</a>
@@ -354,7 +440,9 @@ function renderJobs(rows){
       ${nx?`<button class="btn btn-primary btn-full" onclick="advance('${esc(j.code)}','${nx[0]}',this)">${nx[1]}</button>`:''}
       ${(j.status==='arrived'||j.status==='working')?`
         <div class="parts-mini">
-          <div style="font-size:12.5px;font-weight:900;margin-bottom:6px">🔩 قطعة غيار طلعت أثناء الشغل؟ سعّرها لموافقة العميل</div>
+          <div style="font-size:12.5px;font-weight:900;margin-bottom:6px">🔩 قطعة غيار طلعت أثناء الشغل؟ ابعتها لموافقة العميل</div>
+          <button class="btn btn-cat btn-full" style="padding:8px;margin-bottom:8px" onclick="openPicker({type:'part',code:'${esc(j.code)}'})">📦 اختار من الكتالوج (سعر ثابت)</button>
+          <div style="font-size:11.5px;color:var(--muted);margin-bottom:5px">أو قطعة مش في الكتالوج:</div>
           <div class="item-row"><input class="nm" id="pn-${esc(j.code)}" placeholder="اسم القطعة"><input class="pr" id="pp-${esc(j.code)}" inputmode="numeric" placeholder="جنيه"></div>
           <button class="btn btn-ghost btn-full" style="padding:8px" onclick="quotePart('${esc(j.code)}',this)">ابعت للعميل للموافقة</button>
         </div>`:''}
@@ -376,7 +464,7 @@ async function quotePart(code,btn){
   btn.disabled=true;
   try{
     const d=await api('/api/tech/jobs/'+code+'/parts',{method:'POST',body:JSON.stringify({part_name:nm,price_egp:pr})});
-    if(d.ok){toast('اتبعتت للعميل — استنى موافقته قبل التركيب');document.getElementById('pn-'+code).value='';document.getElementById('pp-'+code).value=''}
+    if(d.ok){toast('اتبعتت للعميل — استنى موافقته قبل التركيب');document.getElementById('pn-'+code).value='';document.getElementById('pp-'+code).value='';loadMy()}
     else toast(d.error);
   }catch(e){}
   btn.disabled=false;
@@ -386,7 +474,98 @@ function renderDone(rows){
   document.getElementById('doneEmpty').style.display=rows.length?'none':'block';
   el.innerHTML=rows.map(j=>`
     <div class="done-row"><span><b>${esc(j.title)}</b><br><span style="font-size:11.5px;color:var(--muted)" class="mono">${esc(j.code)} · ${esc(j.area)}</span></span>
-    <span class="amt">+ ${j.you_earn_egp+(j.parts_egp||0)} جنيه</span></div>`).join('');
+    <span class="amt">+ ${(j.you_earn_egp+(j.tech_parts_egp||0)).toLocaleString()} جنيه</span></div>`).join('');
+}
+
+/* ───────── Catalog ───────── */
+async function loadCatalog(){
+  try{const d=await api('/api/tech/catalog');if(d.ok){CAT=d.items;renderCatalog();if(PICK)renderPicker()}}catch(e){if(e.message==='auth')logout()}
+}
+const unitAr=u=>UNIT_AR[u]||u;
+function srcBadge(x){
+  if(!x.available)return '<span class="src out">غير متوفر حاليًا</span>';
+  return x.supplied_by==='fanni'?`<span class="src fanni">من مخزن فنّي · متوفر ${x.in_stock}</span>`:'<span class="src tech">توريدك</span>';
+}
+function filterCat(q,kind){
+  q=(q||'').trim().toLowerCase();
+  return CAT.filter(x=>(!kind||(kind==='part'||kind==='product'?x.kind===kind:x.services.includes(kind)))&&
+    (!q||(x.name_ar+' '+x.name_en+' '+x.sku+' '+(CAT_AR[x.category]||'')).toLowerCase().includes(q)));
+}
+function chipsHtml(cur,fn){
+  const svcs=[...new Set(CAT.flatMap(x=>x.services))].filter(s=>MY&&MY.profile.trades.includes(s));
+  const opts=[['','الكل'],['part','قطع غيار'],['product','منتجات'],...(svcs.length>1?svcs.map(s=>[s,SVC_AR[s]||s]):[])];
+  return opts.map(([k,l])=>`<button class="cat-chip ${cur===k?'on':''}" onclick="${fn}('${k}')">${l}</button>`).join('');
+}
+function groupHtml(rows,itemFn){
+  const groups={};rows.forEach(x=>{const g=(x.kind==='product'?'🛒 ':'🔩 ')+(CAT_AR[x.category]||x.category||'أخرى');(groups[g]=groups[g]||[]).push(x)});
+  return Object.keys(groups).map(g=>`<div class="cat-group">${esc(g)}</div>`+groups[g].map(itemFn).join('')).join('');
+}
+function catRow(x,extra){
+  return `<div class="nm">${esc(x.name_ar)}</div><div class="sk">${esc(x.sku)} · ${esc(x.name_en)}</div>${srcBadge(x)}${extra||''}`;
+}
+function renderCatalog(){
+  document.getElementById('catChips').innerHTML=chipsHtml(catKind,'setCatKind');
+  const rows=filterCat(document.getElementById('catSearch').value,catKind);
+  document.getElementById('catEmpty').style.display=rows.length?'none':'block';
+  document.getElementById('catList').innerHTML=groupHtml(rows,x=>`<div class="cat-item ${x.available?'':'na'}"><div>${catRow(x)}</div>
+    <div class="pr"><div class="a">${x.price_egp.toLocaleString()} ج</div><div class="u">${unitAr(x.unit)}</div></div></div>`);
+}
+function setCatKind(k){catKind=k;renderCatalog()}
+
+/* picker: ctx = {type:'offer', i} | {type:'part', code} */
+function openPicker(ctx){
+  PICK={...ctx,open:null,qty:1};
+  document.getElementById('sheetTitle').textContent=ctx.type==='part'?'قطعة لطلب '+ctx.code:'أضف للعرض من الكتالوج';
+  document.getElementById('pickSearch').value='';
+  document.getElementById('sheetBg').classList.add('open');document.getElementById('sheet').classList.add('open');
+  renderPicker();
+}
+function closePicker(){PICK=null;document.getElementById('sheetBg').classList.remove('open');document.getElementById('sheet').classList.remove('open')}
+function setPickKind(k){pickKind=k;renderPicker()}
+function renderPicker(){
+  if(!PICK)return;
+  document.getElementById('pickChips').innerHTML=chipsHtml(pickKind,'setPickKind');
+  const rows=filterCat(document.getElementById('pickSearch').value,pickKind);
+  const act=PICK.type==='part'?'ابعت للعميل':'أضف للعرض';
+  document.getElementById('pickList').innerHTML=rows.length?groupHtml(rows,x=>{
+    const open=PICK.open===x.id;
+    const maxQ=x.supplied_by==='fanni'?x.in_stock:100;
+    return `<div class="${open?'pick-open':'cat-item'} ${x.available?'':'na'}" ${x.available&&!open?`onclick="pickOpen(${x.id})" style="cursor:pointer"`:''}>
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%"><div>${catRow(x)}</div>
+      <div class="pr"><div class="a">${x.price_egp.toLocaleString()} ج</div><div class="u">${unitAr(x.unit)}</div></div></div>
+      ${open?`<div class="pick-act"><div class="step"><button onclick="pickQty(-1,${maxQ})" aria-label="أقل">−</button><span id="pq">${PICK.qty}</span><button onclick="pickQty(1,${maxQ})" aria-label="أكتر">+</button></div>
+        <button class="btn btn-primary" id="pickGo" onclick="pickConfirm(${x.id})">${act} · <span class="mono" id="pt">${(x.price_egp*PICK.qty).toLocaleString()}</span> ج</button></div>`:''}
+    </div>`}):'<div class="empty"><span class="big">📦</span>مفيش نتايج.</div>';
+}
+function pickOpen(id){PICK.open=id;PICK.qty=1;renderPicker()}
+function pickQty(d,max){
+  PICK.qty=Math.min(Math.max(1,PICK.qty+d),Math.max(1,max));
+  const x=CAT.find(c=>c.id===PICK.open);
+  document.getElementById('pq').textContent=PICK.qty;document.getElementById('pt').textContent=(x.price_egp*PICK.qty).toLocaleString();
+}
+async function pickConfirm(id){
+  const x=CAT.find(c=>c.id===id),qty=PICK.qty;
+  if(PICK.type==='offer'){
+    const i=PICK.i,box=document.getElementById('items-'+i);
+    // drop the empty starter row so it doesn't block submission
+    box.querySelectorAll('.item-row:not(.cat)').forEach(r=>{if(!r.querySelector('.nm').value.trim()&&!r.querySelector('.pr').value.trim())r.remove()});
+    const row=document.createElement('div');row.className='item-row cat';row.dataset.pid=x.id;row.dataset.price=x.price_egp;
+    row.innerHTML=`<div class="cn">${esc(x.name_ar)}<small>${x.price_egp.toLocaleString()} ج / ${unitAr(x.unit)} · ${x.supplied_by==='fanni'?'من مخزن فنّي':'توريدك'}</small></div>
+      <input class="qty" inputmode="numeric" value="${qty}" aria-label="الكمية"><span class="lp"></span><button class="rm" aria-label="حذف">✕</button>`;
+    const upd=()=>{const q=Math.max(1,parseInt(normNum(row.querySelector('.qty').value),10)||1);row.querySelector('.lp').textContent=(q*x.price_egp).toLocaleString()+' ج';sumOffer(i)};
+    row.querySelector('.qty').addEventListener('input',upd);
+    row.querySelector('.rm').onclick=()=>{row.remove();sumOffer(i)};
+    box.appendChild(row);upd();
+    document.getElementById('ob-'+i).classList.add('open');
+    closePicker();toast('اتضافت للعرض ✓');
+    return;
+  }
+  const btn=document.getElementById('pickGo');btn.disabled=true;
+  try{
+    const d=await api('/api/tech/jobs/'+PICK.code+'/parts',{method:'POST',body:JSON.stringify({product_id:id,qty})});
+    if(d.ok){track('tech_part_quoted',{source:'catalog',sku:x.sku});closePicker();toast('اتبعتت للعميل — استنى موافقته قبل التركيب');loadMy();loadCatalog()}
+    else{toast(d.error);btn.disabled=false}
+  }catch(e){btn.disabled=false;toast('في مشكلة في الاتصال — جرب تاني')}
 }
 
 /* auto-login if a token is saved on this device */
