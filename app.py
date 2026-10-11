@@ -405,6 +405,33 @@ CATALOG = [
 ]
 
 
+# Arabic names for the default job types (shown on the Arabic site; editable via admin API)
+JOB_AR = {
+    'Deep cleaning & maintenance': ('غسيل وصيانة شاملة', 'سبليت 1.5 حصان، داخلي وخارجي'),
+    'Not cooling — diagnosis & repair': ('التكييف مش بيبرّد — كشف وإصلاح', 'رسوم الكشف بتتخصم من الإصلاح'),
+    'Freon refill (R410)': ('شحن فريون (R410)', 'شامل كشف التسريب'),
+    'New AC installation': ('تركيب تكييف جديد', 'سبليت، لحد 4 متر مواسير'),
+    'Dish install & alignment': ('تركيب وضبط دش', 'ريسيفر واحد، شامل 10 متر كابل'),
+    'Signal loss — realignment': ('الإشارة بتقطع — إعادة ضبط', 'للدش الموجود'),
+    'Receiver setup & channels': ('تظبيط الريسيفر والقنوات', 'أي نوع ريسيفر'),
+    'TV wall mounting': ('تعليق شاشة على الحائط', 'لحد 65 بوصة، الحامل مش شامل'),
+    '4-camera package install': ('تركيب باكدج 4 كاميرات', 'مصنعية فقط، الأجهزة بتتسعّر منفصل'),
+    'Camera not working — repair': ('كاميرا مش شغالة — إصلاح', 'رسوم الكشف بتتخصم من الإصلاح'),
+    'Remote viewing setup': ('تشغيل المشاهدة عن بُعد', 'تطبيق الموبايل وضبط الراوتر'),
+    'NVR replacement / upgrade': ('تغيير أو ترقية جهاز التسجيل', 'على نفس الكابلات'),
+    'Mesh WiFi setup': ('تركيب شبكة ميش واي فاي', 'لحد 3 أجهزة مع فحص البيت كله'),
+    'Weak signal — dead-zone fix': ('إشارة ضعيفة — حل الأماكن الميتة', 'فحص وتغيير أماكن أو مقوي إشارة'),
+    'New router install & config': ('تركيب وضبط راوتر جديد', 'أي شركة إنترنت'),
+    'Network cabling': ('تمديد كابلات شبكة', 'للنقطة، داخل الحيطة أو في مجرى'),
+    'Video intercom install (apartment)': ('تركيب إنتركم فيديو (شقة)', 'وحدة واحدة'),
+    'Villa / multi-unit intercom': ('إنتركم فيلا أو عمارة', 'شامل معاينة الموقع'),
+    'Intercom repair': ('إصلاح إنتركم', 'رسوم الكشف بتتخصم من الإصلاح'),
+    'Smart lighting setup': ('تركيب إضاءة ذكية', 'لحد 6 مفاتيح أو لمبات مع التطبيق'),
+    'Smart lock install': ('تركيب قفل ذكي', 'شامل معاينة الباب'),
+    'Smart camera & sensors': ('كاميرا وحساسات ذكية', 'لحد 3 أجهزة مع ضبط الهاب'),
+    'Full smart-home consultation': ('استشارة منزل ذكي كاملة', 'في الموقع، بتتخصم من المشروع'),
+}
+
 SERVICE_FEE = 25
 COMMISSION_RATE = 0.20  # platform keeps 20% of labor
 
@@ -436,7 +463,8 @@ def init_db():
                      ("parts_quotes", "cost_egp INTEGER DEFAULT 0"),
                      ("parts_quotes", "supplied_by TEXT DEFAULT 'tech'"),
                      ("parts_quotes", "part_name_en TEXT"),
-                     ("jobs_catalog", "active INTEGER DEFAULT 1")):
+                     ("jobs_catalog", "active INTEGER DEFAULT 1"),
+                     ("jobs_catalog", "title_ar TEXT"), ("jobs_catalog", "detail_ar TEXT")):
         try:
             db.execute(f"ALTER TABLE {tbl} ADD COLUMN {col}")
         except sqlite3.OperationalError:
@@ -458,6 +486,9 @@ def init_db():
                     " VALUES (?,?,?,?,?)",
                     (sid, title, detail, price, insp),
                 )
+    for en, (ar, dar) in JOB_AR.items():
+        db.execute("UPDATE jobs_catalog SET title_ar=?, detail_ar=? WHERE title=? AND title_ar IS NULL",
+                   (ar, dar, en))
     if db.execute("SELECT COUNT(*) FROM products").fetchone()[0] == 0:
         ts = now()
         for sku, services, kind, cat, en, ar, unit, cost, price in CATALOG:
@@ -736,7 +767,7 @@ def list_services():
     out = []
     for s in db.execute("SELECT * FROM services ORDER BY id").fetchall():
         jobs = db.execute(
-            "SELECT id, title, detail, price_egp, is_inspection"
+            "SELECT id, title, detail, title_ar, detail_ar, price_egp, is_inspection"
             " FROM jobs_catalog WHERE service_id=? AND COALESCE(active,1)=1 ORDER BY id",
             (s["id"],),
         ).fetchall()
@@ -1846,7 +1877,7 @@ def admin_pricing_job_update(job_id):
         if not isinstance(d["price_egp"], int) or isinstance(d["price_egp"], bool) or not 10 <= d["price_egp"] <= 200000:
             return err("price_egp must be an integer 10–200000")
         f["price_egp"] = d["price_egp"]
-    for k in ("title", "detail"):
+    for k in ("title", "detail", "title_ar", "detail_ar"):
         if k in d:
             v = (d[k] or "").strip()[:160]
             if k == "title" and not v:

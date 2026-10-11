@@ -65,3 +65,12 @@ Flask + SQLite. Serves the website AND the API from one process.
     - Add SMS (customer notifications) via Vodafone/WE gateway or Twilio
     - Add OTP login for customers; move tech tokens to proper auth
     - Document/photo uploads: S3-compatible storage (uploads are stubbed in UI)
+
+## Public site pages
+    index, services, book (each EN + -ar) and track.html are generated from site_src/:
+      data.py      copy, services, fallback prices, areas, time windows (EN + AR)
+      site.css     shared design; flow.css for booking + tracking
+      common.js    live prices from /api/services, shared helpers
+    Rebuild after editing:  python3 site_src/build.py
+    Prices on the site come live from the admin "Service labor prices" table;
+    the values in data.py are only a fallback if the API is unreachable.

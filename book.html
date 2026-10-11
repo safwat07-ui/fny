@@ -1,522 +1,794 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فنّي — Book a technician</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
-  --amber:#F08A24; --amber-soft:#FCE9D2;
-  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
-  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
-.mono{font-family:'IBM Plex Mono',monospace}
-
-/* topbar */
-.topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
-.topbar-inner{max-width:560px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none}
-.logo .ar{font-size:25px;font-weight:900;color:var(--teal);line-height:1}
-.logo .en{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.topbar .back-link{font-size:14px;color:var(--muted);text-decoration:none;font-weight:700;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif}
-.topbar .back-link:hover{color:var(--teal)}
-
-/* progress dots */
-.dots{display:flex;gap:7px;justify-content:center;margin:22px 0 4px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .25s ease}
-.dot.on{background:var(--teal);width:24px;border-radius:99px}
-.dot.done{background:var(--amber)}
-
-.wrap{max-width:560px;margin:14px auto 60px;padding:0 20px}
-.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px 28px;box-shadow:0 14px 40px rgba(12,46,51,.07)}
-.panel{display:none}
-.panel.active{display:block;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-h2{font-size:23px;font-weight:900;line-height:1.25;margin-bottom:4px}
-.sub{color:var(--muted);font-size:14.5px;margin-bottom:22px}
-
-/* service tiles */
-.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.svc{border:1.5px solid var(--line);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .15s ease}
-.svc .ic{font-size:26px;display:block;margin-bottom:4px}
-.svc .nm{font-weight:800;font-size:12.5px;line-height:1.3}
-.svc:hover{border-color:var(--teal)}
-.svc.selected{border-color:var(--teal);background:var(--mist);box-shadow:inset 0 0 0 1px var(--teal)}
-
-/* job option rows */
-.job-list{display:grid;gap:10px}
-.job{border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;cursor:pointer;background:#fff;transition:all .15s ease;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.job:hover{border-color:var(--teal)}
-.job.selected{border-color:var(--teal);background:var(--mist)}
-.job .t{font-weight:800;font-size:14.5px}
-.job .d{font-size:12.5px;color:var(--muted)}
-.job .pr{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;color:var(--teal);white-space:nowrap}
-.job .pr.insp{color:var(--muted);font-size:12px}
-
-/* schedule */
-.day-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px}
-.day{min-width:74px;border:1.5px solid var(--line);border-radius:13px;padding:10px 6px;text-align:center;cursor:pointer;background:#fff;transition:all .15s ease;flex-shrink:0}
-.day .dw{font-size:12px;color:var(--muted);font-weight:700}
-.day .dn{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px}
-.day.selected{border-color:var(--teal);background:var(--teal);color:#fff}
-.day.selected .dw{color:#CFE3E5}
-.time-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.time{border:1.5px solid var(--line);border-radius:11px;padding:10px 6px;text-align:center;cursor:pointer;background:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;transition:all .15s ease}
-.time:hover{border-color:var(--teal)}
-.time.selected{border-color:var(--teal);background:var(--teal);color:#fff}
-.time.off{opacity:.35;cursor:not-allowed;text-decoration:line-through}
-
-/* fields */
-.field{margin-bottom:15px}
-.field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}
-.field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo',sans-serif;font-size:14.5px;color:var(--ink);background:#fff}
-.field textarea{resize:vertical;min-height:70px}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,91,99,.1)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-
-/* price summary */
-.quote{border:2px solid var(--teal);border-radius:16px;overflow:hidden;margin-bottom:18px}
-.quote-head{background:var(--teal);color:#fff;padding:13px 20px;display:flex;justify-content:space-between;align-items:center}
-.quote-head .t{font-weight:800;font-size:14px}
-.quote-head .fixed{background:var(--amber);color:var(--ink);font-size:11px;font-weight:800;padding:2px 12px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em}
-.quote-row{display:flex;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--line);font-size:14px}
-.quote-row .k{color:var(--muted)}
-.quote-row .v{font-weight:700}
-.quote-row.total{background:var(--sand);border:none}
-.quote-row.total .k{color:var(--ink);font-weight:900;font-size:15px}
-.quote-row.total .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:19px;color:var(--teal)}
-.quote-note{font-size:12.5px;color:var(--muted);padding:10px 20px;background:#fff}
-.pay-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
-.pay{border:1.5px solid var(--line);border-radius:12px;padding:13px;cursor:pointer;text-align:center;font-weight:800;font-size:14px;background:#fff;transition:all .15s ease}
-.pay .ic{font-size:20px;display:block;margin-bottom:2px}
-.pay.selected{border-color:var(--teal);background:var(--mist)}
-
-/* tracking */
-.tech-card{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:15px;padding:16px;background:var(--sand);margin-bottom:20px}
-.avatar{width:62px;height:62px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.tech-card .nm{font-weight:900;font-size:16.5px}
-.tech-card .meta{font-size:13px;color:var(--muted)}
-.tech-card .meta .mono{color:var(--teal);font-weight:600}
-.tech-card .badge{margin-left:auto;text-align:center;flex-shrink:0}
-.tech-card .badge .r{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;color:var(--teal)}
-.tech-card .badge .l{font-size:11px;color:var(--muted)}
-.contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-.contact-btn{border:1.5px solid var(--teal);color:var(--teal);background:#fff;border-radius:99px;padding:10px;font-weight:800;font-family:'Cairo',sans-serif;font-size:14px;cursor:pointer}
-.contact-btn:hover{background:var(--mist)}
-
-.timeline{position:relative;padding-left:30px}
-.timeline::before{content:"";position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:var(--line)}
-.tl-item{position:relative;padding-bottom:22px}
-.tl-item:last-child{padding-bottom:0}
-.tl-item .nd{position:absolute;left:-30px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px}
-.tl-item.done .nd{background:var(--green);border-color:var(--green);color:#fff}
-.tl-item.now .nd{background:var(--amber);border-color:var(--amber);color:var(--ink);animation:pulse 1.6s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,138,36,.4)}50%{box-shadow:0 0 0 8px rgba(240,138,36,0)}}
-.tl-item .t{font-weight:800;font-size:14.5px}
-.tl-item .d{font-size:13px;color:var(--muted)}
-.tl-item.pending{opacity:.45}
-.eta-strip{background:var(--teal-deep);color:#fff;border-radius:13px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.eta-strip .l{font-size:13px;color:#A9C4C7}
-.eta-strip .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:21px}
-.eta-strip .code{text-align:right}
-
-/* rating */
-.rate-wrap{text-align:center;padding:8px 0}
-.rate-wrap .badge-ok{width:78px;height:78px;border-radius:50%;background:var(--green);color:#fff;font-size:36px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 0 0 12px rgba(30,142,90,.12)}
-.stars{display:flex;gap:8px;justify-content:center;margin:18px 0 8px;font-size:36px}
-.star{cursor:pointer;color:var(--line);transition:transform .1s ease,color .1s ease;background:none;border:none;font-size:36px}
-.star:hover{transform:scale(1.15)}
-.star.lit{color:var(--amber)}
-.rate-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px 0 20px}
-.rtag{border:1.5px solid var(--line);border-radius:99px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;font-family:'Cairo',sans-serif;transition:all .15s ease}
-.rtag.selected{border-color:var(--teal);background:var(--teal);color:#fff}
-.warranty-note{background:var(--amber-soft);border-radius:12px;padding:13px 16px;font-size:13.5px;margin-top:18px;text-align:left;display:flex;gap:10px}
-
-/* buttons */
-.step-nav{display:flex;justify-content:space-between;gap:12px;margin-top:26px}
-.btn{padding:12px 28px;border-radius:999px;font-weight:800;font-size:15px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:transform .15s ease,box-shadow .15s ease}
-.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-.btn-primary{background:var(--amber);color:var(--ink)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,138,36,.35)}
-.btn-dark{background:var(--teal);color:#fff}
-.btn-back{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
-.btn-full{width:100%}
-.field input.invalid,.field select.invalid{border-color:var(--red)}
-.err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
-.err.show{display:block}
-.demo-hint{text-align:center;font-size:12px;color:var(--muted);margin-top:14px}
-
-@media(max-width:480px){
-  .card{padding:24px 18px}
-  .svc-grid{grid-template-columns:repeat(3,1fr)}
-  .grid2{grid-template-columns:1fr}
-  .time-row{grid-template-columns:repeat(3,1fr)}
-}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
-<!-- Google tag (gtag.js) -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book a technician | Fanni</title>
+<meta name="description" content="Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart home. See the full price before you book. 30-day warranty.">
+<meta property="og:title" content="Book a technician | Fanni">
+<meta property="og:description" content="Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart home. See the full price before you book. 30-day warranty.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A3B42">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230F5B63'/%3E%3Ctext x='32' y='45' font-family='Arial' font-size='40' font-weight='900' text-anchor='middle' fill='%23F08A24'%3E%D9%81%3C/text%3E%3C/svg%3E">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDZRJYB4H1"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WDZRJYB4H1');
-  function track(ev,params){gtag('event',ev,params||{})}
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());gtag('config','G-WDZRJYB4H1');
+function track(ev,params){try{gtag('event',ev,params||{})}catch(e){}}
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C2E33; --teal:#0F5B63; --teal-900:#0A3B42; --teal-950:#072D33;
+  --amber:#F08A24; --amber-600:#D9741A; --amber-100:#FDEBD6;
+  --mist:#EEF4F3; --paper:#FFFFFF; --line:#D6E1DF; --line-2:#E6EDEC;
+  --muted:#55696C; --soft:#A9C4C7; --green:#1E8E5A; --green-100:#E1F2EA; --red:#C64B3A; --red-100:#F8E4E0;
+  --r-sm:10px; --r:16px; --r-lg:22px;
+  --shadow-ticket:0 34px 70px -28px rgba(3,24,28,.55),0 2px 6px rgba(3,24,28,.08);
+  --notch:var(--teal-900);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'Cairo',system-ui,sans-serif;color:var(--ink);background:var(--paper);line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+img,svg{display:block}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:24px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:15.5px;text-decoration:none;border:1.5px solid transparent;cursor:pointer;transition:background .15s,border-color .15s,transform .12s;white-space:nowrap;line-height:1.3}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn-amber{background:var(--amber);color:var(--ink)}
+.btn-amber:hover{background:#F59A3C}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:var(--teal-900)}
+.btn-line{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn-line:hover{border-color:var(--teal);color:var(--teal)}
+.btn-light{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+.btn-light:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.btn-lg{padding:15px 30px;font-size:16.5px}
+.btn-block{width:100%}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line-2)}
+.nav-in{display:flex;align-items:center;gap:28px;height:68px}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--teal)}
+.logo b{font-size:31px;font-weight:900;line-height:1}
+.logo span{font-size:13px;font-weight:700;color:var(--muted)}
+.nav-links{display:flex;gap:24px;margin-inline-start:auto}
+.nav-links a{text-decoration:none;font-weight:700;font-size:15px;color:var(--ink)}
+.nav-links a:hover{color:var(--teal)}
+.nav-end{display:flex;align-items:center;gap:12px}
+.lang{font-weight:700;font-size:14px;text-decoration:none;color:var(--muted);padding:6px 4px}
+.lang:hover{color:var(--teal)}
+.nav .btn{padding:10px 20px;font-size:14.5px}
+
+/* hero */
+.hero{background:var(--teal-900);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-45%;inset-inline-start:-18%;width:900px;height:900px;border-radius:50%;background:radial-gradient(closest-side,rgba(15,91,99,.75),rgba(15,91,99,0));pointer-events:none}
+.hero-in{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;padding-block:80px 96px}
+.hero h1{font-size:clamp(38px,5.2vw,64px);font-weight:800;line-height:1.08;letter-spacing:-.022em;max-width:13ch;text-wrap:balance}
+[dir=rtl] .hero h1{line-height:1.3;letter-spacing:0;max-width:14ch}
+.hero .lead{font-size:18.5px;color:#C7DCDE;margin:22px 0 32px;max-width:520px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.promises{list-style:none;display:grid;gap:12px;margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.14);max-width:520px}
+.promises li{display:flex;gap:12px;align-items:center;font-weight:700;font-size:15.5px;color:#E3EEEF}
+.promises .ic{color:var(--amber);width:22px;height:22px}
+
+/* ticket — the signature element */
+.ticket{background:#fff;color:var(--ink);border-radius:var(--r-lg);box-shadow:var(--shadow-ticket);position:relative;padding:26px 26px 24px}
+.ticket-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+.ticket-head h2{font-size:20px;font-weight:800}
+.ticket-head .code{font-size:12.5px;color:var(--muted);font-weight:700}
+.svc-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:16px}
+.svc-tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 2px 9px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);transition:border-color .15s,background .15s,color .15s}
+.svc-tab:hover{border-color:var(--teal);color:var(--teal)}
+.svc-tab[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.svc-tab .ic{width:26px;height:26px}
+.job-opts,.jobs{display:grid;gap:6px;border:0;padding:0;margin:0;min-width:0}
+.job-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--line-2);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s}
+.job-opt:hover{border-color:var(--teal)}
+.job-opt input{position:absolute;opacity:0;pointer-events:none}
+.job-opt .rd{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;transition:border .15s}
+.job-opt .t{flex:1;font-weight:700;font-size:14.5px;line-height:1.35}
+.job-opt .t small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.job-opt .p{font-weight:800;font-size:14.5px;color:var(--teal)}
+.job-opt:has(input:checked){border-color:var(--teal);background:var(--mist)}
+.job-opt:has(input:checked) .rd{border:5px solid var(--teal)}
+.job-opt:has(input:focus-visible){outline:3px solid var(--amber);outline-offset:2px}
+.tear{position:relative;height:2px;margin:22px -26px 18px;background-image:linear-gradient(90deg,var(--line) 55%,transparent 0);background-size:12px 2px}
+.tear::before,.tear::after{content:"";position:absolute;top:-13px;width:28px;height:28px;border-radius:50%;background:var(--notch)}
+.tear::before{left:-14px}.tear::after{right:-14px}
+.rc{display:grid;gap:7px;font-size:15px}
+.rc-row{display:flex;justify-content:space-between;gap:12px}
+.rc-row .k{color:var(--muted)}
+.rc-row .v{font-weight:700}
+.rc-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;padding-top:12px;border-top:1px solid var(--line-2)}
+.rc-total .k{font-weight:800;font-size:16px}
+.rc-total .v{font-size:38px;font-weight:900;line-height:1;color:var(--teal);letter-spacing:-.02em}
+.rc-total .v small{font-size:15px;font-weight:800;margin-inline-start:4px;letter-spacing:0}
+.rc-note{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.55}
+.ticket .btn{margin-top:18px}
+.stamp{position:absolute;top:-30px;inset-inline-end:22px;width:96px;height:96px;border-radius:50%;background:#fff;border:2.5px solid var(--amber);color:var(--amber-600);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:13px;line-height:1.15;padding:12px;transform:rotate(-11deg);box-shadow:0 8px 20px -8px rgba(0,0,0,.35)}
+.stamp::after{content:"";position:absolute;inset:5px;border-radius:50%;border:1.5px dashed var(--amber)}
+[dir=rtl] .stamp{transform:rotate(11deg)}
+.stamp.pop{animation:stamp .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp{0%{transform:rotate(-11deg) scale(1)}40%{transform:rotate(-11deg) scale(1.12)}100%{transform:rotate(-11deg) scale(1)}}
+[dir=rtl] .stamp.pop{animation-name:stamp-r}
+@keyframes stamp-r{0%{transform:rotate(11deg) scale(1)}40%{transform:rotate(11deg) scale(1.12)}100%{transform:rotate(11deg) scale(1)}}
+
+/* sections */
+.sec{padding:104px 0}
+.sec-mist{background:var(--mist)}
+.sec-h{font-size:clamp(30px,3.6vw,44px);font-weight:800;line-height:1.15;letter-spacing:-.015em;max-width:20ch}
+[dir=rtl] .sec-h{line-height:1.35;letter-spacing:0}
+.sec-p{font-size:17.5px;color:var(--muted);margin-top:12px;max-width:560px}
+.sec-head{margin-bottom:52px}
+
+/* how */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:28px;counter-reset:s;position:relative}
+.steps::before{content:"";position:absolute;top:23px;inset-inline:24px;height:2px;background-image:linear-gradient(90deg,var(--line) 55%,transparent 0);background-size:10px 2px}
+.steps li{position:relative;counter-increment:s}
+.steps li::before{content:counter(s);display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:#fff;border:2px solid var(--teal);color:var(--teal);font-weight:900;font-size:19px;margin-bottom:22px;position:relative}
+.steps li:last-child::before{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+.steps h3{font-size:19px;font-weight:800;margin-bottom:6px}
+.steps p{color:var(--muted);font-size:15.5px}
+
+/* price menu */
+.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:44px 48px}
+.menu-block h3{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;margin-bottom:4px}
+.menu-block h3 .ic{color:var(--teal);width:26px;height:26px}
+.menu-block .bl{font-size:14px;color:var(--muted);margin-bottom:12px;min-height:2.6em}
+.m-row{display:flex;align-items:baseline;gap:8px;padding:9px 0;text-decoration:none;border-bottom:1px solid var(--line-2)}
+.m-row .n{font-weight:700;font-size:15px;line-height:1.4}
+.m-row .n small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.m-row .ld{flex:1;border-bottom:2px dotted var(--line);transform:translateY(-4px);min-width:16px}
+.m-row .pr{font-weight:800;color:var(--teal);font-size:15px;white-space:nowrap;flex-shrink:0}
+.m-row .pr em{font-style:normal;font-weight:700;font-size:12px;color:var(--muted);margin-inline-end:4px}
+a.m-row:hover .n{color:var(--teal)}
+.m-more{display:inline-block;margin-top:12px;font-weight:800;font-size:14px;color:var(--teal);text-decoration:none}
+.m-more:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* parts approval */
+.parts{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.parts p{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:500px}
+.phone{width:310px;margin:0 auto;border-radius:42px;background:var(--ink);padding:12px;box-shadow:0 40px 80px -30px rgba(3,24,28,.5)}
+.screen{background:var(--mist);border-radius:32px;overflow:hidden;padding:18px 14px 8px}
+.sc-top{display:flex;justify-content:space-between;align-items:center;background:var(--teal-900);color:#fff;border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.sc-top small{display:block;font-size:11px;color:var(--soft);font-weight:700}
+.sc-top b{font-size:15px}
+.sc-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;font-size:13.5px}
+.sc-card h4{font-size:13.5px;font-weight:800;margin-bottom:8px}
+.sc-part{border:1.5px solid var(--amber);background:var(--amber-100)}
+.sc-part .row{display:flex;justify-content:space-between;gap:8px;font-weight:700;margin-bottom:10px}
+.sc-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-btns span{text-align:center;border-radius:99px;padding:7px;font-weight:800;font-size:13px}
+.sc-ok{background:var(--green);color:#fff}
+.sc-no{background:#fff;border:1.5px solid var(--line);color:var(--muted)}
+.sc-line{display:flex;justify-content:space-between;color:var(--muted);padding:3px 0}
+.sc-line.t{color:var(--ink);font-weight:800;border-top:1px solid var(--line-2);margin-top:6px;padding-top:8px}
+.sc-steps{display:flex;gap:4px;margin-top:4px}
+.sc-steps i{flex:1;height:5px;border-radius:9px;background:var(--line)}
+.sc-steps i.on{background:var(--green)}
+
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;border-top:1px solid var(--line);padding-top:36px}
+.trust .ic{color:var(--teal);width:30px;height:30px;margin-bottom:16px}
+.trust h3{font-size:18.5px;font-weight:800;margin-bottom:6px}
+.trust p{color:var(--muted);font-size:15.5px}
+
+/* faq */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:64px}
+.faq details{border-bottom:1px solid var(--line)}
+.faq details:first-child{border-top:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-weight:800;font-size:17px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";width:12px;height:12px;border-inline-end:2.5px solid var(--teal);border-bottom:2.5px solid var(--teal);transform:rotate(45deg);transition:transform .2s;flex-shrink:0;margin-top:-6px}
+.faq details[open] summary::after{transform:rotate(225deg);margin-top:6px}
+.faq details p{color:var(--muted);padding:0 0 22px;max-width:62ch}
+
+/* tech band */
+.band{background:var(--teal-900);color:#fff}
+.band-in{display:flex;justify-content:space-between;align-items:center;gap:40px;padding-block:72px}
+.band h2{font-size:clamp(28px,3vw,38px);font-weight:800;line-height:1.2}
+.band p{color:#C7DCDE;font-size:17px;margin-top:10px;max-width:600px}
+
+/* footer */
+.foot{background:var(--teal-950);color:var(--soft);padding:56px 0 30px;font-size:14.5px}
+.foot-in{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.foot .logo{color:#fff}
+.foot .logo span{color:var(--soft)}
+.foot p{margin-top:12px;max-width:280px}
+.foot h4{color:#fff;font-size:15px;font-weight:800;margin-bottom:12px}
+.foot-in a{display:block;text-decoration:none;margin-bottom:8px}
+.foot-in a.logo{display:flex;margin:0}
+.foot-in a:hover{color:#fff}
+.foot-bot{border-top:1px solid rgba(255,255,255,.1);padding-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.foot-bot a{text-decoration:none}.foot-bot a:hover{color:#fff}
+
+/* page head (inner pages) */
+.phead{background:var(--teal-900);color:#fff;padding:64px 0 56px}
+.phead h1{font-size:clamp(34px,4.4vw,52px);font-weight:800;line-height:1.12;letter-spacing:-.02em}
+[dir=rtl] .phead h1{letter-spacing:0;line-height:1.3}
+.phead p{color:#C7DCDE;font-size:18px;margin-top:14px;max-width:640px}
+.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
+.jump a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1.5px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 16px 7px 12px;font-weight:700;font-size:14.5px;color:#fff}
+[dir=rtl] .jump a{padding:7px 12px 7px 16px}
+.jump a:hover{border-color:var(--amber)}
+.jump .ic{width:20px;height:20px;color:var(--amber)}
+
+/* full price list */
+.plist{display:grid;gap:56px}
+.pl-block{display:grid;grid-template-columns:280px 1fr;gap:48px;scroll-margin-top:96px}
+.pl-block h2{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800}
+.pl-block h2 .ic{width:32px;height:32px;color:var(--teal)}
+.pl-block .bl{color:var(--muted);margin-top:8px}
+.pl-row{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-2)}
+.pl-row:first-child{border-top:1px solid var(--line-2)}
+.pl-row .n{flex:1;font-weight:700;font-size:16.5px;line-height:1.4}
+.pl-row .n small{display:block;font-weight:500;color:var(--muted);font-size:14px}
+.pl-row .pr{font-weight:800;font-size:18px;color:var(--teal);text-align:end}
+.pl-row .pr em{display:block;font-style:normal;font-size:12px;font-weight:700;color:var(--muted)}
+.pl-row .btn{padding:8px 18px;font-size:14px}
+.notes3{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.notes3 h3{font-size:17.5px;font-weight:800;margin-bottom:6px}
+.notes3 p{color:var(--muted);font-size:15.5px}
+
+/* responsive */
+@media(max-width:1000px){
+  .hero-in{grid-template-columns:1fr;gap:56px;padding-block:56px 72px}
+  .hero h1{max-width:16ch}
+  .ticket{max-width:520px}
+  .steps{grid-template-columns:1fr 1fr;gap:36px 28px}.steps::before{display:none}
+  .menu{grid-template-columns:1fr 1fr}
+  .parts{grid-template-columns:1fr;gap:48px}
+  .faq-grid{grid-template-columns:1fr;gap:28px}
+  .band-in{flex-direction:column;align-items:flex-start}
+  .pl-block{grid-template-columns:1fr;gap:16px}
+  .nav-links{display:none}
+  .nav-end{margin-inline-start:auto}
+}
+@media(max-width:640px){
+  .wrap{padding-inline:16px}
+  .sec{padding:72px 0}
+  .nav-in{height:60px;gap:12px}
+  .logo span{display:none}
+  .nav .btn{padding:8px 14px;font-size:13.5px}
+  .hero .lead{font-size:17px}
+  .ticket{padding:22px 18px 20px}
+  .tear{margin:20px -18px 16px}
+  .svc-tabs{grid-template-columns:repeat(3,1fr)}
+  .stamp{width:82px;height:82px;font-size:11.5px;top:-34px;inset-inline-end:12px}
+  .rc-total .v{font-size:32px}
+  .steps,.menu,.trust,.notes3{grid-template-columns:1fr}
+  .trust{gap:32px}
+  .foot-in{grid-template-columns:1fr 1fr}
+  .foot-in>div:first-child{grid-column:1/-1}
+  .phone{width:100%;max-width:310px}
+  .pl-row{flex-wrap:wrap;gap:8px 16px}
+  .pl-row .n{flex-basis:100%}
+  .pl-row .pr{text-align:start;flex:1}
+  .hero-ctas .btn{flex:1}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* booking + tracking */
+body.flow{background:var(--mist);--notch:var(--mist)}
+.flow-in>div{min-width:0}
+.flow-in{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;align-items:start;padding-block:40px 120px}
+.stepper{list-style:none;display:flex;gap:6px;margin-bottom:22px;counter-reset:st}
+.stepper li{flex:1;counter-increment:st}
+.stepper button{width:100%;display:flex;flex-direction:column;gap:7px;background:none;border:0;padding:0;text-align:start;font-weight:700;font-size:13.5px;color:var(--muted);cursor:default}
+.stepper button::before{content:"";height:4px;border-radius:9px;background:var(--line)}
+.stepper .done button{cursor:pointer;color:var(--teal)}
+.stepper .done button::before{background:var(--teal)}
+.stepper .on button{color:var(--ink)}
+.stepper .on button::before{background:var(--amber)}
+.stepper .done button:hover{text-decoration:underline;text-underline-offset:3px}
+.panel{display:none;background:#fff;border-radius:var(--r-lg);padding:34px;box-shadow:0 1px 2px rgba(3,24,28,.05)}
+.panel.on{display:block;animation:pin .25s ease}
+@keyframes pin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel h1{font-size:clamp(26px,3vw,34px);font-weight:800;line-height:1.2;letter-spacing:-.01em}
+[dir=rtl] .panel h1{letter-spacing:0;line-height:1.35}
+.panel .sub{color:var(--muted);margin:6px 0 26px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:20px 18px;border:1.5px solid var(--line-2);border-radius:var(--r);background:#fff;cursor:pointer;text-align:start;transition:border-color .15s,background .15s}
+.tile:hover{border-color:var(--teal)}
+.tile .ic{width:34px;height:34px;color:var(--teal)}
+.tile b{font-size:16.5px;font-weight:800;line-height:1.3}
+.tile small{color:var(--muted);font-size:13.5px;font-weight:600}
+.tile[aria-pressed=true]{border-color:var(--teal);background:var(--mist);box-shadow:inset 0 0 0 1px var(--teal)}
+.jobs{gap:8px}
+.jobs .job-opt{padding:16px 18px}
+.jobs .job-opt .t{font-size:16px}
+.jobs .job-opt .t small{font-size:13.5px}
+.jobs .job-opt .p{font-size:16px}
+.jobs .job-opt .p em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-weight:700;text-align:end}
+.lbl{display:block;font-weight:800;font-size:14.5px;margin:22px 0 9px}
+.lbl:first-child{margin-top:0}
+.lbl small{font-weight:600;color:var(--muted)}
+.days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.day{flex:0 0 auto;min-width:76px;display:flex;flex-direction:column;align-items:center;padding:10px 8px;border:1.5px solid var(--line-2);border-radius:14px;background:#fff;cursor:pointer;line-height:1.25}
+.day small{font-size:12px;font-weight:700;color:var(--muted)}
+.day b{font-size:21px;font-weight:800}
+.day:hover{border-color:var(--teal)}
+.day[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.day[aria-pressed=true] small{color:#CFE3E5}
+.day:disabled{opacity:.4;cursor:not-allowed;border-style:dashed}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.slot{padding:11px 4px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.slot:hover{border-color:var(--teal)}
+.slot[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.slot:disabled{opacity:.4;cursor:not-allowed;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.inp{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.inp:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,91,99,.15)}
+.inp[aria-invalid=true]{border-color:var(--red);background:#FFF8F6}
+textarea.inp{min-height:84px;resize:vertical}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-inline-end:40px}
+[dir=rtl] select.inp{background-position:20px 55%,15px 55%}
+input[type=tel].inp{direction:ltr}
+[dir=rtl] input[type=tel].inp{text-align:right}
+.ferr{color:var(--red);font-weight:700;font-size:13.5px;margin-top:6px;display:none}
+.ferr.show{display:block}
+.review{display:grid;border-top:1px solid var(--line-2)}
+.rv{display:grid;grid-template-columns:120px 1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line-2);align-items:baseline}
+.rv .k{color:var(--muted);font-weight:700;font-size:14px}
+.rv .v{font-weight:700}
+.rv .v small{display:block;font-weight:500;color:var(--muted)}
+.rv button{background:none;border:0;color:var(--teal);font-weight:800;font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.pays{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay{display:flex;align-items:center;gap:12px;padding:15px 16px;border:1.5px solid var(--line-2);border-radius:14px;cursor:pointer;font-weight:800}
+.pay input{position:absolute;opacity:0;pointer-events:none}
+.pay .rd{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex-shrink:0}
+.pay:has(input:checked){border-color:var(--teal);background:var(--mist)}
+.pay:has(input:checked) .rd{border:5px solid var(--teal)}
+.pay:has(input:focus-visible){outline:3px solid var(--amber);outline-offset:2px}
+.hint{font-size:13.5px;color:var(--muted);margin-top:8px}
+.next-box{margin-top:24px;padding:16px 18px;border-radius:14px;background:var(--mist);font-size:14.5px}
+.next-box b{display:block;margin-bottom:2px}
+.alert{display:none;margin-top:18px;padding:14px 16px;border-radius:12px;background:var(--red-100);color:#8E2E20;font-weight:700;font-size:14.5px}
+.alert.show{display:block}
+.actions{display:flex;gap:12px;align-items:center;margin-top:28px}
+.actions .tot{display:none}
+.actions .sp{flex:1}
+.aside{position:sticky;top:92px}
+.aside .ticket{padding:24px}
+.aside .tear{margin:20px -24px 16px}
+.sum-svc{display:flex;gap:12px;align-items:center}
+.sum-svc .ic{width:30px;height:30px;color:var(--teal)}
+.sum-svc b{display:block;font-size:16px;line-height:1.3}
+.sum-svc small{color:var(--muted);font-weight:600}
+.sum-meta{display:grid;gap:4px;margin-top:14px;font-size:14px}
+.sum-meta div{display:flex;gap:8px}
+.sum-meta span:first-child{color:var(--muted);min-width:64px}
+.sum-empty{color:var(--muted);font-size:14.5px}
+.aside .stamp{width:84px;height:84px;font-size:11.5px;top:-28px}
+
+/* tracking */
+.tr-in{max-width:980px;margin:0 auto;padding-block:36px 96px}
+.lookup{max-width:480px;margin:40px auto 0;background:#fff;border-radius:var(--r-lg);padding:34px}
+.lookup h1{font-size:28px;font-weight:800}
+.lookup p{color:var(--muted);margin:4px 0 20px}
+.lookup .row{display:flex;gap:10px}
+.lookup .inp{font-weight:700;letter-spacing:.06em;text-transform:uppercase;direction:ltr}
+.banner{display:flex;gap:14px;align-items:center;background:var(--green-100);color:#14563A;border-radius:var(--r);padding:16px 18px;margin-bottom:18px;font-weight:700}
+.banner .ic{color:var(--green);width:28px;height:28px}
+.banner p{font-weight:500;font-size:14.5px}
+.tr-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.status{background:var(--teal-900);color:#fff;border-radius:var(--r-lg);padding:28px}
+.status .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.status .code{font-size:13px;color:var(--soft);font-weight:700}
+.status .code b{display:block;color:#fff;font-size:17px;letter-spacing:.03em}
+.status h1{font-size:clamp(26px,3.2vw,34px);font-weight:800;line-height:1.2;margin-top:4px}
+.status .sub{color:#C7DCDE;margin-top:6px}
+.status .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.status .chips span{background:rgba(255,255,255,.1);border-radius:99px;padding:4px 12px;font-size:13.5px;font-weight:700}
+.tl{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:26px}
+.tl li{font-size:12.5px;font-weight:700;color:var(--soft);display:flex;flex-direction:column;gap:8px;line-height:1.3}
+.tl li::before{content:"";height:5px;border-radius:9px;background:rgba(255,255,255,.18)}
+.tl li.done{color:#fff}.tl li.done::before{background:#5BC08F}
+.tl li.now{color:#fff}.tl li.now::before{background:var(--amber)}
+.status.cancelled .tl{opacity:.4}
+.card{background:#fff;border-radius:var(--r-lg);padding:24px;margin-top:18px}
+.card h2{font-size:17px;font-weight:800;margin-bottom:12px}
+.tech{display:flex;gap:14px;align-items:center}
+.tech .av{width:52px;height:52px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0}
+.tech b{display:block;font-size:17px}
+.tech small{color:var(--muted);font-weight:600}
+.tech .r{margin-inline-start:auto;text-align:center;font-weight:900;font-size:20px;color:var(--teal)}
+.tech .r small{display:block;font-size:11.5px}
+.wait{display:flex;gap:12px;align-items:center;color:var(--muted)}
+.dotp{width:10px;height:10px;border-radius:50%;background:var(--amber);flex-shrink:0;animation:pulse 1.6s ease infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,138,36,.55)}100%{box-shadow:0 0 0 12px rgba(240,138,36,0)}}
+.partsc{border:2px solid var(--amber);background:#FFFBF5}
+.partsc p{color:var(--muted);font-size:14px;margin:-6px 0 12px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line-2);flex-wrap:wrap}
+.prow .nm{font-weight:800}
+.prow .nm small{display:block;color:var(--muted);font-weight:600}
+.prow .bt{display:flex;gap:8px}
+.prow .btn{padding:8px 18px;font-size:14px}
+.btn-ok{background:var(--green);color:#fff}.btn-ok:hover{background:#177548}
+.plist-done{font-size:14px}
+.plist-done div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line-2)}
+.st-chip{font-size:11.5px;font-weight:800;padding:2px 10px;border-radius:99px;margin-inline-start:6px}
+.st-approved{background:var(--green-100);color:var(--green)}
+.st-rejected{background:var(--red-100);color:var(--red)}
+.billc .ticket{padding:24px;box-shadow:0 1px 2px rgba(3,24,28,.05)}
+.billc .tear{margin:18px -24px 14px}
+.paid{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:99px;background:var(--green-100);color:var(--green);margin-inline-start:8px;vertical-align:middle}
+.unpaid{background:var(--amber-100);color:#9A5A0F}
+.stars{display:flex;gap:6px;margin:6px 0 14px}
+.star{background:none;border:0;cursor:pointer;color:var(--line);padding:2px}
+.star svg{width:36px;height:36px;fill:currentColor;stroke:none}
+.star.lit{color:var(--amber)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tag{border:1.5px solid var(--line);border-radius:99px;padding:6px 14px;background:#fff;font-weight:700;font-size:13.5px;cursor:pointer}
+.tag[aria-pressed=true]{border-color:var(--teal);background:var(--mist);color:var(--teal)}
+.sync{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}
+.share{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.share .btn{padding:8px 16px;font-size:13.5px}
+
+@media(max-width:1000px){
+  .flow-in{grid-template-columns:minmax(0,1fr);gap:0;padding-top:24px}
+  .aside{display:none}
+  .actions{position:fixed;inset:auto 0 0 0;margin:0;background:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(3,24,28,.1);z-index:40}
+  .actions .tot{display:block;line-height:1.2}
+  .actions .tot small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+  .actions .tot b{font-size:20px;font-weight:900;color:var(--teal)}
+  .actions .btn-line{padding:12px 16px}
+  .tr-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .panel{padding:24px 18px;border-radius:var(--r)}
+  .tiles{grid-template-columns:1fr 1fr}
+  .tile{padding:16px 14px}
+  .slots{grid-template-columns:repeat(3,1fr)}
+  .grid2,.pays{grid-template-columns:1fr}
+  .rv{grid-template-columns:1fr auto}
+  .rv .k{grid-column:1/-1;margin-bottom:-8px}
+  .stepper button{font-size:0;gap:0}
+  .stepper{margin-bottom:16px}
+  .status{padding:22px}
+  .tl li{font-size:0;gap:0}
+  .lookup{padding:24px 18px}
+}
+
+</style>
 </head>
-<body>
-
-<div class="topbar">
-  <div class="topbar-inner">
-    <a href="#" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
-    <div style="display:flex;gap:14px;align-items:center"><a href="book-ar.html" style="font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted);text-decoration:none">العربية</a><button class="back-link" onclick="goBack()" id="backBtn" style="visibility:hidden">← Back</button></div>
+<body class="flow">
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html" aria-label="Fanni home"><b>فنّي</b><span>Fanni</span></a>
+    <div class="nav-end">
+      <a class="lang" href="book-ar.html" id="langSwitch" lang="ar">العربية</a>
+      
+    </div>
   </div>
-</div>
+</header>
 
-<div class="dots" id="dots"></div>
+<main class="wrap flow-in">
+  <div>
+    <ol class="stepper" id="stepper"><li><button type="button" data-go="1">Service</button></li><li><button type="button" data-go="2">Job</button></li><li><button type="button" data-go="3">Time and place</button></li><li><button type="button" data-go="4">Review</button></li></ol>
 
-<div class="wrap">
-  <div class="card">
+    <section class="panel" data-p="1" aria-labelledby="h1">
+      <h1 id="h1">What needs fixing?</h1><p class="sub">Pick a service. You'll see the fixed price on the next step.</p>
+      <div class="tiles" id="tiles"><button type="button" class="tile" data-slug="ac" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="8.5" rx="2"/><path d="M6 10h12"/><path d="M7.5 16c.6 1-.6 2 0 3.5M12 16c.6 1-.6 2 0 3.5M16.5 16c.6 1-.6 2 0 3.5"/></svg><span><b>Air conditioning</b><br><small>from <span data-from="ac">EGP 150</span></small></span></button><button type="button" class="tile" data-slug="satellite" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5l11 11a8 8 0 0 1-11-11z"/><path d="M10 14l3.6-3.6"/><circle cx="14.6" cy="9.4" r="1.4"/><path d="M15.5 4.6a4 4 0 0 1 3.9 3.9M16 1.8a6.8 6.8 0 0 1 6.2 6.2"/></svg><span><b>Satellite &amp; TV</b><br><small>from <span data-from="satellite">EGP 200</span></small></span></button><button type="button" class="tile" data-slug="cctv" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 6.2l13.4 3.6-1.6 5.8L1.2 12z"/><path d="M16.2 9.8l4.4-.9.8 3.1-4.4 1.6"/><path d="M8 13.9L7 18.5H3"/><path d="M3 16v5"/></svg><span><b>CCTV &amp; security</b><br><small>from <span data-from="cctv">EGP 200</span></small></span></button><button type="button" class="tile" data-slug="wifi" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5.5 12.6a10 10 0 0 1 13 0M9 16.1a5 5 0 0 1 6 0"/><path d="M12 19.6h.01" stroke-width="2.6"/></svg><span><b>WiFi &amp; networking</b><br><small>from <span data-from="wifi">EGP 250</span></small></span></button><button type="button" class="tile" data-slug="intercom" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.2"/><rect x="8.5" y="5.5" width="7" height="5.5" rx="1"/><circle cx="12" cy="16" r="2"/></svg><span><b>Video intercom</b><br><small>from <span data-from="intercom">EGP 150</span></small></span></button><button type="button" class="tile" data-slug="smart-home" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7.5 9 7.5"/><path d="M5.5 9.3V20.5h13V9.3"/><path d="M9.3 14.6a3.8 3.8 0 0 1 5.4 0M10.9 16.8a1.5 1.5 0 0 1 2.2 0"/></svg><span><b>Smart home</b><br><small>from <span data-from="smart-home">EGP 300</span></small></span></button></div>
+      <p class="ferr" id="e1">Choose a service to continue.</p>
+    </section>
 
-    <!-- 1. SERVICE -->
-    <div class="panel active" data-p="1">
-      <h2>What needs fixing?</h2>
-      <p class="sub">Pick a service — fixed price shown before you confirm.</p>
-      <div class="svc-grid">
-        <div class="svc" data-svc="AC"><span class="ic">❄️</span><span class="nm">AC</span></div>
-        <div class="svc" data-svc="Satellite & TV"><span class="ic">📡</span><span class="nm">Satellite & TV</span></div>
-        <div class="svc" data-svc="CCTV"><span class="ic">🎥</span><span class="nm">CCTV</span></div>
-        <div class="svc" data-svc="WiFi"><span class="ic">📶</span><span class="nm">WiFi & Network</span></div>
-        <div class="svc" data-svc="Intercom"><span class="ic">🔔</span><span class="nm">Intercom</span></div>
-        <div class="svc" data-svc="Smart Home"><span class="ic">🏠</span><span class="nm">Smart Home</span></div>
-      </div>
-      <p class="err" id="e1">Choose a service to continue.</p>
-      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(1)">Continue →</button></div>
-    </div>
+    <section class="panel" data-p="2" aria-labelledby="h2">
+      <h1 id="h2">Choose the job</h1><p class="sub">Labor prices are fixed. Spare parts are quoted on site and need your approval.</p>
+      <fieldset class="jobs" id="jobs"><legend class="sr">Choose the job</legend></fieldset>
+      <p class="ferr" id="e2">Choose a job to continue.</p>
+    </section>
 
-    <!-- 2. JOB -->
-    <div class="panel" data-p="2">
-      <h2 id="jobTitle">Choose the job</h2>
-      <p class="sub">Prices are fixed for labor. Spare parts are quoted on site for your approval first.</p>
-      <div class="job-list" id="jobList"></div>
-      <p class="err" id="e2">Select a job to continue.</p>
-      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(2)">Continue →</button></div>
-    </div>
-
-    <!-- 3. SCHEDULE + ADDRESS -->
-    <div class="panel" data-p="3">
-      <h2>When & where?</h2>
-      <p class="sub">Same-day slots available in most Cairo districts.</p>
-      <div class="field"><label>Day</label></div>
-      <div class="day-row" id="dayRow"></div>
-      <div class="field"><label>Arrival window</label></div>
-      <div class="time-row" id="timeRow">
-        <div class="time" data-t="9–11 AM">9–11 AM</div>
-        <div class="time" data-t="11–1 PM">11–1 PM</div>
-        <div class="time" data-t="1–3 PM">1–3 PM</div>
-        <div class="time" data-t="3–5 PM">3–5 PM</div>
-        <div class="time" data-t="5–7 PM">5–7 PM</div>
-        <div class="time off">7–9 PM</div>
-      </div>
-      <div style="height:18px"></div>
+    <section class="panel" data-p="3" aria-labelledby="h3">
+      <h1 id="h3">When and where?</h1><p class="sub">Choose a day and a two-hour arrival window.</p>
+      <span class="lbl" id="dayLbl">Day</span>
+      <div class="days" id="days" role="group" aria-labelledby="dayLbl"></div>
+      <p class="ferr" id="eDay">Choose a day.</p>
+      <span class="lbl" id="slotLbl">Arrival window</span>
+      <div class="slots" id="slots" role="group" aria-labelledby="slotLbl"></div>
+      <p class="ferr" id="eTime">Choose an arrival window.</p>
+      <label class="lbl" for="area">Area</label>
+      <select class="inp" id="area"><option value="Nasr City">Nasr City</option><option value="New Cairo">New Cairo</option><option value="Maadi">Maadi</option><option value="Heliopolis">Heliopolis</option><option value="Zamalek">Zamalek</option><option value="6th of October">6th of October</option><option value="Giza — Dokki">Giza — Dokki</option><option value="Giza — Mohandessin">Giza — Mohandessin</option><option value="Giza — Haram">Giza — Haram</option><option value="Giza — Sheikh Zayed">Giza — Sheikh Zayed</option><option value="Alexandria — Smouha">Alexandria — Smouha</option></select>
+      <label class="lbl" for="addr">Address</label>
+      <input class="inp" id="addr" autocomplete="street-address" placeholder="Street, building, floor, apartment">
+      <p class="ferr" id="eAddr">Add your street, building and apartment.</p>
       <div class="grid2">
-        <div class="field"><label>Area</label>
-          <select id="area"><option>Nasr City</option><option>New Cairo</option><option>Maadi</option><option>Heliopolis</option><option>6th of October</option><option>Zamalek</option><option>Alexandria — Smouha</option></select>
-        </div>
-        <div class="field"><label>Mobile</label><input type="tel" id="mob" placeholder="01X XXXX XXXX"></div>
+        <div><label class="lbl" for="mob">Mobile number</label>
+          <input class="inp" id="mob" type="tel" inputmode="tel" autocomplete="tel" placeholder="01X XXXX XXXX">
+          <p class="ferr" id="eMob">Enter an 11-digit mobile number starting with 01.</p></div>
+        <div><label class="lbl" for="cname">Your name <small>(optional)</small></label>
+          <input class="inp" id="cname" autocomplete="name"></div>
       </div>
-      <div class="field"><label>Address</label><input type="text" id="addr" placeholder="Street, building, floor, apartment"></div>
-      <div class="field"><label>Notes for the فنّي <small style="color:var(--muted);font-weight:400">(optional)</small></label><textarea id="notes" placeholder="e.g. Unit is on the balcony, 3rd floor, no elevator"></textarea></div>
-      <p class="err" id="e3">Pick a day and time, and fill mobile & address.</p>
-      <div class="step-nav"><span></span><button class="btn btn-primary" onclick="next(3)">See my price →</button></div>
-    </div>
+      <label class="lbl" for="notes">Notes for the technician <small>(optional)</small></label>
+      <textarea class="inp" id="notes" placeholder="e.g. The outdoor unit is on the balcony, 3rd floor, no elevator"></textarea>
+    </section>
 
-    <!-- 4. QUOTE -->
-    <div class="panel" data-p="4">
-      <h2>Your fixed price</h2>
-      <p class="sub">No surprises at the door — this is what you pay for the job.</p>
-      <div class="quote">
-        <div class="quote-head"><span class="t" id="qService"></span><span class="fixed">Fixed price</span></div>
-        <div class="quote-row"><span class="k">Job</span><span class="v" id="qJob"></span></div>
-        <div class="quote-row"><span class="k">Schedule</span><span class="v" id="qWhen"></span></div>
-        <div class="quote-row"><span class="k">Location</span><span class="v" id="qWhere"></span></div>
-        <div class="quote-row"><span class="k">Labor</span><span class="v mono" id="qLabor"></span></div>
-        <div class="quote-row"><span class="k">Service fee</span><span class="v mono">EGP 25</span></div>
-        <div class="quote-row total"><span class="k">Total</span><span class="v" id="qTotal"></span></div>
-        <div class="quote-note">🔩 If spare parts are needed, your فنّي quotes them on site — nothing is installed without your approval. Every job includes a <b>30-day workmanship warranty</b>.</div>
+    <section class="panel" data-p="4" aria-labelledby="h4">
+      <h1 id="h4">Check and confirm</h1><p class="sub">This is the total for the job. Spare parts are only added if you approve them.</p>
+      <div class="review" id="review"></div>
+      <span class="lbl" style="margin-top:26px">How will you pay?</span>
+      <div class="pays">
+        <label class="pay"><input type="radio" name="pay" value="cash" checked><span class="rd"></span>Cash after the job</label>
+        <label class="pay"><input type="radio" name="pay" value="card"><span class="rd"></span>Card or wallet</label>
       </div>
-      <div class="field"><label>How will you pay?</label></div>
-      <div class="pay-row">
-        <div class="pay selected" data-pay="Cash"><span class="ic">💵</span>Cash after job</div>
-        <div class="pay" data-pay="Card"><span class="ic">💳</span>Card / wallet</div>
-      </div>
-      <div class="step-nav"><span></span><button class="btn btn-primary btn-full" onclick="confirmBooking()">Confirm booking ✓</button></div>
-    </div>
+      <p class="hint" id="payHint" hidden>You'll get a payment link on your tracking page.</p>
+      <div class="next-box"><b>What happens next</b>You'll get a booking code and a live tracking page. It updates the moment a technician is assigned.</div>
+      <div class="alert" id="alert" role="alert"></div>
+    </section>
 
-    <!-- 5. TRACKING -->
-    <div class="panel" data-p="5">
-      <h2>Your فنّي is on the way</h2>
-      <p class="sub" id="trackSub">Booking confirmed — we've matched you with a top-rated technician.</p>
-      <div class="eta-strip">
-        <div><div class="l">Estimated arrival</div><div class="v" id="etaVal">28 min</div></div>
-        <div class="code"><div class="l">Job code</div><div class="v" id="jobCode"></div></div>
-      </div>
-      <div class="tech-card">
-        <div class="avatar">م</div>
-        <div>
-          <div class="nm">Mostafa Abdelrahman</div>
-          <div class="meta">AC specialist · 7 yrs · <span class="mono">412 jobs</span></div>
-          <div class="meta">ID-verified ✓ · Skill-certified ✓</div>
-        </div>
-        <div class="badge"><div class="r">4.9★</div><div class="l">rating</div></div>
-      </div>
-      <div class="contact-row">
-        <button class="contact-btn">📞 Call</button>
-        <button class="contact-btn">💬 Chat</button>
-      </div>
-      <div class="timeline" id="timeline">
-        <div class="tl-item done"><div class="nd">✓</div><div class="t">Booking confirmed</div><div class="d">Fixed price locked · <span class="mono" id="tlPrice"></span></div></div>
-        <div class="tl-item now" id="tl2"><div class="nd">●</div><div class="t">فنّي on the way</div><div class="d">Mostafa is heading to your address</div></div>
-        <div class="tl-item pending" id="tl3"><div class="nd"></div><div class="t">Job in progress</div><div class="d">Work starts after he reviews the fault with you</div></div>
-        <div class="tl-item pending" id="tl4"><div class="nd"></div><div class="t">Done & guaranteed</div><div class="d">Pay, rate, and your 30-day warranty starts</div></div>
-      </div>
-      <div class="step-nav"><span></span><button class="btn btn-dark btn-full" onclick="advanceJob()" id="advanceBtn">▶ Simulate: technician arrived</button></div>
-      <p class="demo-hint">Demo control — in production this updates live from the technician app.</p>
+    <div class="actions" id="actions">
+      <div class="tot"><small>You pay</small><b id="barTotal">—</b></div>
+      <button type="button" class="btn btn-line" id="backBtn">Back</button>
+      <span class="sp"></span>
+      <button type="button" class="btn btn-amber btn-lg" id="nextBtn">Continue</button>
     </div>
-
-    <!-- 6. RATE -->
-    <div class="panel" data-p="6">
-      <div class="rate-wrap">
-        <div class="badge-ok">✓</div>
-        <h2>Job complete!</h2>
-        <p class="sub">Paid <span class="mono" id="paidAmt" style="color:var(--teal);font-weight:600"></span> · How was Mostafa?</p>
-        <div class="stars" id="stars">
-          <button class="star" data-s="1">★</button><button class="star" data-s="2">★</button><button class="star" data-s="3">★</button><button class="star" data-s="4">★</button><button class="star" data-s="5">★</button>
-        </div>
-        <div class="rate-tags" id="rateTags">
-          <button class="rtag">On time</button><button class="rtag">Clean work</button><button class="rtag">Fair with parts</button><button class="rtag">Explained everything</button><button class="rtag">Polite</button>
-        </div>
-        <button class="btn btn-primary btn-full" onclick="finishRating()">Submit rating</button>
-        <div class="warranty-note"><span>🛡️</span><span><b>Your warranty is active until 1 Aug 2026.</b> Same fault returns? We send a فنّي back free — from the app, under "My jobs".</span></div>
-      </div>
-    </div>
-
   </div>
-</div>
 
+  <aside class="aside" aria-label="Your booking">
+    <div class="ticket">
+      <div class="stamp" id="stamp">30-day warranty</div>
+      <div class="ticket-head"><h2>Your booking</h2></div>
+      <div id="sumTop"><p class="sum-empty">Pick a service and job to see the price.</p></div>
+      <div class="tear" aria-hidden="true"></div>
+      <div class="rc">
+        <div class="rc-row"><span class="k">Labor, fixed</span><span class="v num" id="sLabor">—</span></div>
+        <div class="rc-row"><span class="k">Service fee</span><span class="v num" id="sFee">EGP 25</span></div>
+        <div class="rc-total"><span class="k">You pay</span><span class="v" id="sTotal">—</span></div>
+      </div>
+      <p class="rc-note" id="sNote">Spare parts only if needed, and only after you approve the price.</p>
+    </div>
+  </aside>
+</main>
 <script>
-const jobs={
-  "AC":[
-    {id:1,t:"Deep cleaning & maintenance",d:"1.5 HP split, indoor + outdoor",p:350},
-    {id:2,t:"Not cooling — diagnosis & repair",d:"Inspection deducted from repair",p:150,insp:true},
-    {id:3,t:"Freon refill (R410)",d:"Includes leak check",p:600},
-    {id:4,t:"New AC installation",d:"Split unit, up to 4m piping",p:900}
-  ],
-  "Satellite & TV":[
-    {id:5,t:"Dish install & alignment",d:"Single receiver, incl. 10m cable",p:400},
-    {id:6,t:"Signal loss — realignment",d:"Existing dish",p:250},
-    {id:7,t:"Receiver setup & channels",d:"Any receiver brand",p:200},
-    {id:8,t:"TV wall mounting",d:"Up to 65\", bracket not included",p:300}
-  ],
-  "CCTV":[
-    {id:9,t:"4-camera package install",d:"Labor only, equipment quoted separately",p:1200},
-    {id:10,t:"Camera not working — repair",d:"Inspection deducted from repair",p:200,insp:true},
-    {id:11,t:"Remote viewing setup",d:"Phone app + router config",p:300},
-    {id:12,t:"NVR replacement / upgrade",d:"Reuse existing cabling",p:500}
-  ],
-  "WiFi":[
-    {id:13,t:"Mesh WiFi setup",d:"Up to 3 nodes + full-home survey",p:500},
-    {id:14,t:"Weak signal — dead-zone fix",d:"Survey + repositioning or extender",p:300},
-    {id:15,t:"New router install & config",d:"Any ISP",p:250},
-    {id:16,t:"Network cabling",d:"Per point, in-wall or trunking",p:350}
-  ],
-  "Intercom":[
-    {id:17,t:"Video intercom install (apartment)",d:"Single unit",p:400},
-    {id:18,t:"Villa / multi-unit intercom",d:"Site survey included",p:900},
-    {id:19,t:"Intercom repair",d:"Inspection deducted from repair",p:150,insp:true}
-  ],
-  "Smart Home":[
-    {id:20,t:"Smart lighting setup",d:"Up to 6 switches / bulbs + app",p:600},
-    {id:21,t:"Smart lock install",d:"Includes door assessment",p:450},
-    {id:22,t:"Smart camera & sensors",d:"Up to 3 devices + hub config",p:550},
-    {id:23,t:"Full smart-home consultation",d:"On-site, deducted from project",p:300,insp:true}
-  ]
-};
-const state={svc:null,job:null,day:null,time:null,pay:"Cash"};
-let step=1;const TOTAL=6;
+/* Shared by every public page. {"dir": "ltr", "other_lang": "العربية", "brand_sub": "Fanni", "nav_prices": "Prices", "nav_how": "How it works", "nav_track": "Track a booking", "nav_book": "Book a technician", "meta_title": "Fanni | Fixed-price home technicians in Cairo, Giza and Alexandria", "meta_desc": "Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart home. See the full price before you book. 30-day warranty.", "h1": "The price is fixed before the technician knocks.", "lead": "Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart-home jobs in Cairo, Giza and Alexandria. Pick the job, see the full price, follow your فنّي live.", "hero_cta2": "Track a booking", "promise1": "Labor price locked when you book", "promise2": "No part installed without your OK", "promise3": "30-day warranty on the work", "tk_title": "Your price", "tk_pick": "Pick a job", "tk_labor": "Labor, fixed", "tk_fee": "Service fee", "tk_total": "You pay", "tk_parts": "Spare parts only if needed, and only after you approve the price.", "tk_insp": "Inspection visit. If you go ahead with the repair, this is deducted from it.", "tk_book": "Book this job", "stamp": "30-day warranty", "how_h": "From booking to warranty", "how_p": "Four steps, and you see each one happen.", "how": [["Pick the job", "The full price shows before you give us your number."], ["Choose a time", "Two-hour arrival windows, today or later this week."], ["Follow your فنّي", "Live status from assigned to on the way to done. Any spare part is sent to your phone to approve."], ["Pay, and you're covered", "Cash after the job, or card and wallet online. The 30-day warranty starts."]], "prices_h": "Prices, in public", "prices_p": "Fixed labor prices for the jobs people book most. The service fee is EGP 25 per booking.", "all_jobs": "All {n} {svc} jobs", "from": "from", "insp_short": "inspection", "parts_h": "Nothing gets installed without your OK", "parts_p": "If your technician finds a faulty part, its price comes to your phone first. Approve it and it goes in; reject it and the job carries on without it.", "parts_p2": "Common parts come from our fixed price list, so the price doesn't depend on who shows up.", "mock_hdr": "Booking", "mock_status": "Work in progress", "mock_parts": "Parts waiting for your approval", "mock_ok": "Approve", "mock_no": "Reject", "mock_bill": "Your bill", "mock_part": "Compressor run capacitor 35µF", "trust_h": "Who comes to your home", "trust": [["ID checked", "Every technician's national ID is verified before they're approved."], ["Skill tested in person", "Applicants pass a practical test at our assessment hub in their trade."], ["Rated after every job", "You rate the visit. Ratings follow the technician to every future job."]], "faq_h": "Questions", "faq": [["What does the EGP 25 service fee cover?", "It's a flat fee per booking that covers matching, tracking and the warranty. It's included in the total you see before booking."], ["What if the job needs spare parts?", "Your technician sends the part and its price to your tracking page. Nothing is installed until you tap Approve. If you reject it, you only pay for the labor."], ["What is an inspection visit?", "For faults that need diagnosis first, you book the inspection. If you go ahead with the repair, the inspection price is deducted from it."], ["What does the 30-day warranty cover?", "The work we did. If the same fault comes back within 30 days, we send a technician back at no charge."], ["How do I pay?", "Cash to the technician after the job, or by card or mobile wallet online from your tracking page."], ["Which areas do you cover?", "Greater Cairo, Giza and Alexandria (Smouha), with more areas being added."]], "tech_h": "Are you a technician?", "tech_p": "Get job requests in your trade and area, at prices you see upfront. You keep 80% of the labor, plus the full price of any parts you supply.", "tech_cta": "Apply as a technician", "foot_line": "Fixed-price home technicians in Egypt.", "foot_services": "Services", "foot_company": "Fanni", "foot_join": "Become a technician", "rights": "© 2026 Fanni", "svc_title": "Fanni price list | AC, satellite, CCTV, WiFi, intercom, smart home", "svc_h1": "Price list", "svc_lead": "Every price below is the fixed labor price. Your booking total adds the EGP 25 service fee, and nothing else unless you approve a spare part.", "book": "Book", "svc_note_h": "How pricing works", "svc_notes": [["Labor is fixed", "The price you book at is the price you pay for the work, even if the job takes longer."], ["Parts are approved by you", "Parts are quoted on site and sent to your phone. Nothing is installed until you approve."], ["Inspections are deducted", "Where a fault needs diagnosis first, the inspection price comes off the repair if you go ahead."]], "bk_title": "Book a technician | Fanni", "steps": ["Service", "Job", "Time and place", "Review"], "s1_h": "What needs fixing?", "s1_p": "Pick a service. You'll see the fixed price on the next step.", "s2_h": "Choose the job", "s2_p": "Labor prices are fixed. Spare parts are quoted on site and need your approval.", "s3_h": "When and where?", "s3_p": "Choose a day and a two-hour arrival window.", "s4_h": "Check and confirm", "s4_p": "This is the total for the job. Spare parts are only added if you approve them.", "day": "Day", "window": "Arrival window", "today": "Today", "tomorrow": "Tomorrow", "full": "Full", "area": "Area", "address": "Address", "address_ph": "Street, building, floor, apartment", "name": "Your name", "optional": "optional", "mobile": "Mobile number", "mobile_ph": "01X XXXX XXXX", "notes": "Notes for the technician", "notes_ph": "e.g. The outdoor unit is on the balcony, 3rd floor, no elevator", "pay_h": "How will you pay?", "pay_cash": "Cash after the job", "pay_card": "Card or wallet", "pay_card_note": "You'll get a payment link on your tracking page.", "continue": "Continue", "back": "Back", "confirm": "Confirm booking", "confirming": "Booking…", "err_svc": "Choose a service to continue.", "err_job": "Choose a job to continue.", "err_day": "Choose a day.", "err_time": "Choose an arrival window.", "err_addr": "Add your street, building and apartment.", "err_mob": "Enter an 11-digit mobile number starting with 01.", "err_net": "We couldn't reach Fanni. Check your connection and tap Confirm booking again. You haven't been booked yet.", "rv_service": "Service", "rv_job": "Job", "rv_when": "When", "rv_where": "Where", "rv_contact": "Contact", "edit": "Edit", "summary": "Your booking", "sum_empty": "Pick a service and job to see the price.", "after_h": "What happens next", "after_p": "You'll get a booking code and a live tracking page. It updates the moment a technician is assigned.", "tr_title": "Track your booking | Fanni"} and [{"slug": "ac", "en": "Air conditioning", "ar": "تكييف", "short_en": "AC", "short_ar": "تكييف", "blurb_en": "Cleaning, repairs, freon and new installations, any brand.", "blurb_ar": "غسيل وإصلاح وشحن فريون وتركيب جديد، لأي ماركة.", "jobs": [{"id": 1, "en": "Deep cleaning & maintenance", "den": "1.5 HP split, indoor + outdoor", "price": 350, "insp": 0, "ar": "غسيل وصيانة شاملة", "dar": "سبليت 1.5 حصان، داخلي وخارجي"}, {"id": 2, "en": "Not cooling — diagnosis & repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "التكييف مش بيبرّد — كشف وإصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 3, "en": "Freon refill (R410)", "den": "Includes leak check", "price": 600, "insp": 0, "ar": "شحن فريون (R410)", "dar": "شامل كشف التسريب"}, {"id": 4, "en": "New AC installation", "den": "Split unit, up to 4m piping", "price": 900, "insp": 0, "ar": "تركيب تكييف جديد", "dar": "سبليت، لحد 4 متر مواسير"}]}, {"slug": "satellite", "en": "Satellite & TV", "ar": "دش وشاشات", "short_en": "Satellite", "short_ar": "دش", "blurb_en": "Dish installs, signal fixes, receivers and TV mounting.", "blurb_ar": "تركيب أطباق، ضبط الإشارة، الريسيفر وتعليق الشاشات.", "jobs": [{"id": 5, "en": "Dish install & alignment", "den": "Single receiver, incl. 10m cable", "price": 400, "insp": 0, "ar": "تركيب وضبط دش", "dar": "ريسيفر واحد، شامل 10 متر كابل"}, {"id": 6, "en": "Signal loss — realignment", "den": "Existing dish", "price": 250, "insp": 0, "ar": "الإشارة بتقطع — إعادة ضبط", "dar": "للدش الموجود"}, {"id": 7, "en": "Receiver setup & channels", "den": "Any receiver brand", "price": 200, "insp": 0, "ar": "تظبيط الريسيفر والقنوات", "dar": "أي نوع ريسيفر"}, {"id": 8, "en": "TV wall mounting", "den": "Up to 65\", bracket not included", "price": 300, "insp": 0, "ar": "تعليق شاشة على الحائط", "dar": "لحد 65 بوصة، الحامل مش شامل"}]}, {"slug": "cctv", "en": "CCTV & security", "ar": "كاميرات مراقبة", "short_en": "CCTV", "short_ar": "كاميرات", "blurb_en": "Camera systems, recorders, repairs and phone viewing.", "blurb_ar": "أنظمة كاميرات، أجهزة تسجيل، إصلاح ومشاهدة من الموبايل.", "jobs": [{"id": 9, "en": "4-camera package install", "den": "Labor only, equipment quoted separately", "price": 1200, "insp": 0, "ar": "تركيب باكدج 4 كاميرات", "dar": "مصنعية فقط، الأجهزة بتتسعّر منفصل"}, {"id": 10, "en": "Camera not working — repair", "den": "Inspection deducted from repair", "price": 200, "insp": 1, "ar": "كاميرا مش شغالة — إصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 11, "en": "Remote viewing setup", "den": "Phone app + router config", "price": 300, "insp": 0, "ar": "تشغيل المشاهدة عن بُعد", "dar": "تطبيق الموبايل وضبط الراوتر"}, {"id": 12, "en": "NVR replacement / upgrade", "den": "Reuse existing cabling", "price": 500, "insp": 0, "ar": "تغيير أو ترقية جهاز التسجيل", "dar": "على نفس الكابلات"}]}, {"slug": "wifi", "en": "WiFi & networking", "ar": "واي فاي وشبكات", "short_en": "WiFi", "short_ar": "واي فاي", "blurb_en": "Whole-home coverage, routers and network cabling.", "blurb_ar": "تغطية البيت كله، راوترات وتمديد كابلات.", "jobs": [{"id": 13, "en": "Mesh WiFi setup", "den": "Up to 3 nodes + full-home survey", "price": 500, "insp": 0, "ar": "تركيب شبكة ميش واي فاي", "dar": "لحد 3 أجهزة مع فحص البيت كله"}, {"id": 14, "en": "Weak signal — dead-zone fix", "den": "Survey + repositioning or extender", "price": 300, "insp": 0, "ar": "إشارة ضعيفة — حل الأماكن الميتة", "dar": "فحص وتغيير أماكن أو مقوي إشارة"}, {"id": 15, "en": "New router install & config", "den": "Any ISP", "price": 250, "insp": 0, "ar": "تركيب وضبط راوتر جديد", "dar": "أي شركة إنترنت"}, {"id": 16, "en": "Network cabling", "den": "Per point, in-wall or trunking", "price": 350, "insp": 0, "ar": "تمديد كابلات شبكة", "dar": "للنقطة، داخل الحيطة أو في مجرى"}]}, {"slug": "intercom", "en": "Video intercom", "ar": "إنتركم", "short_en": "Intercom", "short_ar": "إنتركم", "blurb_en": "Apartment and villa intercoms, installed or repaired.", "blurb_ar": "إنتركم للشقق والفلل، تركيب أو إصلاح.", "jobs": [{"id": 17, "en": "Video intercom install (apartment)", "den": "Single unit", "price": 400, "insp": 0, "ar": "تركيب إنتركم فيديو (شقة)", "dar": "وحدة واحدة"}, {"id": 18, "en": "Villa / multi-unit intercom", "den": "Site survey included", "price": 900, "insp": 0, "ar": "إنتركم فيلا أو عمارة", "dar": "شامل معاينة الموقع"}, {"id": 19, "en": "Intercom repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "إصلاح إنتركم", "dar": "رسوم الكشف بتتخصم من الإصلاح"}]}, {"slug": "smart-home", "en": "Smart home", "ar": "منزل ذكي", "short_en": "Smart home", "short_ar": "منزل ذكي", "blurb_en": "Smart lights, locks, cameras and sensors, set up on your phone.", "blurb_ar": "إضاءة وأقفال وكاميرات وحساسات ذكية، متظبطة على موبايلك.", "jobs": [{"id": 20, "en": "Smart lighting setup", "den": "Up to 6 switches / bulbs + app", "price": 600, "insp": 0, "ar": "تركيب إضاءة ذكية", "dar": "لحد 6 مفاتيح أو لمبات مع التطبيق"}, {"id": 21, "en": "Smart lock install", "den": "Includes door assessment", "price": 450, "insp": 0, "ar": "تركيب قفل ذكي", "dar": "شامل معاينة الباب"}, {"id": 22, "en": "Smart camera & sensors", "den": "Up to 3 devices + hub config", "price": 550, "insp": 0, "ar": "كاميرا وحساسات ذكية", "dar": "لحد 3 أجهزة مع ضبط الهاب"}, {"id": 23, "en": "Full smart-home consultation", "den": "On-site, deducted from project", "price": 300, "insp": 1, "ar": "استشارة منزل ذكي كاملة", "dar": "في الموقع، بتتخصم من المشروع"}]}] are filled in by build.py. */
+const LANG = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+const T = {"dir": "ltr", "other_lang": "العربية", "brand_sub": "Fanni", "nav_prices": "Prices", "nav_how": "How it works", "nav_track": "Track a booking", "nav_book": "Book a technician", "meta_title": "Fanni | Fixed-price home technicians in Cairo, Giza and Alexandria", "meta_desc": "Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart home. See the full price before you book. 30-day warranty.", "h1": "The price is fixed before the technician knocks.", "lead": "Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart-home jobs in Cairo, Giza and Alexandria. Pick the job, see the full price, follow your فنّي live.", "hero_cta2": "Track a booking", "promise1": "Labor price locked when you book", "promise2": "No part installed without your OK", "promise3": "30-day warranty on the work", "tk_title": "Your price", "tk_pick": "Pick a job", "tk_labor": "Labor, fixed", "tk_fee": "Service fee", "tk_total": "You pay", "tk_parts": "Spare parts only if needed, and only after you approve the price.", "tk_insp": "Inspection visit. If you go ahead with the repair, this is deducted from it.", "tk_book": "Book this job", "stamp": "30-day warranty", "how_h": "From booking to warranty", "how_p": "Four steps, and you see each one happen.", "how": [["Pick the job", "The full price shows before you give us your number."], ["Choose a time", "Two-hour arrival windows, today or later this week."], ["Follow your فنّي", "Live status from assigned to on the way to done. Any spare part is sent to your phone to approve."], ["Pay, and you're covered", "Cash after the job, or card and wallet online. The 30-day warranty starts."]], "prices_h": "Prices, in public", "prices_p": "Fixed labor prices for the jobs people book most. The service fee is EGP 25 per booking.", "all_jobs": "All {n} {svc} jobs", "from": "from", "insp_short": "inspection", "parts_h": "Nothing gets installed without your OK", "parts_p": "If your technician finds a faulty part, its price comes to your phone first. Approve it and it goes in; reject it and the job carries on without it.", "parts_p2": "Common parts come from our fixed price list, so the price doesn't depend on who shows up.", "mock_hdr": "Booking", "mock_status": "Work in progress", "mock_parts": "Parts waiting for your approval", "mock_ok": "Approve", "mock_no": "Reject", "mock_bill": "Your bill", "mock_part": "Compressor run capacitor 35µF", "trust_h": "Who comes to your home", "trust": [["ID checked", "Every technician's national ID is verified before they're approved."], ["Skill tested in person", "Applicants pass a practical test at our assessment hub in their trade."], ["Rated after every job", "You rate the visit. Ratings follow the technician to every future job."]], "faq_h": "Questions", "faq": [["What does the EGP 25 service fee cover?", "It's a flat fee per booking that covers matching, tracking and the warranty. It's included in the total you see before booking."], ["What if the job needs spare parts?", "Your technician sends the part and its price to your tracking page. Nothing is installed until you tap Approve. If you reject it, you only pay for the labor."], ["What is an inspection visit?", "For faults that need diagnosis first, you book the inspection. If you go ahead with the repair, the inspection price is deducted from it."], ["What does the 30-day warranty cover?", "The work we did. If the same fault comes back within 30 days, we send a technician back at no charge."], ["How do I pay?", "Cash to the technician after the job, or by card or mobile wallet online from your tracking page."], ["Which areas do you cover?", "Greater Cairo, Giza and Alexandria (Smouha), with more areas being added."]], "tech_h": "Are you a technician?", "tech_p": "Get job requests in your trade and area, at prices you see upfront. You keep 80% of the labor, plus the full price of any parts you supply.", "tech_cta": "Apply as a technician", "foot_line": "Fixed-price home technicians in Egypt.", "foot_services": "Services", "foot_company": "Fanni", "foot_join": "Become a technician", "rights": "© 2026 Fanni", "svc_title": "Fanni price list | AC, satellite, CCTV, WiFi, intercom, smart home", "svc_h1": "Price list", "svc_lead": "Every price below is the fixed labor price. Your booking total adds the EGP 25 service fee, and nothing else unless you approve a spare part.", "book": "Book", "svc_note_h": "How pricing works", "svc_notes": [["Labor is fixed", "The price you book at is the price you pay for the work, even if the job takes longer."], ["Parts are approved by you", "Parts are quoted on site and sent to your phone. Nothing is installed until you approve."], ["Inspections are deducted", "Where a fault needs diagnosis first, the inspection price comes off the repair if you go ahead."]], "bk_title": "Book a technician | Fanni", "steps": ["Service", "Job", "Time and place", "Review"], "s1_h": "What needs fixing?", "s1_p": "Pick a service. You'll see the fixed price on the next step.", "s2_h": "Choose the job", "s2_p": "Labor prices are fixed. Spare parts are quoted on site and need your approval.", "s3_h": "When and where?", "s3_p": "Choose a day and a two-hour arrival window.", "s4_h": "Check and confirm", "s4_p": "This is the total for the job. Spare parts are only added if you approve them.", "day": "Day", "window": "Arrival window", "today": "Today", "tomorrow": "Tomorrow", "full": "Full", "area": "Area", "address": "Address", "address_ph": "Street, building, floor, apartment", "name": "Your name", "optional": "optional", "mobile": "Mobile number", "mobile_ph": "01X XXXX XXXX", "notes": "Notes for the technician", "notes_ph": "e.g. The outdoor unit is on the balcony, 3rd floor, no elevator", "pay_h": "How will you pay?", "pay_cash": "Cash after the job", "pay_card": "Card or wallet", "pay_card_note": "You'll get a payment link on your tracking page.", "continue": "Continue", "back": "Back", "confirm": "Confirm booking", "confirming": "Booking…", "err_svc": "Choose a service to continue.", "err_job": "Choose a job to continue.", "err_day": "Choose a day.", "err_time": "Choose an arrival window.", "err_addr": "Add your street, building and apartment.", "err_mob": "Enter an 11-digit mobile number starting with 01.", "err_net": "We couldn't reach Fanni. Check your connection and tap Confirm booking again. You haven't been booked yet.", "rv_service": "Service", "rv_job": "Job", "rv_when": "When", "rv_where": "Where", "rv_contact": "Contact", "edit": "Edit", "summary": "Your booking", "sum_empty": "Pick a service and job to see the price.", "after_h": "What happens next", "after_p": "You'll get a booking code and a live tracking page. It updates the moment a technician is assigned.", "tr_title": "Track your booking | Fanni"};
+const CAT0 = [{"slug": "ac", "en": "Air conditioning", "ar": "تكييف", "short_en": "AC", "short_ar": "تكييف", "blurb_en": "Cleaning, repairs, freon and new installations, any brand.", "blurb_ar": "غسيل وإصلاح وشحن فريون وتركيب جديد، لأي ماركة.", "jobs": [{"id": 1, "en": "Deep cleaning & maintenance", "den": "1.5 HP split, indoor + outdoor", "price": 350, "insp": 0, "ar": "غسيل وصيانة شاملة", "dar": "سبليت 1.5 حصان، داخلي وخارجي"}, {"id": 2, "en": "Not cooling — diagnosis & repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "التكييف مش بيبرّد — كشف وإصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 3, "en": "Freon refill (R410)", "den": "Includes leak check", "price": 600, "insp": 0, "ar": "شحن فريون (R410)", "dar": "شامل كشف التسريب"}, {"id": 4, "en": "New AC installation", "den": "Split unit, up to 4m piping", "price": 900, "insp": 0, "ar": "تركيب تكييف جديد", "dar": "سبليت، لحد 4 متر مواسير"}]}, {"slug": "satellite", "en": "Satellite & TV", "ar": "دش وشاشات", "short_en": "Satellite", "short_ar": "دش", "blurb_en": "Dish installs, signal fixes, receivers and TV mounting.", "blurb_ar": "تركيب أطباق، ضبط الإشارة، الريسيفر وتعليق الشاشات.", "jobs": [{"id": 5, "en": "Dish install & alignment", "den": "Single receiver, incl. 10m cable", "price": 400, "insp": 0, "ar": "تركيب وضبط دش", "dar": "ريسيفر واحد، شامل 10 متر كابل"}, {"id": 6, "en": "Signal loss — realignment", "den": "Existing dish", "price": 250, "insp": 0, "ar": "الإشارة بتقطع — إعادة ضبط", "dar": "للدش الموجود"}, {"id": 7, "en": "Receiver setup & channels", "den": "Any receiver brand", "price": 200, "insp": 0, "ar": "تظبيط الريسيفر والقنوات", "dar": "أي نوع ريسيفر"}, {"id": 8, "en": "TV wall mounting", "den": "Up to 65\", bracket not included", "price": 300, "insp": 0, "ar": "تعليق شاشة على الحائط", "dar": "لحد 65 بوصة، الحامل مش شامل"}]}, {"slug": "cctv", "en": "CCTV & security", "ar": "كاميرات مراقبة", "short_en": "CCTV", "short_ar": "كاميرات", "blurb_en": "Camera systems, recorders, repairs and phone viewing.", "blurb_ar": "أنظمة كاميرات، أجهزة تسجيل، إصلاح ومشاهدة من الموبايل.", "jobs": [{"id": 9, "en": "4-camera package install", "den": "Labor only, equipment quoted separately", "price": 1200, "insp": 0, "ar": "تركيب باكدج 4 كاميرات", "dar": "مصنعية فقط، الأجهزة بتتسعّر منفصل"}, {"id": 10, "en": "Camera not working — repair", "den": "Inspection deducted from repair", "price": 200, "insp": 1, "ar": "كاميرا مش شغالة — إصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 11, "en": "Remote viewing setup", "den": "Phone app + router config", "price": 300, "insp": 0, "ar": "تشغيل المشاهدة عن بُعد", "dar": "تطبيق الموبايل وضبط الراوتر"}, {"id": 12, "en": "NVR replacement / upgrade", "den": "Reuse existing cabling", "price": 500, "insp": 0, "ar": "تغيير أو ترقية جهاز التسجيل", "dar": "على نفس الكابلات"}]}, {"slug": "wifi", "en": "WiFi & networking", "ar": "واي فاي وشبكات", "short_en": "WiFi", "short_ar": "واي فاي", "blurb_en": "Whole-home coverage, routers and network cabling.", "blurb_ar": "تغطية البيت كله، راوترات وتمديد كابلات.", "jobs": [{"id": 13, "en": "Mesh WiFi setup", "den": "Up to 3 nodes + full-home survey", "price": 500, "insp": 0, "ar": "تركيب شبكة ميش واي فاي", "dar": "لحد 3 أجهزة مع فحص البيت كله"}, {"id": 14, "en": "Weak signal — dead-zone fix", "den": "Survey + repositioning or extender", "price": 300, "insp": 0, "ar": "إشارة ضعيفة — حل الأماكن الميتة", "dar": "فحص وتغيير أماكن أو مقوي إشارة"}, {"id": 15, "en": "New router install & config", "den": "Any ISP", "price": 250, "insp": 0, "ar": "تركيب وضبط راوتر جديد", "dar": "أي شركة إنترنت"}, {"id": 16, "en": "Network cabling", "den": "Per point, in-wall or trunking", "price": 350, "insp": 0, "ar": "تمديد كابلات شبكة", "dar": "للنقطة، داخل الحيطة أو في مجرى"}]}, {"slug": "intercom", "en": "Video intercom", "ar": "إنتركم", "short_en": "Intercom", "short_ar": "إنتركم", "blurb_en": "Apartment and villa intercoms, installed or repaired.", "blurb_ar": "إنتركم للشقق والفلل، تركيب أو إصلاح.", "jobs": [{"id": 17, "en": "Video intercom install (apartment)", "den": "Single unit", "price": 400, "insp": 0, "ar": "تركيب إنتركم فيديو (شقة)", "dar": "وحدة واحدة"}, {"id": 18, "en": "Villa / multi-unit intercom", "den": "Site survey included", "price": 900, "insp": 0, "ar": "إنتركم فيلا أو عمارة", "dar": "شامل معاينة الموقع"}, {"id": 19, "en": "Intercom repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "إصلاح إنتركم", "dar": "رسوم الكشف بتتخصم من الإصلاح"}]}, {"slug": "smart-home", "en": "Smart home", "ar": "منزل ذكي", "short_en": "Smart home", "short_ar": "منزل ذكي", "blurb_en": "Smart lights, locks, cameras and sensors, set up on your phone.", "blurb_ar": "إضاءة وأقفال وكاميرات وحساسات ذكية، متظبطة على موبايلك.", "jobs": [{"id": 20, "en": "Smart lighting setup", "den": "Up to 6 switches / bulbs + app", "price": 600, "insp": 0, "ar": "تركيب إضاءة ذكية", "dar": "لحد 6 مفاتيح أو لمبات مع التطبيق"}, {"id": 21, "en": "Smart lock install", "den": "Includes door assessment", "price": 450, "insp": 0, "ar": "تركيب قفل ذكي", "dar": "شامل معاينة الباب"}, {"id": 22, "en": "Smart camera & sensors", "den": "Up to 3 devices + hub config", "price": 550, "insp": 0, "ar": "كاميرا وحساسات ذكية", "dar": "لحد 3 أجهزة مع ضبط الهاب"}, {"id": 23, "en": "Full smart-home consultation", "den": "On-site, deducted from project", "price": 300, "insp": 1, "ar": "استشارة منزل ذكي كاملة", "dar": "في الموقع، بتتخصم من المشروع"}]}];           // fallback catalog, both languages
+let FEE = 25;
+const AR = LANG === 'ar';
+const PAGE = { book: AR ? 'book-ar.html' : 'book.html', services: AR ? 'services-ar.html' : 'services.html',
+               home: AR ? 'index-ar.html' : 'index.html', track: 'track.html?lang=' + LANG };
 
-/* dots */
-const dotsEl=document.getElementById('dots');
-for(let i=0;i<TOTAL;i++){const d=document.createElement('div');d.className='dot';dotsEl.appendChild(d)}
-function render(){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',+p.dataset.p===step));
-  document.querySelectorAll('.dot').forEach((d,i)=>{
-    d.className='dot'+(i+1<step?' done':i+1===step?' on':'');
-  });
-  document.getElementById('backBtn').style.visibility=(step>1&&step<5)?'visible':'hidden';
-  window.scrollTo({top:0,behavior:'smooth'});
+function esc(x){const d=document.createElement('div');d.textContent=x==null?'':String(x);return d.innerHTML}
+function n2(n){return Number(n||0).toLocaleString('en-US')}
+function money(n){return AR ? n2(n)+' جنيه' : 'EGP '+n2(n)}
+function moneyHTML(n){return AR ? `<span class="num">${n2(n)}</span><small>جنيه</small>` : `<small>EGP</small><span class="num">${n2(n)}</span>`}
+
+/* Normalise a catalog into [{slug,name,short,blurb,jobs:[{id,title,detail,price,insp}]}] in the page language. */
+function fromFallback(){
+  return CAT0.map(s=>({slug:s.slug,name:AR?s.ar:s.en,short:AR?s.short_ar:s.short_en,blurb:AR?s.blurb_ar:s.blurb_en,
+    jobs:s.jobs.map(j=>({id:j.id,title:AR?j.ar:j.en,detail:AR?j.dar:j.den,price:j.price,insp:!!j.insp}))}));
 }
-function showErr(n,s){document.getElementById('e'+n).classList.toggle('show',s)}
-function goBack(){if(step>1&&step<5){step--;render()}}
-
-/* step 1: services */
-document.querySelectorAll('.svc').forEach(s=>{
-  s.addEventListener('click',()=>{
-    document.querySelectorAll('.svc').forEach(x=>x.classList.remove('selected'));
-    s.classList.add('selected');state.svc=s.dataset.svc;
-  });
-});
-
-/* step 2: build jobs */
-function buildJobs(){
-  document.getElementById('jobTitle').textContent=state.svc+" — choose the job";
-  document.getElementById('jobList').innerHTML=jobs[state.svc].map((j,i)=>
-    `<div class="job" data-i="${i}">
-      <span><span class="t">${j.t}</span><br><span class="d">${j.d}</span></span>
-      <span class="pr${j.insp?' insp':''}">${j.insp?'Inspection ':''}EGP ${j.p}</span>
-    </div>`).join('');
-  document.querySelectorAll('.job').forEach(j=>{
-    j.addEventListener('click',()=>{
-      document.querySelectorAll('.job').forEach(x=>x.classList.remove('selected'));
-      j.classList.add('selected');state.job=jobs[state.svc][+j.dataset.i];
-    });
-  });
-}
-
-/* step 3: days */
-const dayRow=document.getElementById('dayRow');
-const dNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const today=new Date();
-for(let i=0;i<7;i++){
-  const d=new Date(today);d.setDate(today.getDate()+i);
-  const el=document.createElement('div');el.className='day';
-  el.innerHTML=`<div class="dw">${i===0?'Today':i===1?'Tmrw':dNames[d.getDay()]}</div><div class="dn">${d.getDate()}</div>`;
-  el.dataset.day=(i===0?'Today':i===1?'Tomorrow':dNames[d.getDay()]+' '+d.getDate());
-  el.addEventListener('click',()=>{
-    document.querySelectorAll('.day').forEach(x=>x.classList.remove('selected'));
-    el.classList.add('selected');state.day=el.dataset.day;
-  });
-  dayRow.appendChild(el);
-}
-document.querySelectorAll('#timeRow .time:not(.off)').forEach(t=>{
-  t.addEventListener('click',()=>{
-    document.querySelectorAll('#timeRow .time').forEach(x=>x.classList.remove('selected'));
-    t.classList.add('selected');state.time=t.dataset.t;
-  });
-});
-
-/* payment */
-document.querySelectorAll('.pay').forEach(p=>{
-  p.addEventListener('click',()=>{
-    document.querySelectorAll('.pay').forEach(x=>x.classList.remove('selected'));
-    p.classList.add('selected');state.pay=p.dataset.pay;
-  });
-});
-
-function normDigits(s){return (s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))}
-function v(id){return document.getElementById(id).value.trim()}
-function vNum(id){return normDigits(v(id)).replace(/\D/g,'')}
-function mark(id,bad){document.getElementById(id).classList.toggle('invalid',bad)}
-function next(n){
-  if(n===1){if(!state.svc){showErr(1,true);return}showErr(1,false);buildJobs()}
-  if(n===2){if(!state.job){showErr(2,true);return}showErr(2,false)}
-  if(n===3){
-    const badMob=vNum('mob').length!==11, badAddr=!v('addr');
-    mark('mob',badMob);mark('addr',badAddr);
-    if(!state.day||!state.time||badMob||badAddr){showErr(3,true);return}
-    showErr(3,false);buildQuote();
-  }
-  step=n+1;render();
-  track('booking_step',{step:step,service:state.svc||'',lang:'en'});
-}
-function buildQuote(){
-  const total=state.job.p+25;
-  document.getElementById('qService').textContent=state.svc;
-  document.getElementById('qJob').textContent=state.job.t;
-  document.getElementById('qWhen').textContent=state.day+' · '+state.time;
-  document.getElementById('qWhere').textContent=v('area');
-  document.getElementById('qLabor').textContent='EGP '+state.job.p;
-  document.getElementById('qTotal').textContent='EGP '+total;
-}
-const slugMap={"AC":"ac","Satellite & TV":"satellite","CCTV":"cctv","WiFi":"wifi","Intercom":"intercom","Smart Home":"smart-home"};
-async function confirmBooking(){
-  const btn=event.target;
-  if(btn.disabled)return;
-  btn.disabled=true;const orig=btn.textContent;btn.textContent='Booking…';
-  const total=state.job.p+25;
-  let code='FN-'+String(Math.floor(10000+Math.random()*90000));
+let CAT = fromFallback();
+async function loadCatalog(){
   try{
-    const r=await fetch('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({job_catalog_id:state.job.id,customer_mobile:vNum('mob'),area:v('area'),
-        address:v('addr'),notes:v('notes'),day:state.day,time_window:state.time,payment_method:state.pay.toLowerCase()})});
-    const d=await r.json();
-    if(d.ok){track('booking_completed',{value:total,currency:'EGP',service:state.svc,lang:'en'});
-      setTimeout(()=>location.href='track.html?code='+d.code+'&lang=en',250);return}
-    else{alert(d.error||'Could not complete the booking — please check your details.');btn.disabled=false;btn.textContent=orig;return}
-  }catch(e){/* offline demo mode */}
-  btn.disabled=false;btn.textContent=orig;
-  document.getElementById('jobCode').textContent=code;
-  document.getElementById('tlPrice').textContent='EGP '+total;
-  step=5;render();
+    const r = await fetch('/api/services',{headers:{'Accept':'application/json'}});
+    const d = await r.json();
+    if(!d.ok) return CAT;
+    if(typeof d.service_fee_egp==='number') FEE = d.service_fee_egp;
+    const byId = {}; CAT0.forEach(s=>s.jobs.forEach(j=>byId[j.id]=j));
+    CAT = d.services.map(s=>{
+      const base = CAT0.find(x=>x.slug===s.slug) || {};
+      return {slug:s.slug, name:AR?(s.name_ar||base.ar):(base.en||s.name_en), short:AR?(base.short_ar||s.name_ar):(base.short_en||s.name_en),
+        blurb:AR?(base.blurb_ar||''):(base.blurb_en||''),
+        jobs:(s.jobs||[]).map(j=>{
+          const f = byId[j.id];
+          // Arabic: prefer the admin's Arabic title, then our translation if the English title is unchanged
+          const same = f && f.en === j.title;
+          const title = AR ? (j.title_ar || (same ? f.ar : j.title)) : j.title;
+          const detail = AR ? (j.detail_ar || (same ? f.dar : (j.detail||''))) : (j.detail||'');
+          return {id:j.id, title, detail, price:j.price_egp, insp:!!j.is_inspection};
+        })};
+    }).filter(s=>s.jobs.length);
+    applyLivePrices();
+  }catch(e){ /* keep fallback prices */ }
+  return CAT;
 }
+function findJob(id){for(const s of CAT)for(const j of s.jobs)if(j.id===+id)return {svc:s,job:j};return null}
 
-/* tracking simulation */
-let jobPhase=0;
-function advanceJob(){
-  const btn=document.getElementById('advanceBtn');
-  if(jobPhase===0){
-    setTL(2,'done','✓');setTL(3,'now','●');
-    document.getElementById('etaVal').textContent='Arrived';
-    document.getElementById('trackSub').textContent='Mostafa has arrived — reviewing the fault with you.';
-    btn.textContent='▶ Simulate: job finished';
-    jobPhase=1;
-  } else {
-    step=6;
-    document.getElementById('paidAmt').textContent='EGP '+(state.job.p+25)+' · '+state.pay;
-    render();
-  }
-}
-function setTL(n,cls,mark){
-  const el=document.getElementById('tl'+n);
-  el.className='tl-item '+cls;
-  el.querySelector('.nd').textContent=mark;
-}
-
-/* rating */
-let rating=0;
-document.querySelectorAll('.star').forEach(s=>{
-  s.addEventListener('click',()=>{
-    rating=+s.dataset.s;
-    document.querySelectorAll('.star').forEach(x=>x.classList.toggle('lit',+x.dataset.s<=rating));
+/* Server-rendered rows carry data-job; refresh them from live data, hide retired jobs. */
+function applyLivePrices(){
+  document.querySelectorAll('[data-job]').forEach(el=>{
+    const hit = findJob(el.dataset.job);
+    if(!hit){ el.hidden = true; return; }
+    el.hidden = false;
+    el.querySelectorAll('[data-f=price]').forEach(p=>p.textContent=money(hit.job.price));
+    el.querySelectorAll('[data-f=title]').forEach(p=>p.textContent=hit.job.title);
+    el.querySelectorAll('[data-f=detail]').forEach(p=>p.textContent=hit.job.detail);
   });
-});
-document.querySelectorAll('.rtag').forEach(t=>t.addEventListener('click',()=>t.classList.toggle('selected')));
-function finishRating(){
-  const btn=event.target;
-  if(state.code&&rating>0){
-    const tags=[...document.querySelectorAll('.rtag.selected')].map(t=>t.textContent);
-    fetch('/api/bookings/'+state.code+'/rating',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({stars:rating,tags})}).catch(()=>{});
+  document.querySelectorAll('[data-from]').forEach(el=>{
+    const s = CAT.find(x=>x.slug===el.dataset.from);
+    if(s) el.textContent = money(Math.min(...s.jobs.map(j=>j.price)));
+  });
+}
+
+/* Count a number up/down — answers the visitor's choice, skipped for reduced motion. */
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countTo(el, to){
+  const from = +el.dataset.v || 0; el.dataset.v = to;
+  if(REDUCED || from===to){ el.textContent = n2(to); return; }
+  const t0 = performance.now(), dur = 380;
+  const step = t=>{const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
+    el.textContent = n2(Math.round(from+(to-from)*e)); if(k<1) requestAnimationFrame(step)};
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('[data-cta]').forEach(a=>a.addEventListener('click',()=>track('cta_click',{cta:a.dataset.cta,page:location.pathname,lang:LANG})));
+
+
+const SLOTS = [{"h": 9, "label": "9–11 AM"}, {"h": 11, "label": "11–1 PM"}, {"h": 13, "label": "1–3 PM"}, {"h": 15, "label": "3–5 PM"}, {"h": 17, "label": "5–7 PM"}], ICONS = {"ac": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"2.5\" y=\"4.5\" width=\"19\" height=\"8.5\" rx=\"2\"/><path d=\"M6 10h12\"/><path d=\"M7.5 16c.6 1-.6 2 0 3.5M12 16c.6 1-.6 2 0 3.5M16.5 16c.6 1-.6 2 0 3.5\"/></svg>", "satellite": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4.5 8.5l11 11a8 8 0 0 1-11-11z\"/><path d=\"M10 14l3.6-3.6\"/><circle cx=\"14.6\" cy=\"9.4\" r=\"1.4\"/><path d=\"M15.5 4.6a4 4 0 0 1 3.9 3.9M16 1.8a6.8 6.8 0 0 1 6.2 6.2\"/></svg>", "cctv": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2.8 6.2l13.4 3.6-1.6 5.8L1.2 12z\"/><path d=\"M16.2 9.8l4.4-.9.8 3.1-4.4 1.6\"/><path d=\"M8 13.9L7 18.5H3\"/><path d=\"M3 16v5\"/></svg>", "wifi": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2 9a15 15 0 0 1 20 0M5.5 12.6a10 10 0 0 1 13 0M9 16.1a5 5 0 0 1 6 0\"/><path d=\"M12 19.6h.01\" stroke-width=\"2.6\"/></svg>", "intercom": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.2\"/><rect x=\"8.5\" y=\"5.5\" width=\"7\" height=\"5.5\" rx=\"1\"/><circle cx=\"12\" cy=\"16\" r=\"2\"/></svg>", "smart-home": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 11l9-7.5 9 7.5\"/><path d=\"M5.5 9.3V20.5h13V9.3\"/><path d=\"M9.3 14.6a3.8 3.8 0 0 1 5.4 0M10.9 16.8a1.5 1.5 0 0 1 2.2 0\"/></svg>"};
+const st = {step:1, slug:null, job:null, day:null, time:null, pay:'cash'};
+const $ = id => document.getElementById(id);
+const LEGACY = {"AC":"ac","Satellite & TV":"satellite","CCTV":"cctv","WiFi":"wifi","Intercom":"intercom","Smart Home":"smart-home"};
+const digits = s => (s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\D/g,'');
+
+/* days: today + 6, labelled with the real date so the booking stays unambiguous later */
+const dayFmt = new Intl.DateTimeFormat(AR?'ar-EG-u-nu-latn':'en-GB',{weekday:'short',day:'numeric',month:'short'});
+const wdFmt = new Intl.DateTimeFormat(AR?'ar-EG':'en-GB',{weekday:'short'});
+const DAYS = [];
+for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);DAYS.push({i,d,value:dayFmt.format(d).replace('،',''),
+  top:i===0?T.today:i===1?T.tomorrow:wdFmt.format(d)})}
+function slotOpen(dayIdx,h){ if(dayIdx!==0) return true; return h > new Date().getHours()+1; }
+function renderDays(){
+  $('days').innerHTML = DAYS.map(x=>{
+    const full = !SLOTS.some(s=>slotOpen(x.i,s.h));
+    return `<button type="button" class="day" data-i="${x.i}" aria-pressed="${st.day===x.i}" ${full?'disabled':''} aria-label="${esc(x.value)}">
+      <small>${esc(full?T.full:x.top)}</small><b>${x.d.getDate()}</b></button>`}).join('');
+}
+function renderSlots(){
+  $('slots').innerHTML = SLOTS.map(s=>{
+    const open = st.day===null || slotOpen(st.day,s.h);
+    return `<button type="button" class="slot" data-t="${esc(s.label)}" aria-pressed="${st.time===s.label}" ${open?'':'disabled'}>${esc(s.label)}</button>`}).join('');
+}
+$('days').addEventListener('click',ev=>{const b=ev.target.closest('.day');if(!b||b.disabled)return;
+  st.day=+b.dataset.i; const s=SLOTS.find(x=>x.label===st.time); if(s&&!slotOpen(st.day,s.h)) st.time=null;
+  renderDays();renderSlots();$('eDay').classList.remove('show');summary()});
+$('slots').addEventListener('click',ev=>{const b=ev.target.closest('.slot');if(!b||b.disabled)return;
+  st.time=b.dataset.t;renderSlots();$('eTime').classList.remove('show');summary()});
+
+/* services + jobs */
+$('tiles').addEventListener('click',ev=>{const b=ev.target.closest('.tile');if(!b)return;
+  if(st.slug!==b.dataset.slug){st.slug=b.dataset.slug;st.job=null}
+  markTiles();$('e1').classList.remove('show');summary();go(2)});
+function markTiles(){document.querySelectorAll('.tile').forEach(x=>x.setAttribute('aria-pressed',x.dataset.slug===st.slug))}
+function renderJobs(){
+  const s = CAT.find(x=>x.slug===st.slug); if(!s) return;
+  $('jobs').innerHTML = `<legend class="sr">${esc(T.s2_h)}</legend>` + s.jobs.map(j=>`
+    <label class="job-opt"><input type="radio" name="job" value="${j.id}" ${j.id===st.job?'checked':''}><span class="rd"></span>
+      <span class="t">${esc(j.title)}<small>${esc(j.detail)}</small></span>
+      <span class="p num">${money(j.price)}${j.insp?`<em>${esc(T.insp_short)}</em>`:''}</span></label>`).join('');
+}
+$('jobs').addEventListener('change',ev=>{st.job=+ev.target.value;$('e2').classList.remove('show');summary(true);setTimeout(()=>go(3),180)});
+
+/* summary ticket + mobile bar */
+function cur(){return st.job?findJob(st.job):null}
+function summary(pop){
+  const hit=cur(), s=CAT.find(x=>x.slug===st.slug);
+  $('sumTop').innerHTML = s ? `<div class="sum-svc">${ICONS[s.slug]||''}<div><b>${esc(hit?hit.job.title:s.name)}</b><small>${esc(s.name)}</small></div></div>
+    <div class="sum-meta">${st.day!==null?`<div><span>${esc(T.rv_when)}</span><span>${esc(DAYS[st.day].value)}${st.time?' — '+esc(st.time):''}</span></div>`:''}
+    ${st.step>=3?`<div><span>${esc(T.area)}</span><span>${esc($('area').value)}</span></div>`:''}</div>` : `<p class="sum-empty">${esc(T.sum_empty)}</p>`;
+  $('sLabor').textContent = hit?money(hit.job.price):'—';
+  $('sFee').textContent = money(FEE);
+  $('sTotal').innerHTML = hit?moneyHTML(hit.job.price+FEE):'—';
+  $('barTotal').textContent = hit?money(hit.job.price+FEE):'—';
+  $('sNote').textContent = hit&&hit.job.insp?T.tk_insp:T.tk_parts;
+  if(pop){const x=$('stamp');x.classList.remove('pop');void x.offsetWidth;x.classList.add('pop')}
+  // keep the language switch on the same booking
+  const q=new URLSearchParams(); if(st.job)q.set('job',st.job); else if(st.slug)q.set('svc',st.slug);
+  const ls=$('langSwitch'); ls.href=ls.href.split('?')[0]+(q.toString()?'?'+q:'');
+}
+
+/* validation */
+function bad(id,errId,cond){$(id).setAttribute('aria-invalid',cond);$(errId).classList.toggle('show',cond);return cond}
+function valid(n){
+  if(n===1){ if(!st.slug){$('e1').classList.add('show');return false} }
+  if(n===2){ if(!st.job){$('e2').classList.add('show');return false} }
+  if(n===3){
+    let ok=true;
+    if(st.day===null){$('eDay').classList.add('show');ok=false}
+    if(!st.time){$('eTime').classList.add('show');ok=false}
+    if(!fieldOk('addr'))ok=false;
+    if(!fieldOk('mob'))ok=false;
+    if(!ok){const f=document.querySelector('.ferr.show');f&&f.scrollIntoView({block:'center',behavior:REDUCED?'auto':'smooth'})}
+    return ok;
   }
-  btn.textContent=rating>0?'Thank you! ★'.replace('★','★'.repeat(0))+' Rating submitted ✓':'Rating submitted ✓';
-  btn.disabled=true;btn.style.opacity=.6;
+  return true;
 }
-/* prefill from homepage card */
+function fieldOk(id){
+  return id==='addr' ? !bad('addr','eAddr',$('addr').value.trim().length<5)
+                     : !bad('mob','eMob',!/^01[0-9]{9}$/.test(digits($('mob').value)));
+}
+['addr','mob'].forEach(id=>{
+  $(id).addEventListener('input',()=>{if($(id).getAttribute('aria-invalid')==='true')fieldOk(id)});
+  $(id).addEventListener('blur',()=>{if($(id).value.trim())fieldOk(id)});
+});
+$('area').addEventListener('change',()=>summary());
+
+/* review */
+function renderReview(){
+  const hit=cur(), name=$('cname').value.trim();
+  const row=(k,v,sub,step)=>`<div class="rv"><span class="k">${esc(k)}</span><span class="v">${esc(v)}${sub?`<small>${esc(sub)}</small>`:''}</span><button type="button" data-go="${step}">${esc(T.edit)}</button></div>`;
+  $('review').innerHTML = row(T.rv_job,hit.job.title,hit.svc.name+' — '+money(hit.job.price),2)
+    + row(T.rv_when,DAYS[st.day].value,st.time,3)
+    + row(T.rv_where,$('area').value,$('addr').value.trim(),3)
+    + row(T.rv_contact,digits($('mob').value),name,3);
+}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-go]');if(!b)return;const n=+b.dataset.go;
+  if(n<st.step||b.closest('.review'))go(n)});
+document.querySelectorAll('input[name=pay]').forEach(r=>r.addEventListener('change',()=>{st.pay=r.value;$('payHint').hidden=st.pay!=='card'}));
+
+/* navigation */
+function go(n){
+  for(let i=1;i<n;i++) if(!valid(i)){ n=i; break; }
+  st.step=n;
+  if(n===2) renderJobs();
+  if(n===3){ if(st.day===null){const first=DAYS.find(x=>SLOTS.some(s=>slotOpen(x.i,s.h)));st.day=first?first.i:null} renderDays();renderSlots(); }
+  if(n===4) renderReview();
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',+p.dataset.p===n));
+  document.querySelectorAll('#stepper li').forEach((li,i)=>{li.className=i+1<n?'done':i+1===n?'on':'';
+    li.querySelector('button').setAttribute('aria-current',i+1===n?'step':'false')});
+  $('backBtn').style.visibility=n>1?'visible':'hidden';
+  $('nextBtn').textContent=n===4?T.confirm:T.continue;
+  $('nextBtn').hidden=(n===1);
+  $('alert').classList.remove('show');
+  summary();
+  window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});
+  track('booking_step',{step:n,service:st.slug||'',lang:LANG});
+}
+$('backBtn').addEventListener('click',()=>go(Math.max(1,st.step-1)));
+$('nextBtn').addEventListener('click',()=>{ if(st.step<4){ if(valid(st.step)) go(st.step+1); } else confirmBooking(); });
+
+async function confirmBooking(){
+  const btn=$('nextBtn'); if(btn.disabled) return;
+  for(let i=1;i<=3;i++) if(!valid(i)){go(i);return}
+  btn.disabled=true; btn.textContent=T.confirming;
+  const hit=cur(), total=hit.job.price+FEE;
+  try{
+    const r=await fetch('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      job_catalog_id:hit.job.id, customer_name:$('cname').value.trim()||null, customer_mobile:digits($('mob').value),
+      area:$('area').value, address:$('addr').value.trim(), notes:$('notes').value.trim(),
+      day:DAYS[st.day].value, time_window:st.time, payment_method:st.pay})});
+    const d=await r.json();
+    if(d.ok){
+      track('booking_completed',{value:d.total_egp||total,currency:'EGP',service:st.slug,job_id:hit.job.id,lang:LANG});
+      setTimeout(()=>location.href='track.html?code='+encodeURIComponent(d.code)+'&lang='+LANG+'&new=1',200);
+      return;
+    }
+    $('alert').textContent=d.error||T.err_net;
+  }catch(e){ $('alert').textContent=T.err_net; }
+  $('alert').classList.add('show'); btn.disabled=false; btn.textContent=T.confirm;
+}
+
+/* deep links: ?job=ID, ?svc=slug (or old service names), ?area=, ?mob= */
 const P=new URLSearchParams(location.search);
-if(P.get('mob'))document.getElementById('mob').value=P.get('mob');
-if(P.get('area')){const ar=document.getElementById('area');[...ar.options].forEach(o=>{if(o.text===P.get('area'))ar.value=o.text})}
-/* preselect service from homepage */
-const urlSvc=new URLSearchParams(location.search).get('svc');
-if(urlSvc&&jobs[urlSvc]){
-  const el=document.querySelector(`.svc[data-svc="${urlSvc}"]`);
-  if(el){el.classList.add('selected');state.svc=urlSvc;}
+if(P.get('mob'))$('mob').value=P.get('mob');
+if(P.get('area'))[...$('area').options].forEach(o=>{if(o.value===P.get('area'))$('area').value=o.value});
+function applyParams(){
+  const hit=P.get('job')&&findJob(P.get('job'));
+  const slug=P.get('svc')&&(LEGACY[P.get('svc')]||P.get('svc'));
+  if(hit){st.slug=hit.svc.slug;st.job=hit.job.id;markTiles();return 3}
+  if(slug&&CAT.find(s=>s.slug===slug)){st.slug=slug;markTiles();return 2}
+  return 1;
 }
-render();
+go(applyParams());
+loadCatalog().then(()=>{
+  document.querySelectorAll('.tile').forEach(b=>b.hidden=!CAT.find(s=>s.slug===b.dataset.slug));
+  if(st.job&&!findJob(st.job)){st.job=null; if(st.step>2) go(2);}
+  if(st.step===2) renderJobs(); if(st.step===4) renderReview();
+  summary();
+});
+
 </script>
 </body>
 </html>

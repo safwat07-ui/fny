@@ -1,315 +1,720 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- Google tag (gtag.js) -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تابع طلبك | فنّي</title>
+<meta name="description" content="احجز فني معتمد للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي. السعر كامل قدامك قبل الحجز، وضمان ٣٠ يوم.">
+<meta property="og:title" content="تابع طلبك | فنّي">
+<meta property="og:description" content="احجز فني معتمد للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي. السعر كامل قدامك قبل الحجز، وضمان ٣٠ يوم.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A3B42">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230F5B63'/%3E%3Ctext x='32' y='45' font-family='Arial' font-size='40' font-weight='900' text-anchor='middle' fill='%23F08A24'%3E%D9%81%3C/text%3E%3C/svg%3E">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDZRJYB4H1"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WDZRJYB4H1');
-  function track(ev,params){gtag('event',ev,params||{})}
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());gtag('config','G-WDZRJYB4H1');
+function track(ev,params){try{gtag('event',ev,params||{})}catch(e){}}
 </script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فنّي — تابع طلبك</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
-  --amber:#F08A24; --amber-soft:#FCE9D2;
-  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
-  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
+  --ink:#0C2E33; --teal:#0F5B63; --teal-900:#0A3B42; --teal-950:#072D33;
+  --amber:#F08A24; --amber-600:#D9741A; --amber-100:#FDEBD6;
+  --mist:#EEF4F3; --paper:#FFFFFF; --line:#D6E1DF; --line-2:#E6EDEC;
+  --muted:#55696C; --soft:#A9C4C7; --green:#1E8E5A; --green-100:#E1F2EA; --red:#C64B3A; --red-100:#F8E4E0;
+  --r-sm:10px; --r:16px; --r-lg:22px;
+  --shadow-ticket:0 34px 70px -28px rgba(3,24,28,.55),0 2px 6px rgba(3,24,28,.08);
+  --notch:var(--teal-900);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh}
-.mono{font-family:'IBM Plex Mono',monospace}
-.topbar{background:#fff;border-bottom:1px solid var(--line)}
-.topbar-inner{max-width:560px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:baseline;gap:8px;text-decoration:none}
-.logo .ar{font-size:24px;font-weight:900;color:var(--teal);line-height:1}
-.logo .en{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--muted)}
-.wrap{max-width:560px;margin:18px auto 60px;padding:0 18px}
-.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 14px 40px rgba(12,46,51,.07);margin-bottom:14px}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'Cairo',system-ui,sans-serif;color:var(--ink);background:var(--paper);line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+img,svg{display:block}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:24px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 
-.lookup input{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:15px;text-align:center;margin-bottom:12px;direction:ltr}
-.lookup input:focus{outline:none;border-color:var(--teal)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:15.5px;text-decoration:none;border:1.5px solid transparent;cursor:pointer;transition:background .15s,border-color .15s,transform .12s;white-space:nowrap;line-height:1.3}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn-amber{background:var(--amber);color:var(--ink)}
+.btn-amber:hover{background:#F59A3C}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:var(--teal-900)}
+.btn-line{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn-line:hover{border-color:var(--teal);color:var(--teal)}
+.btn-light{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+.btn-light:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.btn-lg{padding:15px 30px;font-size:16.5px}
+.btn-block{width:100%}
 
-.head-strip{background:var(--teal-deep);color:#fff;border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.head-strip .l{font-size:12px;color:#A9C4C7}
-.head-strip .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:18px}
-.head-strip .st{font-size:14px;font-weight:900}
-h2{font-size:19px;font-weight:900;margin-bottom:4px}
-.sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line-2)}
+.nav-in{display:flex;align-items:center;gap:28px;height:68px}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--teal)}
+.logo b{font-size:31px;font-weight:900;line-height:1}
+.logo span{font-size:13px;font-weight:700;color:var(--muted)}
+.nav-links{display:flex;gap:24px;margin-inline-start:auto}
+.nav-links a{text-decoration:none;font-weight:700;font-size:15px;color:var(--ink)}
+.nav-links a:hover{color:var(--teal)}
+.nav-end{display:flex;align-items:center;gap:12px}
+.lang{font-weight:700;font-size:14px;text-decoration:none;color:var(--muted);padding:6px 4px}
+.lang:hover{color:var(--teal)}
+.nav .btn{padding:10px 20px;font-size:14.5px}
 
-.timeline{position:relative;padding-right:28px;margin:6px 0}
-.timeline::before{content:"";position:absolute;right:9px;top:8px;bottom:8px;width:2px;background:var(--line)}
-.tl{position:relative;padding-bottom:18px}
-.tl:last-child{padding-bottom:0}
-.tl .nd{position:absolute;right:-28px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px}
-.tl.done .nd{background:var(--green);border-color:var(--green);color:#fff}
-.tl.now .nd{background:var(--amber);border-color:var(--amber);animation:pulse 1.6s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,138,36,.4)}50%{box-shadow:0 0 0 8px rgba(240,138,36,0)}}
-.tl.pending{opacity:.4}
-.tl .t{font-weight:800;font-size:14px}
-.tl .d{font-size:12px;color:var(--muted)}
+/* hero */
+.hero{background:var(--teal-900);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-45%;inset-inline-start:-18%;width:900px;height:900px;border-radius:50%;background:radial-gradient(closest-side,rgba(15,91,99,.75),rgba(15,91,99,0));pointer-events:none}
+.hero-in{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;padding-block:80px 96px}
+.hero h1{font-size:clamp(38px,5.2vw,64px);font-weight:800;line-height:1.08;letter-spacing:-.022em;max-width:13ch;text-wrap:balance}
+[dir=rtl] .hero h1{line-height:1.3;letter-spacing:0;max-width:14ch}
+.hero .lead{font-size:18.5px;color:#C7DCDE;margin:22px 0 32px;max-width:520px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.promises{list-style:none;display:grid;gap:12px;margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.14);max-width:520px}
+.promises li{display:flex;gap:12px;align-items:center;font-weight:700;font-size:15.5px;color:#E3EEEF}
+.promises .ic{color:var(--amber);width:22px;height:22px}
 
-.tech-card{display:flex;gap:12px;align-items:center;background:var(--sand);border-radius:14px;padding:14px;margin:10px 0}
-.avatar{width:52px;height:52px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.tech-card .nm{font-weight:900;font-size:15px}
-.tech-card .meta{font-size:12px;color:var(--muted)}
-.tech-card .r{margin-inline-start:auto;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal)}
+/* ticket — the signature element */
+.ticket{background:#fff;color:var(--ink);border-radius:var(--r-lg);box-shadow:var(--shadow-ticket);position:relative;padding:26px 26px 24px}
+.ticket-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+.ticket-head h2{font-size:20px;font-weight:800}
+.ticket-head .code{font-size:12.5px;color:var(--muted);font-weight:700}
+.svc-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:16px}
+.svc-tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 2px 9px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);transition:border-color .15s,background .15s,color .15s}
+.svc-tab:hover{border-color:var(--teal);color:var(--teal)}
+.svc-tab[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.svc-tab .ic{width:26px;height:26px}
+.job-opts,.jobs{display:grid;gap:6px;border:0;padding:0;margin:0;min-width:0}
+.job-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--line-2);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s}
+.job-opt:hover{border-color:var(--teal)}
+.job-opt input{position:absolute;opacity:0;pointer-events:none}
+.job-opt .rd{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;transition:border .15s}
+.job-opt .t{flex:1;font-weight:700;font-size:14.5px;line-height:1.35}
+.job-opt .t small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.job-opt .p{font-weight:800;font-size:14.5px;color:var(--teal)}
+.job-opt:has(input:checked){border-color:var(--teal);background:var(--mist)}
+.job-opt:has(input:checked) .rd{border:5px solid var(--teal)}
+.job-opt:has(input:focus-visible){outline:3px solid var(--amber);outline-offset:2px}
+.tear{position:relative;height:2px;margin:22px -26px 18px;background-image:linear-gradient(90deg,var(--line) 55%,transparent 0);background-size:12px 2px}
+.tear::before,.tear::after{content:"";position:absolute;top:-13px;width:28px;height:28px;border-radius:50%;background:var(--notch)}
+.tear::before{left:-14px}.tear::after{right:-14px}
+.rc{display:grid;gap:7px;font-size:15px}
+.rc-row{display:flex;justify-content:space-between;gap:12px}
+.rc-row .k{color:var(--muted)}
+.rc-row .v{font-weight:700}
+.rc-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;padding-top:12px;border-top:1px solid var(--line-2)}
+.rc-total .k{font-weight:800;font-size:16px}
+.rc-total .v{font-size:38px;font-weight:900;line-height:1;color:var(--teal);letter-spacing:-.02em}
+.rc-total .v small{font-size:15px;font-weight:800;margin-inline-start:4px;letter-spacing:0}
+.rc-note{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.55}
+.ticket .btn{margin-top:18px}
+.stamp{position:absolute;top:-30px;inset-inline-end:22px;width:96px;height:96px;border-radius:50%;background:#fff;border:2.5px solid var(--amber);color:var(--amber-600);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:13px;line-height:1.15;padding:12px;transform:rotate(-11deg);box-shadow:0 8px 20px -8px rgba(0,0,0,.35)}
+.stamp::after{content:"";position:absolute;inset:5px;border-radius:50%;border:1.5px dashed var(--amber)}
+[dir=rtl] .stamp{transform:rotate(11deg)}
+.stamp.pop{animation:stamp .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp{0%{transform:rotate(-11deg) scale(1)}40%{transform:rotate(-11deg) scale(1.12)}100%{transform:rotate(-11deg) scale(1)}}
+[dir=rtl] .stamp.pop{animation-name:stamp-r}
+@keyframes stamp-r{0%{transform:rotate(11deg) scale(1)}40%{transform:rotate(11deg) scale(1.12)}100%{transform:rotate(11deg) scale(1)}}
 
-.bill{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:10px 0}
-.bill .row{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13.5px}
-.bill .row:last-child{border-bottom:none}
-.bill .row.total{background:var(--sand);font-weight:900}
-.bill .row .mono{color:var(--teal)}
-.paid-chip{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 12px;border-radius:99px}
-.paid{background:var(--teal);color:#fff}
-.unpaid{background:var(--amber-soft);color:#9A5A0F}
+/* sections */
+.sec{padding:104px 0}
+.sec-mist{background:var(--mist)}
+.sec-h{font-size:clamp(30px,3.6vw,44px);font-weight:800;line-height:1.15;letter-spacing:-.015em;max-width:20ch}
+[dir=rtl] .sec-h{line-height:1.35;letter-spacing:0}
+.sec-p{font-size:17.5px;color:var(--muted);margin-top:12px;max-width:560px}
+.sec-head{margin-bottom:52px}
 
-.part-pending{border:1.5px solid var(--amber);border-radius:12px;padding:12px 14px;margin:10px 0;background:var(--amber-soft)}
-.part-pending .t{font-weight:900;font-size:13.5px;margin-bottom:6px}
-.part-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13.5px}
-.part-row .btns{display:flex;gap:6px}
-.pbtn{border:none;border-radius:99px;padding:5px 14px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer}
-.pbtn.ok{background:var(--green);color:#fff}
-.pbtn.no{background:#fff;color:var(--red);border:1.5px solid var(--red)}
+/* how */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:28px;counter-reset:s;position:relative}
+.steps::before{content:"";position:absolute;top:23px;inset-inline:24px;height:2px;background-image:linear-gradient(90deg,var(--line) 55%,transparent 0);background-size:10px 2px}
+.steps li{position:relative;counter-increment:s}
+.steps li::before{content:counter(s);display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:#fff;border:2px solid var(--teal);color:var(--teal);font-weight:900;font-size:19px;margin-bottom:22px;position:relative}
+.steps li:last-child::before{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+.steps h3{font-size:19px;font-weight:800;margin-bottom:6px}
+.steps p{color:var(--muted);font-size:15.5px}
 
-.btn{padding:12px 24px;border-radius:999px;font-weight:800;font-size:14.5px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;width:100%}
-.btn-primary{background:var(--amber);color:var(--ink)}
-.btn-pay{background:var(--teal);color:#fff;margin-top:8px}
-.btn:disabled{opacity:.5}
-.err{color:var(--red);font-size:13px;font-weight:700;text-align:center;display:none}
-.err.show{display:block}
-.stars{display:flex;gap:8px;justify-content:center;margin:10px 0;direction:ltr}
-.star{cursor:pointer;color:var(--line);background:none;border:none;font-size:32px}
+/* price menu */
+.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:44px 48px}
+.menu-block h3{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;margin-bottom:4px}
+.menu-block h3 .ic{color:var(--teal);width:26px;height:26px}
+.menu-block .bl{font-size:14px;color:var(--muted);margin-bottom:12px;min-height:2.6em}
+.m-row{display:flex;align-items:baseline;gap:8px;padding:9px 0;text-decoration:none;border-bottom:1px solid var(--line-2)}
+.m-row .n{font-weight:700;font-size:15px;line-height:1.4}
+.m-row .n small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.m-row .ld{flex:1;border-bottom:2px dotted var(--line);transform:translateY(-4px);min-width:16px}
+.m-row .pr{font-weight:800;color:var(--teal);font-size:15px;white-space:nowrap;flex-shrink:0}
+.m-row .pr em{font-style:normal;font-weight:700;font-size:12px;color:var(--muted);margin-inline-end:4px}
+a.m-row:hover .n{color:var(--teal)}
+.m-more{display:inline-block;margin-top:12px;font-weight:800;font-size:14px;color:var(--teal);text-decoration:none}
+.m-more:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* parts approval */
+.parts{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.parts p{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:500px}
+.phone{width:310px;margin:0 auto;border-radius:42px;background:var(--ink);padding:12px;box-shadow:0 40px 80px -30px rgba(3,24,28,.5)}
+.screen{background:var(--mist);border-radius:32px;overflow:hidden;padding:18px 14px 8px}
+.sc-top{display:flex;justify-content:space-between;align-items:center;background:var(--teal-900);color:#fff;border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.sc-top small{display:block;font-size:11px;color:var(--soft);font-weight:700}
+.sc-top b{font-size:15px}
+.sc-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;font-size:13.5px}
+.sc-card h4{font-size:13.5px;font-weight:800;margin-bottom:8px}
+.sc-part{border:1.5px solid var(--amber);background:var(--amber-100)}
+.sc-part .row{display:flex;justify-content:space-between;gap:8px;font-weight:700;margin-bottom:10px}
+.sc-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-btns span{text-align:center;border-radius:99px;padding:7px;font-weight:800;font-size:13px}
+.sc-ok{background:var(--green);color:#fff}
+.sc-no{background:#fff;border:1.5px solid var(--line);color:var(--muted)}
+.sc-line{display:flex;justify-content:space-between;color:var(--muted);padding:3px 0}
+.sc-line.t{color:var(--ink);font-weight:800;border-top:1px solid var(--line-2);margin-top:6px;padding-top:8px}
+.sc-steps{display:flex;gap:4px;margin-top:4px}
+.sc-steps i{flex:1;height:5px;border-radius:9px;background:var(--line)}
+.sc-steps i.on{background:var(--green)}
+
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;border-top:1px solid var(--line);padding-top:36px}
+.trust .ic{color:var(--teal);width:30px;height:30px;margin-bottom:16px}
+.trust h3{font-size:18.5px;font-weight:800;margin-bottom:6px}
+.trust p{color:var(--muted);font-size:15.5px}
+
+/* faq */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:64px}
+.faq details{border-bottom:1px solid var(--line)}
+.faq details:first-child{border-top:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-weight:800;font-size:17px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";width:12px;height:12px;border-inline-end:2.5px solid var(--teal);border-bottom:2.5px solid var(--teal);transform:rotate(45deg);transition:transform .2s;flex-shrink:0;margin-top:-6px}
+.faq details[open] summary::after{transform:rotate(225deg);margin-top:6px}
+.faq details p{color:var(--muted);padding:0 0 22px;max-width:62ch}
+
+/* tech band */
+.band{background:var(--teal-900);color:#fff}
+.band-in{display:flex;justify-content:space-between;align-items:center;gap:40px;padding-block:72px}
+.band h2{font-size:clamp(28px,3vw,38px);font-weight:800;line-height:1.2}
+.band p{color:#C7DCDE;font-size:17px;margin-top:10px;max-width:600px}
+
+/* footer */
+.foot{background:var(--teal-950);color:var(--soft);padding:56px 0 30px;font-size:14.5px}
+.foot-in{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.foot .logo{color:#fff}
+.foot .logo span{color:var(--soft)}
+.foot p{margin-top:12px;max-width:280px}
+.foot h4{color:#fff;font-size:15px;font-weight:800;margin-bottom:12px}
+.foot-in a{display:block;text-decoration:none;margin-bottom:8px}
+.foot-in a.logo{display:flex;margin:0}
+.foot-in a:hover{color:#fff}
+.foot-bot{border-top:1px solid rgba(255,255,255,.1);padding-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.foot-bot a{text-decoration:none}.foot-bot a:hover{color:#fff}
+
+/* page head (inner pages) */
+.phead{background:var(--teal-900);color:#fff;padding:64px 0 56px}
+.phead h1{font-size:clamp(34px,4.4vw,52px);font-weight:800;line-height:1.12;letter-spacing:-.02em}
+[dir=rtl] .phead h1{letter-spacing:0;line-height:1.3}
+.phead p{color:#C7DCDE;font-size:18px;margin-top:14px;max-width:640px}
+.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
+.jump a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1.5px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 16px 7px 12px;font-weight:700;font-size:14.5px;color:#fff}
+[dir=rtl] .jump a{padding:7px 12px 7px 16px}
+.jump a:hover{border-color:var(--amber)}
+.jump .ic{width:20px;height:20px;color:var(--amber)}
+
+/* full price list */
+.plist{display:grid;gap:56px}
+.pl-block{display:grid;grid-template-columns:280px 1fr;gap:48px;scroll-margin-top:96px}
+.pl-block h2{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800}
+.pl-block h2 .ic{width:32px;height:32px;color:var(--teal)}
+.pl-block .bl{color:var(--muted);margin-top:8px}
+.pl-row{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-2)}
+.pl-row:first-child{border-top:1px solid var(--line-2)}
+.pl-row .n{flex:1;font-weight:700;font-size:16.5px;line-height:1.4}
+.pl-row .n small{display:block;font-weight:500;color:var(--muted);font-size:14px}
+.pl-row .pr{font-weight:800;font-size:18px;color:var(--teal);text-align:end}
+.pl-row .pr em{display:block;font-style:normal;font-size:12px;font-weight:700;color:var(--muted)}
+.pl-row .btn{padding:8px 18px;font-size:14px}
+.notes3{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.notes3 h3{font-size:17.5px;font-weight:800;margin-bottom:6px}
+.notes3 p{color:var(--muted);font-size:15.5px}
+
+/* responsive */
+@media(max-width:1000px){
+  .hero-in{grid-template-columns:1fr;gap:56px;padding-block:56px 72px}
+  .hero h1{max-width:16ch}
+  .ticket{max-width:520px}
+  .steps{grid-template-columns:1fr 1fr;gap:36px 28px}.steps::before{display:none}
+  .menu{grid-template-columns:1fr 1fr}
+  .parts{grid-template-columns:1fr;gap:48px}
+  .faq-grid{grid-template-columns:1fr;gap:28px}
+  .band-in{flex-direction:column;align-items:flex-start}
+  .pl-block{grid-template-columns:1fr;gap:16px}
+  .nav-links{display:none}
+  .nav-end{margin-inline-start:auto}
+}
+@media(max-width:640px){
+  .wrap{padding-inline:16px}
+  .sec{padding:72px 0}
+  .nav-in{height:60px;gap:12px}
+  .logo span{display:none}
+  .nav .btn{padding:8px 14px;font-size:13.5px}
+  .hero .lead{font-size:17px}
+  .ticket{padding:22px 18px 20px}
+  .tear{margin:20px -18px 16px}
+  .svc-tabs{grid-template-columns:repeat(3,1fr)}
+  .stamp{width:82px;height:82px;font-size:11.5px;top:-34px;inset-inline-end:12px}
+  .rc-total .v{font-size:32px}
+  .steps,.menu,.trust,.notes3{grid-template-columns:1fr}
+  .trust{gap:32px}
+  .foot-in{grid-template-columns:1fr 1fr}
+  .foot-in>div:first-child{grid-column:1/-1}
+  .phone{width:100%;max-width:310px}
+  .pl-row{flex-wrap:wrap;gap:8px 16px}
+  .pl-row .n{flex-basis:100%}
+  .pl-row .pr{text-align:start;flex:1}
+  .hero-ctas .btn{flex:1}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* booking + tracking */
+body.flow{background:var(--mist);--notch:var(--mist)}
+.flow-in>div{min-width:0}
+.flow-in{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;align-items:start;padding-block:40px 120px}
+.stepper{list-style:none;display:flex;gap:6px;margin-bottom:22px;counter-reset:st}
+.stepper li{flex:1;counter-increment:st}
+.stepper button{width:100%;display:flex;flex-direction:column;gap:7px;background:none;border:0;padding:0;text-align:start;font-weight:700;font-size:13.5px;color:var(--muted);cursor:default}
+.stepper button::before{content:"";height:4px;border-radius:9px;background:var(--line)}
+.stepper .done button{cursor:pointer;color:var(--teal)}
+.stepper .done button::before{background:var(--teal)}
+.stepper .on button{color:var(--ink)}
+.stepper .on button::before{background:var(--amber)}
+.stepper .done button:hover{text-decoration:underline;text-underline-offset:3px}
+.panel{display:none;background:#fff;border-radius:var(--r-lg);padding:34px;box-shadow:0 1px 2px rgba(3,24,28,.05)}
+.panel.on{display:block;animation:pin .25s ease}
+@keyframes pin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel h1{font-size:clamp(26px,3vw,34px);font-weight:800;line-height:1.2;letter-spacing:-.01em}
+[dir=rtl] .panel h1{letter-spacing:0;line-height:1.35}
+.panel .sub{color:var(--muted);margin:6px 0 26px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:20px 18px;border:1.5px solid var(--line-2);border-radius:var(--r);background:#fff;cursor:pointer;text-align:start;transition:border-color .15s,background .15s}
+.tile:hover{border-color:var(--teal)}
+.tile .ic{width:34px;height:34px;color:var(--teal)}
+.tile b{font-size:16.5px;font-weight:800;line-height:1.3}
+.tile small{color:var(--muted);font-size:13.5px;font-weight:600}
+.tile[aria-pressed=true]{border-color:var(--teal);background:var(--mist);box-shadow:inset 0 0 0 1px var(--teal)}
+.jobs{gap:8px}
+.jobs .job-opt{padding:16px 18px}
+.jobs .job-opt .t{font-size:16px}
+.jobs .job-opt .t small{font-size:13.5px}
+.jobs .job-opt .p{font-size:16px}
+.jobs .job-opt .p em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-weight:700;text-align:end}
+.lbl{display:block;font-weight:800;font-size:14.5px;margin:22px 0 9px}
+.lbl:first-child{margin-top:0}
+.lbl small{font-weight:600;color:var(--muted)}
+.days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.day{flex:0 0 auto;min-width:76px;display:flex;flex-direction:column;align-items:center;padding:10px 8px;border:1.5px solid var(--line-2);border-radius:14px;background:#fff;cursor:pointer;line-height:1.25}
+.day small{font-size:12px;font-weight:700;color:var(--muted)}
+.day b{font-size:21px;font-weight:800}
+.day:hover{border-color:var(--teal)}
+.day[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.day[aria-pressed=true] small{color:#CFE3E5}
+.day:disabled{opacity:.4;cursor:not-allowed;border-style:dashed}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.slot{padding:11px 4px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.slot:hover{border-color:var(--teal)}
+.slot[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.slot:disabled{opacity:.4;cursor:not-allowed;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.inp{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.inp:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,91,99,.15)}
+.inp[aria-invalid=true]{border-color:var(--red);background:#FFF8F6}
+textarea.inp{min-height:84px;resize:vertical}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-inline-end:40px}
+[dir=rtl] select.inp{background-position:20px 55%,15px 55%}
+input[type=tel].inp{direction:ltr}
+[dir=rtl] input[type=tel].inp{text-align:right}
+.ferr{color:var(--red);font-weight:700;font-size:13.5px;margin-top:6px;display:none}
+.ferr.show{display:block}
+.review{display:grid;border-top:1px solid var(--line-2)}
+.rv{display:grid;grid-template-columns:120px 1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line-2);align-items:baseline}
+.rv .k{color:var(--muted);font-weight:700;font-size:14px}
+.rv .v{font-weight:700}
+.rv .v small{display:block;font-weight:500;color:var(--muted)}
+.rv button{background:none;border:0;color:var(--teal);font-weight:800;font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.pays{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay{display:flex;align-items:center;gap:12px;padding:15px 16px;border:1.5px solid var(--line-2);border-radius:14px;cursor:pointer;font-weight:800}
+.pay input{position:absolute;opacity:0;pointer-events:none}
+.pay .rd{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex-shrink:0}
+.pay:has(input:checked){border-color:var(--teal);background:var(--mist)}
+.pay:has(input:checked) .rd{border:5px solid var(--teal)}
+.pay:has(input:focus-visible){outline:3px solid var(--amber);outline-offset:2px}
+.hint{font-size:13.5px;color:var(--muted);margin-top:8px}
+.next-box{margin-top:24px;padding:16px 18px;border-radius:14px;background:var(--mist);font-size:14.5px}
+.next-box b{display:block;margin-bottom:2px}
+.alert{display:none;margin-top:18px;padding:14px 16px;border-radius:12px;background:var(--red-100);color:#8E2E20;font-weight:700;font-size:14.5px}
+.alert.show{display:block}
+.actions{display:flex;gap:12px;align-items:center;margin-top:28px}
+.actions .tot{display:none}
+.actions .sp{flex:1}
+.aside{position:sticky;top:92px}
+.aside .ticket{padding:24px}
+.aside .tear{margin:20px -24px 16px}
+.sum-svc{display:flex;gap:12px;align-items:center}
+.sum-svc .ic{width:30px;height:30px;color:var(--teal)}
+.sum-svc b{display:block;font-size:16px;line-height:1.3}
+.sum-svc small{color:var(--muted);font-weight:600}
+.sum-meta{display:grid;gap:4px;margin-top:14px;font-size:14px}
+.sum-meta div{display:flex;gap:8px}
+.sum-meta span:first-child{color:var(--muted);min-width:64px}
+.sum-empty{color:var(--muted);font-size:14.5px}
+.aside .stamp{width:84px;height:84px;font-size:11.5px;top:-28px}
+
+/* tracking */
+.tr-in{max-width:980px;margin:0 auto;padding-block:36px 96px}
+.lookup{max-width:480px;margin:40px auto 0;background:#fff;border-radius:var(--r-lg);padding:34px}
+.lookup h1{font-size:28px;font-weight:800}
+.lookup p{color:var(--muted);margin:4px 0 20px}
+.lookup .row{display:flex;gap:10px}
+.lookup .inp{font-weight:700;letter-spacing:.06em;text-transform:uppercase;direction:ltr}
+.banner{display:flex;gap:14px;align-items:center;background:var(--green-100);color:#14563A;border-radius:var(--r);padding:16px 18px;margin-bottom:18px;font-weight:700}
+.banner .ic{color:var(--green);width:28px;height:28px}
+.banner p{font-weight:500;font-size:14.5px}
+.tr-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.status{background:var(--teal-900);color:#fff;border-radius:var(--r-lg);padding:28px}
+.status .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.status .code{font-size:13px;color:var(--soft);font-weight:700}
+.status .code b{display:block;color:#fff;font-size:17px;letter-spacing:.03em}
+.status h1{font-size:clamp(26px,3.2vw,34px);font-weight:800;line-height:1.2;margin-top:4px}
+.status .sub{color:#C7DCDE;margin-top:6px}
+.status .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.status .chips span{background:rgba(255,255,255,.1);border-radius:99px;padding:4px 12px;font-size:13.5px;font-weight:700}
+.tl{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:26px}
+.tl li{font-size:12.5px;font-weight:700;color:var(--soft);display:flex;flex-direction:column;gap:8px;line-height:1.3}
+.tl li::before{content:"";height:5px;border-radius:9px;background:rgba(255,255,255,.18)}
+.tl li.done{color:#fff}.tl li.done::before{background:#5BC08F}
+.tl li.now{color:#fff}.tl li.now::before{background:var(--amber)}
+.status.cancelled .tl{opacity:.4}
+.card{background:#fff;border-radius:var(--r-lg);padding:24px;margin-top:18px}
+.card h2{font-size:17px;font-weight:800;margin-bottom:12px}
+.tech{display:flex;gap:14px;align-items:center}
+.tech .av{width:52px;height:52px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0}
+.tech b{display:block;font-size:17px}
+.tech small{color:var(--muted);font-weight:600}
+.tech .r{margin-inline-start:auto;text-align:center;font-weight:900;font-size:20px;color:var(--teal)}
+.tech .r small{display:block;font-size:11.5px}
+.wait{display:flex;gap:12px;align-items:center;color:var(--muted)}
+.dotp{width:10px;height:10px;border-radius:50%;background:var(--amber);flex-shrink:0;animation:pulse 1.6s ease infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,138,36,.55)}100%{box-shadow:0 0 0 12px rgba(240,138,36,0)}}
+.partsc{border:2px solid var(--amber);background:#FFFBF5}
+.partsc p{color:var(--muted);font-size:14px;margin:-6px 0 12px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line-2);flex-wrap:wrap}
+.prow .nm{font-weight:800}
+.prow .nm small{display:block;color:var(--muted);font-weight:600}
+.prow .bt{display:flex;gap:8px}
+.prow .btn{padding:8px 18px;font-size:14px}
+.btn-ok{background:var(--green);color:#fff}.btn-ok:hover{background:#177548}
+.plist-done{font-size:14px}
+.plist-done div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line-2)}
+.st-chip{font-size:11.5px;font-weight:800;padding:2px 10px;border-radius:99px;margin-inline-start:6px}
+.st-approved{background:var(--green-100);color:var(--green)}
+.st-rejected{background:var(--red-100);color:var(--red)}
+.billc .ticket{padding:24px;box-shadow:0 1px 2px rgba(3,24,28,.05)}
+.billc .tear{margin:18px -24px 14px}
+.paid{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:99px;background:var(--green-100);color:var(--green);margin-inline-start:8px;vertical-align:middle}
+.unpaid{background:var(--amber-100);color:#9A5A0F}
+.stars{display:flex;gap:6px;margin:6px 0 14px}
+.star{background:none;border:0;cursor:pointer;color:var(--line);padding:2px}
+.star svg{width:36px;height:36px;fill:currentColor;stroke:none}
 .star.lit{color:var(--amber)}
-.rate-tags{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:8px 0 14px}
-.rtag{border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;font-size:12.5px;font-weight:700;cursor:pointer;background:#fff;font-family:'Cairo',sans-serif}
-.rtag.selected{border-color:var(--teal);background:var(--teal);color:#fff}
-.sync{text-align:center;font-size:11px;color:var(--muted);margin-top:10px}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tag{border:1.5px solid var(--line);border-radius:99px;padding:6px 14px;background:#fff;font-weight:700;font-size:13.5px;cursor:pointer}
+.tag[aria-pressed=true]{border-color:var(--teal);background:var(--mist);color:var(--teal)}
+.sync{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}
+.share{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.share .btn{padding:8px 16px;font-size:13.5px}
+
+@media(max-width:1000px){
+  .flow-in{grid-template-columns:minmax(0,1fr);gap:0;padding-top:24px}
+  .aside{display:none}
+  .actions{position:fixed;inset:auto 0 0 0;margin:0;background:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(3,24,28,.1);z-index:40}
+  .actions .tot{display:block;line-height:1.2}
+  .actions .tot small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+  .actions .tot b{font-size:20px;font-weight:900;color:var(--teal)}
+  .actions .btn-line{padding:12px 16px}
+  .tr-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .panel{padding:24px 18px;border-radius:var(--r)}
+  .tiles{grid-template-columns:1fr 1fr}
+  .tile{padding:16px 14px}
+  .slots{grid-template-columns:repeat(3,1fr)}
+  .grid2,.pays{grid-template-columns:1fr}
+  .rv{grid-template-columns:1fr auto}
+  .rv .k{grid-column:1/-1;margin-bottom:-8px}
+  .stepper button{font-size:0;gap:0}
+  .stepper{margin-bottom:16px}
+  .status{padding:22px}
+  .tl li{font-size:0;gap:0}
+  .lookup{padding:24px 18px}
+}
+
 </style>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WDZRJYB4H1');
-  function track(ev,params){gtag('event',ev,params||{})}
-</script>
 </head>
-<body>
-<div class="topbar"><div class="topbar-inner">
-  <a href="index-ar.html" class="logo"><span class="ar">فنّي</span><span class="en">Fanni</span></a>
-  <span style="font-size:13px;font-weight:800;color:var(--muted)" id="hdrLbl">تابع طلبك</span>
-</div></div>
-
-<div class="wrap">
-  <!-- LOOKUP -->
-  <div class="card lookup" id="lookupCard">
-    <h2 id="luTitle">تابع طلبك</h2>
-    <p class="sub" id="luSub">اكتب كود الطلب اللي وصلك عند الحجز (FN-XXXXX)</p>
-    <input id="codeInput" placeholder="FN-12345" onkeydown="if(event.key==='Enter')lookup()">
-    <button class="btn btn-primary" onclick="lookup()" id="luBtn">عرض الطلب</button>
-    <p class="err" id="luErr">الكود مش موجود — اتأكد منه وجرب تاني.</p>
+<body class="flow">
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" id="homeLink" href="index-ar.html"><b>فنّي</b><span>Fanni</span></a>
+    <div class="nav-end"><a class="lang" id="langSwitch" href="#">English</a>
+      <a class="btn btn-amber" id="bookLink" href="book-ar.html" data-cta="track_book"></a></div>
   </div>
+</header>
+<main class="wrap tr-in">
+  <section class="lookup" id="lookup" hidden>
+    <h1 id="luT"></h1><p id="luS"></p>
+    <form class="row" id="luForm"><label class="sr" for="codeInput">code</label>
+      <input class="inp" id="codeInput" placeholder="FN-12345" autocomplete="off">
+      <button class="btn btn-teal" id="luB"></button></form>
+    <p class="ferr" id="luE"></p>
+  </section>
 
-  <!-- TRACKER -->
-  <div id="tracker" style="display:none">
-    <div class="head-strip">
-      <div><div class="l" id="lblStatus">الحالة</div><div class="st" id="stText">—</div></div>
-      <div style="text-align:left"><div class="l" id="lblCode">كود الطلب</div><div class="v" id="stCode">—</div></div>
-    </div>
-
-    <div class="card">
-      <h2 id="jobTitle">—</h2>
-      <p class="sub" id="jobMeta">—</p>
-      <div class="timeline" id="tl"></div>
-      <div id="techBox"></div>
-    </div>
-
-    <div class="card" id="partsCard" style="display:none"></div>
-
-    <div class="card">
-      <h2 id="lblBill" style="font-size:16px">الفاتورة</h2>
-      <div class="bill" id="bill"></div>
-      <div id="payBox"></div>
-    </div>
-
-    <div class="card" id="rateCard" style="display:none">
-      <h2 style="font-size:16px" id="lblRate">قيّم الفني</h2>
-      <div class="stars" id="stars">
-        <button class="star" data-s="1">★</button><button class="star" data-s="2">★</button><button class="star" data-s="3">★</button><button class="star" data-s="4">★</button><button class="star" data-s="5">★</button>
+  <div id="tracker" hidden>
+    <div class="banner" id="banner" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M7.8 12.3l2.8 2.8 5.6-5.8"/></svg><div><span id="bnT"></span><p id="bnS"></p>
+      <div class="share"><button type="button" class="btn btn-line" id="copyBtn"></button><a class="btn btn-line" id="waBtn" target="_blank" rel="noopener"></a></div></div></div>
+    <div class="tr-grid">
+      <div>
+        <section class="status" id="status">
+          <div class="top"><div><h1 id="stT"></h1><p class="sub" id="stS"></p></div>
+            <div class="code"><span id="codeLbl"></span><b id="stCode" class="num"></b></div></div>
+          <div class="chips" id="chips"></div>
+          <ol class="tl" id="tl"></ol>
+        </section>
+        <section class="card partsc" id="partsCard" hidden></section>
+        <section class="card" id="techCard"></section>
+        <section class="card" id="rateCard" hidden>
+          <h2 id="rateT"></h2>
+          <div class="stars" id="stars"><button type="button" class="star" data-s="1" aria-label="1"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></button><button type="button" class="star" data-s="2" aria-label="2"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></button><button type="button" class="star" data-s="3" aria-label="3"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></button><button type="button" class="star" data-s="4" aria-label="4"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></button><button type="button" class="star" data-s="5" aria-label="5"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></button></div>
+          <div class="tags" id="tags"></div>
+          <button type="button" class="btn btn-amber" id="rateBtn"></button>
+        </section>
       </div>
-      <div class="rate-tags" id="rtags"></div>
-      <button class="btn btn-primary" onclick="sendRating(this)" id="rateBtn">ابعت التقييم</button>
+      <aside class="billc"><div class="ticket">
+        <div class="ticket-head"><h2 id="billT"></h2></div>
+        <div class="rc" id="bill"></div>
+        <div id="payBox"></div>
+      </div>
+      <section class="card" id="doneParts" hidden></section></aside>
     </div>
-    <p class="sync" id="syncLbl"></p>
+    <p class="sync" id="sync"></p>
   </div>
-</div>
-
+</main>
 <script>
-const P=new URLSearchParams(location.search);
-const LANG=(P.get('lang')==='en')?'en':'ar';
-if(LANG==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}
-const L=LANG==='en'?{
-  hdr:'Track your request',luT:'Track your request',luS:'Enter the booking code you received (FN-XXXXX)',luB:'Show my booking',luE:'Code not found — check it and try again.',
-  status:'Status',code:'Booking code',bill:'Your bill',labor:'Labor (fixed)',fee:'Service fee',parts:'Parts & extras',total:'Total',
-  pay:'Pay online (card / wallet)',paid:'PAID ✓',unpaid:'to be paid',payNA:'Pay cash after the job',
-  rate:'Rate your technician',rateB:'Submit rating',rated:'Thank you! ✓',
-  partsT:'🔩 Parts awaiting your approval',ok:'Approve',no:'Reject',
-  tags:['On time','Clean work','Fair with parts','Explained everything','Polite'],
-  states:{new:['Finding your technician','We are matching the best فنّي for your job'],
-    assigned:['Technician assigned','Your فنّي is preparing for the visit'],
-    en_route:['On the way','Your فنّي is heading to your address'],
-    arrived:['Arrived','Reviewing the fault with you'],
-    working:['Work in progress','Parts are quoted for your approval before installing'],
-    done:['Done — 30-day warranty active 🛡️','Same fault returns? We send a فنّي back free'],
-    cancelled:['Cancelled','This booking was cancelled']},
-  steps:[['new','Request received'],['assigned','Technician assigned'],['en_route','On the way'],['working','Work in progress'],['done','Done & guaranteed']],
-  sync:'Updates automatically · last sync ',jobs:' jobs'
-}:{
-  hdr:'تابع طلبك',luT:'تابع طلبك',luS:'اكتب كود الطلب اللي وصلك عند الحجز (FN-XXXXX)',luB:'عرض الطلب',luE:'الكود مش موجود — اتأكد منه وجرب تاني.',
-  status:'الحالة',code:'كود الطلب',bill:'الفاتورة',labor:'المصنعية (ثابتة)',fee:'رسوم الخدمة',parts:'قطع وإضافات',total:'الإجمالي',
-  pay:'ادفع أونلاين (كارت / محفظة)',paid:'مدفوع ✓',unpaid:'غير مدفوع',payNA:'الدفع كاش بعد الشغل',
-  rate:'قيّم الفني',rateB:'ابعت التقييم',rated:'شكرًا لك! ✓',
-  partsT:'🔩 قطع غيار في انتظار موافقتك',ok:'موافق',no:'رفض',
-  tags:['جه في معاده','شغل نضيف','أمين في قطع الغيار','شرح كل حاجة','محترم'],
-  states:{new:['بندور على أنسب فنّي','بنرشح أفضل فني لشغلانتك'],
-    assigned:['تم تعيين الفني','فنّيك بيستعد للزيارة'],
-    en_route:['في الطريق','فنّيك متوجه لعنوانك'],
-    arrived:['وصل','بيراجع العطل معاك'],
-    working:['الشغل جاري','أي قطع غيار بتتسعّر لموافقتك قبل التركيب'],
-    done:['خلص — الضمان ٣٠ يوم شغال 🛡️','لو نفس العطل رجع بنبعتلك فني مجانًا'],
-    cancelled:['ملغي','تم إلغاء الطلب']},
-  steps:[['new','استلمنا طلبك'],['assigned','تم تعيين الفني'],['en_route','في الطريق'],['working','الشغل جاري'],['done','خلص ومضمون']],
-  sync:'بيتحدث تلقائيًا · آخر تحديث ',jobs:' شغلانة'
-};
-['hdrLbl','luTitle','luSub','luBtn','luErr'].forEach((id,i)=>document.getElementById(id).textContent=[L.hdr,L.luT,L.luS,L.luB,L.luE][i]);
-document.getElementById('lblStatus').textContent=L.status;
-document.getElementById('lblCode').textContent=L.code;
-document.getElementById('lblBill').textContent=L.bill;
-document.getElementById('lblRate').textContent=L.rate;
-document.getElementById('rateBtn').textContent=L.rateB;
-document.getElementById('rtags').innerHTML=L.tags.map(t=>`<button class="rtag">${t}</button>`).join('');
-document.querySelectorAll('.rtag').forEach(t=>t.addEventListener('click',()=>t.classList.toggle('selected')));
+/* Shared by every public page. {"dir": "rtl", "other_lang": "English", "brand_sub": "Fanni", "nav_prices": "الأسعار", "nav_how": "إزاي بنشتغل", "nav_track": "تابع طلبك", "nav_book": "احجز فنّي", "meta_title": "فنّي | فنيين صيانة البيت بسعر ثابت في القاهرة والجيزة والإسكندرية", "meta_desc": "احجز فني معتمد للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي. السعر كامل قدامك قبل الحجز، وضمان ٣٠ يوم.", "h1": "السعر ثابت قبل ما الفني يخبّط على بابك.", "lead": "احجز فنيين معتمدين للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي في القاهرة والجيزة والإسكندرية. اختار الشغلانة، شوف السعر كامل، وتابع فنّيك لحظة بلحظة.", "hero_cta2": "تابع طلبك", "promise1": "سعر المصنعية بيتقفل لحظة الحجز", "promise2": "مفيش قطعة بتتركب من غير موافقتك", "promise3": "ضمان ٣٠ يوم على الشغل", "tk_title": "سعرك", "tk_pick": "اختار الشغلانة", "tk_labor": "المصنعية، ثابتة", "tk_fee": "رسوم الخدمة", "tk_total": "هتدفع", "tk_parts": "قطع الغيار بس لو محتاجها، وبعد ما توافق على سعرها.", "tk_insp": "زيارة كشف. لو كمّلت الإصلاح، السعر ده بيتخصم منه.", "tk_book": "احجز الشغلانة دي", "stamp": "ضمان ٣٠ يوم", "how_h": "من الحجز للضمان", "how_p": "أربع خطوات، وكل واحدة بتشوفها قدامك.", "how": [["اختار الشغلانة", "السعر كامل بيظهرلك قبل ما تدينا رقمك."], ["اختار الميعاد", "مواعيد وصول كل ساعتين، النهارده أو أي يوم في الأسبوع."], ["تابع فنّيك", "الحالة لحظة بلحظة من التعيين للطريق لحد ما يخلص. وأي قطعة غيار بتوصلك على موبايلك توافق عليها."], ["ادفع وإنت مضمون", "كاش بعد الشغل، أو كارت ومحفظة أونلاين. والضمان ٣٠ يوم يبدأ."]], "prices_h": "أسعارنا قدام الكل", "prices_p": "أسعار مصنعية ثابتة لأكتر الشغلانات المطلوبة. رسوم الخدمة 25 جنيه للطلب.", "all_jobs": "كل شغلانات {svc} ({n})", "from": "من", "insp_short": "كشف", "parts_h": "مفيش حاجة بتتركب من غير موافقتك", "parts_p": "لو الفني لقى قطعة بايظة، سعرها بيوصل موبايلك الأول. توافق تتركب، ترفض والشغل يكمل من غيرها.", "parts_p2": "قطع الغيار المعتادة من قائمة أسعارنا الثابتة، فالسعر مش بيتغير حسب مين الفني.", "mock_hdr": "طلب", "mock_status": "الشغل جاري", "mock_parts": "قطع غيار مستنية موافقتك", "mock_ok": "موافق", "mock_no": "رفض", "mock_bill": "الفاتورة", "mock_part": "مكثف كمبروسر 35 ميكرو", "trust_h": "مين اللي بيدخل بيتك", "trust": [["متحقق من هويته", "بنراجع البطاقة القومية لكل فني قبل ما يتعتمد."], ["مختبر عمليًا", "كل متقدم بيعدّي اختبار عملي في تخصصه في مركز التقييم بتاعنا."], ["بيتقيّم بعد كل شغلانة", "إنت اللي بتقيّم الزيارة، والتقييم بيفضل مع الفني في كل شغلانة جاية."]], "faq_h": "أسئلة", "faq": [["رسوم الخدمة 25 جنيه دي على إيه؟", "رسوم ثابتة لكل طلب، بتغطي ترشيح الفني والمتابعة والضمان. وهي محسوبة في الإجمالي اللي بيظهرلك قبل الحجز."], ["لو الشغلانة محتاجة قطع غيار؟", "الفني بيبعت القطعة وسعرها على صفحة متابعة طلبك، ومفيش حاجة بتتركب غير لما تدوس موافق. لو رفضت، بتدفع المصنعية بس."], ["يعني إيه زيارة كشف؟", "في الأعطال اللي محتاجة تشخيص الأول، بتحجز الكشف. ولو كمّلت الإصلاح، سعر الكشف بيتخصم منه."], ["الضمان ٣٠ يوم بيغطي إيه؟", "الشغل اللي عملناه. لو نفس العطل رجع خلال ٣٠ يوم، بنبعتلك فني تاني ببلاش."], ["الدفع إزاي؟", "كاش للفني بعد الشغل، أو بالكارت أو المحفظة أونلاين من صفحة متابعة طلبك."], ["بتغطوا أنهي مناطق؟", "القاهرة الكبرى والجيزة والإسكندرية (سموحة)، ومناطق جديدة بتتضاف."]], "tech_h": "إنت فني؟", "tech_p": "استلم طلبات شغل في تخصصك ومنطقتك، بأسعار واضحة من الأول. بتاخد ٨٠٪ من المصنعية، وسعر أي قطع غيار بتوردها كامل.", "tech_cta": "قدّم كفنّي", "foot_line": "فنيين صيانة البيت بسعر ثابت في مصر.", "foot_services": "الخدمات", "foot_company": "فنّي", "foot_join": "اشتغل معانا كفني", "rights": "© 2026 فنّي", "svc_title": "أسعار فنّي | تكييف، دش، كاميرات، واي فاي، إنتركم، منزل ذكي", "svc_h1": "قائمة الأسعار", "svc_lead": "كل الأسعار تحت هي سعر المصنعية الثابت. إجمالي حجزك بيزيد عليه رسوم الخدمة 25 جنيه، ومفيش أي حاجة تانية إلا لو وافقت على قطعة غيار.", "book": "احجز", "svc_note_h": "الأسعار بتتحسب إزاي", "svc_notes": [["المصنعية ثابتة", "السعر اللي حجزت بيه هو اللي هتدفعه للشغل، حتى لو الشغلانة طوّلت."], ["قطع الغيار بموافقتك", "القطع بتتسعّر في المكان وبتوصلك على الموبايل، ومفيش حاجة بتتركب قبل ما توافق."], ["الكشف بيتخصم", "في الأعطال اللي محتاجة تشخيص، سعر الكشف بيتخصم من الإصلاح لو كمّلت."]], "bk_title": "احجز فنّي | فنّي", "steps": ["الخدمة", "الشغلانة", "الميعاد والمكان", "المراجعة"], "s1_h": "عايز تصلّح إيه؟", "s1_p": "اختار الخدمة، والسعر الثابت هيظهرلك في الخطوة الجاية.", "s2_h": "اختار الشغلانة", "s2_p": "أسعار المصنعية ثابتة. قطع الغيار بتتسعّر في المكان ومحتاجة موافقتك.", "s3_h": "امتى وفين؟", "s3_p": "اختار اليوم وميعاد وصول خلال ساعتين.", "s4_h": "راجع وأكّد", "s4_p": "ده إجمالي الشغلانة. قطع الغيار بتتضاف بس لو وافقت عليها.", "day": "اليوم", "window": "ميعاد الوصول", "today": "النهارده", "tomorrow": "بكرة", "full": "محجوز", "area": "المنطقة", "address": "العنوان", "address_ph": "الشارع، رقم العمارة، الدور، الشقة", "name": "اسمك", "optional": "اختياري", "mobile": "رقم الموبايل", "mobile_ph": "01X XXXX XXXX", "notes": "ملاحظات للفني", "notes_ph": "مثلًا: الوحدة الخارجية في البلكونة، الدور التالت، مفيش أسانسير", "pay_h": "هتدفع إزاي؟", "pay_cash": "كاش بعد الشغل", "pay_card": "كارت أو محفظة", "pay_card_note": "هيوصلك رابط الدفع على صفحة متابعة طلبك.", "continue": "كمّل", "back": "رجوع", "confirm": "أكّد الحجز", "confirming": "جاري الحجز…", "err_svc": "اختار خدمة عشان تكمل.", "err_job": "اختار شغلانة عشان تكمل.", "err_day": "اختار اليوم.", "err_time": "اختار ميعاد الوصول.", "err_addr": "اكتب الشارع ورقم العمارة والشقة.", "err_mob": "اكتب رقم موبايل ١١ رقم بيبدأ بـ 01.", "err_net": "مقدرناش نوصل لفنّي. اتأكد من النت ودوس أكّد الحجز تاني. لسه محجزتش.", "rv_service": "الخدمة", "rv_job": "الشغلانة", "rv_when": "الميعاد", "rv_where": "العنوان", "rv_contact": "التواصل", "edit": "تعديل", "summary": "حجزك", "sum_empty": "اختار الخدمة والشغلانة عشان تشوف السعر.", "after_h": "اللي هيحصل بعد كده", "after_p": "هيوصلك كود الطلب وصفحة متابعة مباشرة، بتتحدث أول ما يتعيّن فني.", "tr_title": "تابع طلبك | فنّي"} and [{"slug": "ac", "en": "Air conditioning", "ar": "تكييف", "short_en": "AC", "short_ar": "تكييف", "blurb_en": "Cleaning, repairs, freon and new installations, any brand.", "blurb_ar": "غسيل وإصلاح وشحن فريون وتركيب جديد، لأي ماركة.", "jobs": [{"id": 1, "en": "Deep cleaning & maintenance", "den": "1.5 HP split, indoor + outdoor", "price": 350, "insp": 0, "ar": "غسيل وصيانة شاملة", "dar": "سبليت 1.5 حصان، داخلي وخارجي"}, {"id": 2, "en": "Not cooling — diagnosis & repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "التكييف مش بيبرّد — كشف وإصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 3, "en": "Freon refill (R410)", "den": "Includes leak check", "price": 600, "insp": 0, "ar": "شحن فريون (R410)", "dar": "شامل كشف التسريب"}, {"id": 4, "en": "New AC installation", "den": "Split unit, up to 4m piping", "price": 900, "insp": 0, "ar": "تركيب تكييف جديد", "dar": "سبليت، لحد 4 متر مواسير"}]}, {"slug": "satellite", "en": "Satellite & TV", "ar": "دش وشاشات", "short_en": "Satellite", "short_ar": "دش", "blurb_en": "Dish installs, signal fixes, receivers and TV mounting.", "blurb_ar": "تركيب أطباق، ضبط الإشارة، الريسيفر وتعليق الشاشات.", "jobs": [{"id": 5, "en": "Dish install & alignment", "den": "Single receiver, incl. 10m cable", "price": 400, "insp": 0, "ar": "تركيب وضبط دش", "dar": "ريسيفر واحد، شامل 10 متر كابل"}, {"id": 6, "en": "Signal loss — realignment", "den": "Existing dish", "price": 250, "insp": 0, "ar": "الإشارة بتقطع — إعادة ضبط", "dar": "للدش الموجود"}, {"id": 7, "en": "Receiver setup & channels", "den": "Any receiver brand", "price": 200, "insp": 0, "ar": "تظبيط الريسيفر والقنوات", "dar": "أي نوع ريسيفر"}, {"id": 8, "en": "TV wall mounting", "den": "Up to 65\", bracket not included", "price": 300, "insp": 0, "ar": "تعليق شاشة على الحائط", "dar": "لحد 65 بوصة، الحامل مش شامل"}]}, {"slug": "cctv", "en": "CCTV & security", "ar": "كاميرات مراقبة", "short_en": "CCTV", "short_ar": "كاميرات", "blurb_en": "Camera systems, recorders, repairs and phone viewing.", "blurb_ar": "أنظمة كاميرات، أجهزة تسجيل، إصلاح ومشاهدة من الموبايل.", "jobs": [{"id": 9, "en": "4-camera package install", "den": "Labor only, equipment quoted separately", "price": 1200, "insp": 0, "ar": "تركيب باكدج 4 كاميرات", "dar": "مصنعية فقط، الأجهزة بتتسعّر منفصل"}, {"id": 10, "en": "Camera not working — repair", "den": "Inspection deducted from repair", "price": 200, "insp": 1, "ar": "كاميرا مش شغالة — إصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 11, "en": "Remote viewing setup", "den": "Phone app + router config", "price": 300, "insp": 0, "ar": "تشغيل المشاهدة عن بُعد", "dar": "تطبيق الموبايل وضبط الراوتر"}, {"id": 12, "en": "NVR replacement / upgrade", "den": "Reuse existing cabling", "price": 500, "insp": 0, "ar": "تغيير أو ترقية جهاز التسجيل", "dar": "على نفس الكابلات"}]}, {"slug": "wifi", "en": "WiFi & networking", "ar": "واي فاي وشبكات", "short_en": "WiFi", "short_ar": "واي فاي", "blurb_en": "Whole-home coverage, routers and network cabling.", "blurb_ar": "تغطية البيت كله، راوترات وتمديد كابلات.", "jobs": [{"id": 13, "en": "Mesh WiFi setup", "den": "Up to 3 nodes + full-home survey", "price": 500, "insp": 0, "ar": "تركيب شبكة ميش واي فاي", "dar": "لحد 3 أجهزة مع فحص البيت كله"}, {"id": 14, "en": "Weak signal — dead-zone fix", "den": "Survey + repositioning or extender", "price": 300, "insp": 0, "ar": "إشارة ضعيفة — حل الأماكن الميتة", "dar": "فحص وتغيير أماكن أو مقوي إشارة"}, {"id": 15, "en": "New router install & config", "den": "Any ISP", "price": 250, "insp": 0, "ar": "تركيب وضبط راوتر جديد", "dar": "أي شركة إنترنت"}, {"id": 16, "en": "Network cabling", "den": "Per point, in-wall or trunking", "price": 350, "insp": 0, "ar": "تمديد كابلات شبكة", "dar": "للنقطة، داخل الحيطة أو في مجرى"}]}, {"slug": "intercom", "en": "Video intercom", "ar": "إنتركم", "short_en": "Intercom", "short_ar": "إنتركم", "blurb_en": "Apartment and villa intercoms, installed or repaired.", "blurb_ar": "إنتركم للشقق والفلل، تركيب أو إصلاح.", "jobs": [{"id": 17, "en": "Video intercom install (apartment)", "den": "Single unit", "price": 400, "insp": 0, "ar": "تركيب إنتركم فيديو (شقة)", "dar": "وحدة واحدة"}, {"id": 18, "en": "Villa / multi-unit intercom", "den": "Site survey included", "price": 900, "insp": 0, "ar": "إنتركم فيلا أو عمارة", "dar": "شامل معاينة الموقع"}, {"id": 19, "en": "Intercom repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "إصلاح إنتركم", "dar": "رسوم الكشف بتتخصم من الإصلاح"}]}, {"slug": "smart-home", "en": "Smart home", "ar": "منزل ذكي", "short_en": "Smart home", "short_ar": "منزل ذكي", "blurb_en": "Smart lights, locks, cameras and sensors, set up on your phone.", "blurb_ar": "إضاءة وأقفال وكاميرات وحساسات ذكية، متظبطة على موبايلك.", "jobs": [{"id": 20, "en": "Smart lighting setup", "den": "Up to 6 switches / bulbs + app", "price": 600, "insp": 0, "ar": "تركيب إضاءة ذكية", "dar": "لحد 6 مفاتيح أو لمبات مع التطبيق"}, {"id": 21, "en": "Smart lock install", "den": "Includes door assessment", "price": 450, "insp": 0, "ar": "تركيب قفل ذكي", "dar": "شامل معاينة الباب"}, {"id": 22, "en": "Smart camera & sensors", "den": "Up to 3 devices + hub config", "price": 550, "insp": 0, "ar": "كاميرا وحساسات ذكية", "dar": "لحد 3 أجهزة مع ضبط الهاب"}, {"id": 23, "en": "Full smart-home consultation", "den": "On-site, deducted from project", "price": 300, "insp": 1, "ar": "استشارة منزل ذكي كاملة", "dar": "في الموقع، بتتخصم من المشروع"}]}] are filled in by build.py. */
+const LANG = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+const T = {"dir": "rtl", "other_lang": "English", "brand_sub": "Fanni", "nav_prices": "الأسعار", "nav_how": "إزاي بنشتغل", "nav_track": "تابع طلبك", "nav_book": "احجز فنّي", "meta_title": "فنّي | فنيين صيانة البيت بسعر ثابت في القاهرة والجيزة والإسكندرية", "meta_desc": "احجز فني معتمد للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي. السعر كامل قدامك قبل الحجز، وضمان ٣٠ يوم.", "h1": "السعر ثابت قبل ما الفني يخبّط على بابك.", "lead": "احجز فنيين معتمدين للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي في القاهرة والجيزة والإسكندرية. اختار الشغلانة، شوف السعر كامل، وتابع فنّيك لحظة بلحظة.", "hero_cta2": "تابع طلبك", "promise1": "سعر المصنعية بيتقفل لحظة الحجز", "promise2": "مفيش قطعة بتتركب من غير موافقتك", "promise3": "ضمان ٣٠ يوم على الشغل", "tk_title": "سعرك", "tk_pick": "اختار الشغلانة", "tk_labor": "المصنعية، ثابتة", "tk_fee": "رسوم الخدمة", "tk_total": "هتدفع", "tk_parts": "قطع الغيار بس لو محتاجها، وبعد ما توافق على سعرها.", "tk_insp": "زيارة كشف. لو كمّلت الإصلاح، السعر ده بيتخصم منه.", "tk_book": "احجز الشغلانة دي", "stamp": "ضمان ٣٠ يوم", "how_h": "من الحجز للضمان", "how_p": "أربع خطوات، وكل واحدة بتشوفها قدامك.", "how": [["اختار الشغلانة", "السعر كامل بيظهرلك قبل ما تدينا رقمك."], ["اختار الميعاد", "مواعيد وصول كل ساعتين، النهارده أو أي يوم في الأسبوع."], ["تابع فنّيك", "الحالة لحظة بلحظة من التعيين للطريق لحد ما يخلص. وأي قطعة غيار بتوصلك على موبايلك توافق عليها."], ["ادفع وإنت مضمون", "كاش بعد الشغل، أو كارت ومحفظة أونلاين. والضمان ٣٠ يوم يبدأ."]], "prices_h": "أسعارنا قدام الكل", "prices_p": "أسعار مصنعية ثابتة لأكتر الشغلانات المطلوبة. رسوم الخدمة 25 جنيه للطلب.", "all_jobs": "كل شغلانات {svc} ({n})", "from": "من", "insp_short": "كشف", "parts_h": "مفيش حاجة بتتركب من غير موافقتك", "parts_p": "لو الفني لقى قطعة بايظة، سعرها بيوصل موبايلك الأول. توافق تتركب، ترفض والشغل يكمل من غيرها.", "parts_p2": "قطع الغيار المعتادة من قائمة أسعارنا الثابتة، فالسعر مش بيتغير حسب مين الفني.", "mock_hdr": "طلب", "mock_status": "الشغل جاري", "mock_parts": "قطع غيار مستنية موافقتك", "mock_ok": "موافق", "mock_no": "رفض", "mock_bill": "الفاتورة", "mock_part": "مكثف كمبروسر 35 ميكرو", "trust_h": "مين اللي بيدخل بيتك", "trust": [["متحقق من هويته", "بنراجع البطاقة القومية لكل فني قبل ما يتعتمد."], ["مختبر عمليًا", "كل متقدم بيعدّي اختبار عملي في تخصصه في مركز التقييم بتاعنا."], ["بيتقيّم بعد كل شغلانة", "إنت اللي بتقيّم الزيارة، والتقييم بيفضل مع الفني في كل شغلانة جاية."]], "faq_h": "أسئلة", "faq": [["رسوم الخدمة 25 جنيه دي على إيه؟", "رسوم ثابتة لكل طلب، بتغطي ترشيح الفني والمتابعة والضمان. وهي محسوبة في الإجمالي اللي بيظهرلك قبل الحجز."], ["لو الشغلانة محتاجة قطع غيار؟", "الفني بيبعت القطعة وسعرها على صفحة متابعة طلبك، ومفيش حاجة بتتركب غير لما تدوس موافق. لو رفضت، بتدفع المصنعية بس."], ["يعني إيه زيارة كشف؟", "في الأعطال اللي محتاجة تشخيص الأول، بتحجز الكشف. ولو كمّلت الإصلاح، سعر الكشف بيتخصم منه."], ["الضمان ٣٠ يوم بيغطي إيه؟", "الشغل اللي عملناه. لو نفس العطل رجع خلال ٣٠ يوم، بنبعتلك فني تاني ببلاش."], ["الدفع إزاي؟", "كاش للفني بعد الشغل، أو بالكارت أو المحفظة أونلاين من صفحة متابعة طلبك."], ["بتغطوا أنهي مناطق؟", "القاهرة الكبرى والجيزة والإسكندرية (سموحة)، ومناطق جديدة بتتضاف."]], "tech_h": "إنت فني؟", "tech_p": "استلم طلبات شغل في تخصصك ومنطقتك، بأسعار واضحة من الأول. بتاخد ٨٠٪ من المصنعية، وسعر أي قطع غيار بتوردها كامل.", "tech_cta": "قدّم كفنّي", "foot_line": "فنيين صيانة البيت بسعر ثابت في مصر.", "foot_services": "الخدمات", "foot_company": "فنّي", "foot_join": "اشتغل معانا كفني", "rights": "© 2026 فنّي", "svc_title": "أسعار فنّي | تكييف، دش، كاميرات، واي فاي، إنتركم، منزل ذكي", "svc_h1": "قائمة الأسعار", "svc_lead": "كل الأسعار تحت هي سعر المصنعية الثابت. إجمالي حجزك بيزيد عليه رسوم الخدمة 25 جنيه، ومفيش أي حاجة تانية إلا لو وافقت على قطعة غيار.", "book": "احجز", "svc_note_h": "الأسعار بتتحسب إزاي", "svc_notes": [["المصنعية ثابتة", "السعر اللي حجزت بيه هو اللي هتدفعه للشغل، حتى لو الشغلانة طوّلت."], ["قطع الغيار بموافقتك", "القطع بتتسعّر في المكان وبتوصلك على الموبايل، ومفيش حاجة بتتركب قبل ما توافق."], ["الكشف بيتخصم", "في الأعطال اللي محتاجة تشخيص، سعر الكشف بيتخصم من الإصلاح لو كمّلت."]], "bk_title": "احجز فنّي | فنّي", "steps": ["الخدمة", "الشغلانة", "الميعاد والمكان", "المراجعة"], "s1_h": "عايز تصلّح إيه؟", "s1_p": "اختار الخدمة، والسعر الثابت هيظهرلك في الخطوة الجاية.", "s2_h": "اختار الشغلانة", "s2_p": "أسعار المصنعية ثابتة. قطع الغيار بتتسعّر في المكان ومحتاجة موافقتك.", "s3_h": "امتى وفين؟", "s3_p": "اختار اليوم وميعاد وصول خلال ساعتين.", "s4_h": "راجع وأكّد", "s4_p": "ده إجمالي الشغلانة. قطع الغيار بتتضاف بس لو وافقت عليها.", "day": "اليوم", "window": "ميعاد الوصول", "today": "النهارده", "tomorrow": "بكرة", "full": "محجوز", "area": "المنطقة", "address": "العنوان", "address_ph": "الشارع، رقم العمارة، الدور، الشقة", "name": "اسمك", "optional": "اختياري", "mobile": "رقم الموبايل", "mobile_ph": "01X XXXX XXXX", "notes": "ملاحظات للفني", "notes_ph": "مثلًا: الوحدة الخارجية في البلكونة، الدور التالت، مفيش أسانسير", "pay_h": "هتدفع إزاي؟", "pay_cash": "كاش بعد الشغل", "pay_card": "كارت أو محفظة", "pay_card_note": "هيوصلك رابط الدفع على صفحة متابعة طلبك.", "continue": "كمّل", "back": "رجوع", "confirm": "أكّد الحجز", "confirming": "جاري الحجز…", "err_svc": "اختار خدمة عشان تكمل.", "err_job": "اختار شغلانة عشان تكمل.", "err_day": "اختار اليوم.", "err_time": "اختار ميعاد الوصول.", "err_addr": "اكتب الشارع ورقم العمارة والشقة.", "err_mob": "اكتب رقم موبايل ١١ رقم بيبدأ بـ 01.", "err_net": "مقدرناش نوصل لفنّي. اتأكد من النت ودوس أكّد الحجز تاني. لسه محجزتش.", "rv_service": "الخدمة", "rv_job": "الشغلانة", "rv_when": "الميعاد", "rv_where": "العنوان", "rv_contact": "التواصل", "edit": "تعديل", "summary": "حجزك", "sum_empty": "اختار الخدمة والشغلانة عشان تشوف السعر.", "after_h": "اللي هيحصل بعد كده", "after_p": "هيوصلك كود الطلب وصفحة متابعة مباشرة، بتتحدث أول ما يتعيّن فني.", "tr_title": "تابع طلبك | فنّي"};
+const CAT0 = [{"slug": "ac", "en": "Air conditioning", "ar": "تكييف", "short_en": "AC", "short_ar": "تكييف", "blurb_en": "Cleaning, repairs, freon and new installations, any brand.", "blurb_ar": "غسيل وإصلاح وشحن فريون وتركيب جديد، لأي ماركة.", "jobs": [{"id": 1, "en": "Deep cleaning & maintenance", "den": "1.5 HP split, indoor + outdoor", "price": 350, "insp": 0, "ar": "غسيل وصيانة شاملة", "dar": "سبليت 1.5 حصان، داخلي وخارجي"}, {"id": 2, "en": "Not cooling — diagnosis & repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "التكييف مش بيبرّد — كشف وإصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 3, "en": "Freon refill (R410)", "den": "Includes leak check", "price": 600, "insp": 0, "ar": "شحن فريون (R410)", "dar": "شامل كشف التسريب"}, {"id": 4, "en": "New AC installation", "den": "Split unit, up to 4m piping", "price": 900, "insp": 0, "ar": "تركيب تكييف جديد", "dar": "سبليت، لحد 4 متر مواسير"}]}, {"slug": "satellite", "en": "Satellite & TV", "ar": "دش وشاشات", "short_en": "Satellite", "short_ar": "دش", "blurb_en": "Dish installs, signal fixes, receivers and TV mounting.", "blurb_ar": "تركيب أطباق، ضبط الإشارة، الريسيفر وتعليق الشاشات.", "jobs": [{"id": 5, "en": "Dish install & alignment", "den": "Single receiver, incl. 10m cable", "price": 400, "insp": 0, "ar": "تركيب وضبط دش", "dar": "ريسيفر واحد، شامل 10 متر كابل"}, {"id": 6, "en": "Signal loss — realignment", "den": "Existing dish", "price": 250, "insp": 0, "ar": "الإشارة بتقطع — إعادة ضبط", "dar": "للدش الموجود"}, {"id": 7, "en": "Receiver setup & channels", "den": "Any receiver brand", "price": 200, "insp": 0, "ar": "تظبيط الريسيفر والقنوات", "dar": "أي نوع ريسيفر"}, {"id": 8, "en": "TV wall mounting", "den": "Up to 65\", bracket not included", "price": 300, "insp": 0, "ar": "تعليق شاشة على الحائط", "dar": "لحد 65 بوصة، الحامل مش شامل"}]}, {"slug": "cctv", "en": "CCTV & security", "ar": "كاميرات مراقبة", "short_en": "CCTV", "short_ar": "كاميرات", "blurb_en": "Camera systems, recorders, repairs and phone viewing.", "blurb_ar": "أنظمة كاميرات، أجهزة تسجيل، إصلاح ومشاهدة من الموبايل.", "jobs": [{"id": 9, "en": "4-camera package install", "den": "Labor only, equipment quoted separately", "price": 1200, "insp": 0, "ar": "تركيب باكدج 4 كاميرات", "dar": "مصنعية فقط، الأجهزة بتتسعّر منفصل"}, {"id": 10, "en": "Camera not working — repair", "den": "Inspection deducted from repair", "price": 200, "insp": 1, "ar": "كاميرا مش شغالة — إصلاح", "dar": "رسوم الكشف بتتخصم من الإصلاح"}, {"id": 11, "en": "Remote viewing setup", "den": "Phone app + router config", "price": 300, "insp": 0, "ar": "تشغيل المشاهدة عن بُعد", "dar": "تطبيق الموبايل وضبط الراوتر"}, {"id": 12, "en": "NVR replacement / upgrade", "den": "Reuse existing cabling", "price": 500, "insp": 0, "ar": "تغيير أو ترقية جهاز التسجيل", "dar": "على نفس الكابلات"}]}, {"slug": "wifi", "en": "WiFi & networking", "ar": "واي فاي وشبكات", "short_en": "WiFi", "short_ar": "واي فاي", "blurb_en": "Whole-home coverage, routers and network cabling.", "blurb_ar": "تغطية البيت كله، راوترات وتمديد كابلات.", "jobs": [{"id": 13, "en": "Mesh WiFi setup", "den": "Up to 3 nodes + full-home survey", "price": 500, "insp": 0, "ar": "تركيب شبكة ميش واي فاي", "dar": "لحد 3 أجهزة مع فحص البيت كله"}, {"id": 14, "en": "Weak signal — dead-zone fix", "den": "Survey + repositioning or extender", "price": 300, "insp": 0, "ar": "إشارة ضعيفة — حل الأماكن الميتة", "dar": "فحص وتغيير أماكن أو مقوي إشارة"}, {"id": 15, "en": "New router install & config", "den": "Any ISP", "price": 250, "insp": 0, "ar": "تركيب وضبط راوتر جديد", "dar": "أي شركة إنترنت"}, {"id": 16, "en": "Network cabling", "den": "Per point, in-wall or trunking", "price": 350, "insp": 0, "ar": "تمديد كابلات شبكة", "dar": "للنقطة، داخل الحيطة أو في مجرى"}]}, {"slug": "intercom", "en": "Video intercom", "ar": "إنتركم", "short_en": "Intercom", "short_ar": "إنتركم", "blurb_en": "Apartment and villa intercoms, installed or repaired.", "blurb_ar": "إنتركم للشقق والفلل، تركيب أو إصلاح.", "jobs": [{"id": 17, "en": "Video intercom install (apartment)", "den": "Single unit", "price": 400, "insp": 0, "ar": "تركيب إنتركم فيديو (شقة)", "dar": "وحدة واحدة"}, {"id": 18, "en": "Villa / multi-unit intercom", "den": "Site survey included", "price": 900, "insp": 0, "ar": "إنتركم فيلا أو عمارة", "dar": "شامل معاينة الموقع"}, {"id": 19, "en": "Intercom repair", "den": "Inspection deducted from repair", "price": 150, "insp": 1, "ar": "إصلاح إنتركم", "dar": "رسوم الكشف بتتخصم من الإصلاح"}]}, {"slug": "smart-home", "en": "Smart home", "ar": "منزل ذكي", "short_en": "Smart home", "short_ar": "منزل ذكي", "blurb_en": "Smart lights, locks, cameras and sensors, set up on your phone.", "blurb_ar": "إضاءة وأقفال وكاميرات وحساسات ذكية، متظبطة على موبايلك.", "jobs": [{"id": 20, "en": "Smart lighting setup", "den": "Up to 6 switches / bulbs + app", "price": 600, "insp": 0, "ar": "تركيب إضاءة ذكية", "dar": "لحد 6 مفاتيح أو لمبات مع التطبيق"}, {"id": 21, "en": "Smart lock install", "den": "Includes door assessment", "price": 450, "insp": 0, "ar": "تركيب قفل ذكي", "dar": "شامل معاينة الباب"}, {"id": 22, "en": "Smart camera & sensors", "den": "Up to 3 devices + hub config", "price": 550, "insp": 0, "ar": "كاميرا وحساسات ذكية", "dar": "لحد 3 أجهزة مع ضبط الهاب"}, {"id": 23, "en": "Full smart-home consultation", "den": "On-site, deducted from project", "price": 300, "insp": 1, "ar": "استشارة منزل ذكي كاملة", "dar": "في الموقع، بتتخصم من المشروع"}]}];           // fallback catalog, both languages
+let FEE = 25;
+const AR = LANG === 'ar';
+const PAGE = { book: AR ? 'book-ar.html' : 'book.html', services: AR ? 'services-ar.html' : 'services.html',
+               home: AR ? 'index-ar.html' : 'index.html', track: 'track.html?lang=' + LANG };
 
-let CODE=null,pollTimer=null,rating=0,rated=false;
-function esc(x){const d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML}
+function esc(x){const d=document.createElement('div');d.textContent=x==null?'':String(x);return d.innerHTML}
+function n2(n){return Number(n||0).toLocaleString('en-US')}
+function money(n){return AR ? n2(n)+' جنيه' : 'EGP '+n2(n)}
+function moneyHTML(n){return AR ? `<span class="num">${n2(n)}</span><small>جنيه</small>` : `<small>EGP</small><span class="num">${n2(n)}</span>`}
+
+/* Normalise a catalog into [{slug,name,short,blurb,jobs:[{id,title,detail,price,insp}]}] in the page language. */
+function fromFallback(){
+  return CAT0.map(s=>({slug:s.slug,name:AR?s.ar:s.en,short:AR?s.short_ar:s.short_en,blurb:AR?s.blurb_ar:s.blurb_en,
+    jobs:s.jobs.map(j=>({id:j.id,title:AR?j.ar:j.en,detail:AR?j.dar:j.den,price:j.price,insp:!!j.insp}))}));
+}
+let CAT = fromFallback();
+async function loadCatalog(){
+  try{
+    const r = await fetch('/api/services',{headers:{'Accept':'application/json'}});
+    const d = await r.json();
+    if(!d.ok) return CAT;
+    if(typeof d.service_fee_egp==='number') FEE = d.service_fee_egp;
+    const byId = {}; CAT0.forEach(s=>s.jobs.forEach(j=>byId[j.id]=j));
+    CAT = d.services.map(s=>{
+      const base = CAT0.find(x=>x.slug===s.slug) || {};
+      return {slug:s.slug, name:AR?(s.name_ar||base.ar):(base.en||s.name_en), short:AR?(base.short_ar||s.name_ar):(base.short_en||s.name_en),
+        blurb:AR?(base.blurb_ar||''):(base.blurb_en||''),
+        jobs:(s.jobs||[]).map(j=>{
+          const f = byId[j.id];
+          // Arabic: prefer the admin's Arabic title, then our translation if the English title is unchanged
+          const same = f && f.en === j.title;
+          const title = AR ? (j.title_ar || (same ? f.ar : j.title)) : j.title;
+          const detail = AR ? (j.detail_ar || (same ? f.dar : (j.detail||''))) : (j.detail||'');
+          return {id:j.id, title, detail, price:j.price_egp, insp:!!j.is_inspection};
+        })};
+    }).filter(s=>s.jobs.length);
+    applyLivePrices();
+  }catch(e){ /* keep fallback prices */ }
+  return CAT;
+}
+function findJob(id){for(const s of CAT)for(const j of s.jobs)if(j.id===+id)return {svc:s,job:j};return null}
+
+/* Server-rendered rows carry data-job; refresh them from live data, hide retired jobs. */
+function applyLivePrices(){
+  document.querySelectorAll('[data-job]').forEach(el=>{
+    const hit = findJob(el.dataset.job);
+    if(!hit){ el.hidden = true; return; }
+    el.hidden = false;
+    el.querySelectorAll('[data-f=price]').forEach(p=>p.textContent=money(hit.job.price));
+    el.querySelectorAll('[data-f=title]').forEach(p=>p.textContent=hit.job.title);
+    el.querySelectorAll('[data-f=detail]').forEach(p=>p.textContent=hit.job.detail);
+  });
+  document.querySelectorAll('[data-from]').forEach(el=>{
+    const s = CAT.find(x=>x.slug===el.dataset.from);
+    if(s) el.textContent = money(Math.min(...s.jobs.map(j=>j.price)));
+  });
+}
+
+/* Count a number up/down — answers the visitor's choice, skipped for reduced motion. */
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countTo(el, to){
+  const from = +el.dataset.v || 0; el.dataset.v = to;
+  if(REDUCED || from===to){ el.textContent = n2(to); return; }
+  const t0 = performance.now(), dur = 380;
+  const step = t=>{const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
+    el.textContent = n2(Math.round(from+(to-from)*e)); if(k<1) requestAnimationFrame(step)};
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('[data-cta]').forEach(a=>a.addEventListener('click',()=>track('cta_click',{cta:a.dataset.cta,page:location.pathname,lang:LANG})));
+
+
+const TR = {"en": {"luT": "Track your booking", "luS": "Enter the booking code from your confirmation, like FN-12345.", "luB": "Show my booking", "luE": "We couldn't find that code. Check it and try again.", "code": "Booking code", "newT": "Booking confirmed", "newS": "Save your code. This page updates by itself as your booking moves.", "copy": "Copy link", "copied": "Link copied", "wa": "Send to WhatsApp", "bill": "Your bill", "labor": "Labor, fixed", "fee": "Service fee", "parts": "Approved parts", "total": "Total", "paid": "Paid", "unpaid": "Not paid yet", "pay": "Pay online", "payNA": "Pay cash to your technician after the job.", "tech": "Your technician", "techWait": "We're matching a technician to your job. You'll see their name and rating here.", "verified": "ID-verified, skill-tested", "jobs": "jobs", "new": "new", "partsT": "Approve these parts", "partsS": "Nothing is installed until you approve. If you reject a part, the job carries on without it.", "ok": "Approve", "no": "Reject", "partsDone": "Parts", "approved": "approved", "rejected": "rejected", "rate": "How was the visit?", "rateB": "Send rating", "rated": "Thanks, your rating was sent.", "tags": ["On time", "Clean work", "Fair with parts", "Explained everything", "Polite"], "states": {"new": ["Finding your technician", "We're matching the best فنّي for this job."], "assigned": ["Technician assigned", "Your فنّي is preparing for the visit."], "en_route": ["On the way", "Your فنّي is heading to your address."], "arrived": ["Arrived", "Your فنّي is checking the fault with you."], "working": ["Work in progress", "Any spare part comes to this page for your approval first."], "done": ["Done, and under warranty", "Same fault back within 30 days? We send a فنّي back free."], "cancelled": ["Booking cancelled", "This booking was cancelled. You can book again any time."]}, "steps": [["new", "Received"], ["assigned", "Assigned"], ["en_route", "On the way"], ["working", "Working"], ["done", "Done"]], "sync": "Updated", "again": "Book another job", "cur": "EGP"}, "ar": {"luT": "تابع طلبك", "luS": "اكتب كود الطلب اللي وصلك عند الحجز، زي FN-12345.", "luB": "اعرض طلبي", "luE": "ملقيناش الكود ده. اتأكد منه وجرب تاني.", "code": "كود الطلب", "newT": "تم تأكيد الحجز", "newS": "احتفظ بالكود. الصفحة دي بتتحدث لوحدها مع كل خطوة في طلبك.", "copy": "انسخ الرابط", "copied": "اتنسخ الرابط", "wa": "ابعته على واتساب", "bill": "الفاتورة", "labor": "المصنعية، ثابتة", "fee": "رسوم الخدمة", "parts": "قطع غيار وافقت عليها", "total": "الإجمالي", "paid": "مدفوع", "unpaid": "لسه مش مدفوع", "pay": "ادفع أونلاين", "payNA": "الدفع كاش للفني بعد الشغل.", "tech": "فنّيك", "techWait": "بنختار فني لشغلانتك. اسمه وتقييمه هيظهروا هنا.", "verified": "متحقق من هويته ومختبر عمليًا", "jobs": "شغلانة", "new": "جديد", "partsT": "وافق على قطع الغيار دي", "partsS": "مفيش حاجة بتتركب قبل موافقتك. لو رفضت قطعة، الشغل بيكمل من غيرها.", "ok": "موافق", "no": "رفض", "partsDone": "قطع الغيار", "approved": "اتوافق عليها", "rejected": "اترفضت", "rate": "الزيارة كانت عاملة إزاي؟", "rateB": "ابعت التقييم", "rated": "شكرًا، تقييمك وصل.", "tags": ["جه في معاده", "شغل نضيف", "أمين في قطع الغيار", "شرح كل حاجة", "محترم"], "states": {"new": ["بنختارلك فني", "بنرشح أنسب فنّي للشغلانة دي."], "assigned": ["اتعيّن فني", "فنّيك بيجهز للزيارة."], "en_route": ["في الطريق", "فنّيك متوجه لعنوانك."], "arrived": ["وصل", "فنّيك بيراجع العطل معاك."], "working": ["الشغل جاري", "أي قطعة غيار هتوصلك هنا توافق عليها الأول."], "done": ["خلص، وعليه ضمان", "نفس العطل رجع خلال ٣٠ يوم؟ بنبعتلك فنّي تاني ببلاش."], "cancelled": ["الطلب اتلغى", "الطلب ده اتلغى. تقدر تحجز تاني في أي وقت."]}, "steps": [["new", "استلمنا"], ["assigned", "اتعيّن"], ["en_route", "في الطريق"], ["working", "شغال"], ["done", "خلص"]], "sync": "آخر تحديث", "again": "احجز شغلانة تانية", "cur": "جنيه"}};
+const P = new URLSearchParams(location.search);
+const LG = P.get('lang')==='en' ? 'en' : 'ar';
+const X = TR[LG];
+document.documentElement.lang = LG; document.documentElement.dir = LG==='en'?'ltr':'rtl';
+document.title = LG==='en' ? 'Track your booking | Fanni' : 'تابع طلبك | فنّي';
+const $ = id => document.getElementById(id);
+const cur = n => LG==='en' ? 'EGP '+n2(n) : n2(n)+' جنيه';
+$('homeLink').href = LG==='en'?'index.html':'index-ar.html';
+$('bookLink').href = LG==='en'?'book.html':'book-ar.html';
+$('bookLink').textContent = X.again;
+$('langSwitch').textContent = LG==='en'?'العربية':'English';
+function setLangLink(){const q=new URLSearchParams(location.search);q.set('lang',LG==='en'?'ar':'en');q.delete('new');$('langSwitch').href='track.html?'+q}
+setLangLink();
+['luT','luS','luB'].forEach(k=>$(k).textContent=X[k]); $('luE').textContent=X.luE;
+$('codeLbl').textContent=X.code; $('billT').textContent=X.bill; $('rateT').textContent=X.rate; $('rateBtn').textContent=X.rateB;
+$('tags').innerHTML = X.tags.map(t=>`<button type="button" class="tag" aria-pressed="false">${esc(t)}</button>`).join('');
+$('tags').addEventListener('click',ev=>{const b=ev.target.closest('.tag');if(b)b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});
+
+let CODE=null, timer=null, rating=0, rated=false;
 const ORDER=['new','assigned','en_route','arrived','working','done'];
 
-async function lookup(auto){
-  CODE=(auto||document.getElementById('codeInput').value).trim().toUpperCase();
-  if(!CODE)return;
+async function lookup(code){
+  CODE=(code||'').trim().toUpperCase(); if(!CODE) return;
+  if(/^\d{5}$/.test(CODE)) CODE='FN-'+CODE;
   try{
-    const r=await fetch('/api/bookings/'+CODE);
-    const d=await r.json();
-    if(!d.ok)throw 0;
-    document.getElementById('lookupCard').style.display='none';
-    document.getElementById('tracker').style.display='block';
+    const r=await fetch('/api/bookings/'+encodeURIComponent(CODE)); const d=await r.json();
+    if(!d.ok) throw 0;
+    $('lookup').hidden=true; $('tracker').hidden=false;
     render(d.booking);
-    clearInterval(pollTimer);
-    pollTimer=setInterval(refresh,15000);
-    history.replaceState(null,'','track.html?code='+CODE+'&lang='+LANG);
-  }catch(e){document.getElementById('luErr').classList.add('show')}
+    if(P.get('new')==='1') showBanner();
+    clearInterval(timer); timer=setInterval(refresh,15000);
+    const q=new URLSearchParams({code:CODE,lang:LG}); if(P.get('new')==='1')q.set('new','1');
+    history.replaceState(null,'','track.html?'+q); setLangLink();
+  }catch(e){ $('lookup').hidden=false; $('luE').classList.add('show'); }
 }
-async function refresh(){
-  try{const r=await fetch('/api/bookings/'+CODE);const d=await r.json();if(d.ok)render(d.booking)}catch(e){}
+async function refresh(){ try{const r=await fetch('/api/bookings/'+encodeURIComponent(CODE));const d=await r.json();if(d.ok)render(d.booking)}catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden && CODE) refresh(); });
+
+function showBanner(){
+  const link=location.origin+'/track.html?code='+CODE+'&lang='+LG;
+  $('banner').hidden=false; $('bnT').textContent=X.newT+' — '+CODE; $('bnS').textContent=X.newS;
+  $('copyBtn').textContent=X.copy;
+  $('copyBtn').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(link).then(()=>{$('copyBtn').textContent=X.copied})};
+  $('waBtn').textContent=X.wa; $('waBtn').href='https://wa.me/?text='+encodeURIComponent((LG==='en'?'My Fanni booking ':'طلب فنّي ')+CODE+'\n'+link);
 }
 
 function render(b){
-  const st=L.states[b.status]||[b.status,''];
-  document.getElementById('stText').textContent=st[0];
-  document.getElementById('stCode').textContent=b.code;
-  document.getElementById('jobTitle').textContent=st[0];
-  document.getElementById('jobMeta').textContent=st[1]+' · '+b.day+' · '+b.time_window+' · '+b.area;
-
-  // timeline
-  const reached=b.status==='arrived'?'working':b.status;
-  const idx=ORDER.indexOf(reached==='cancelled'?'new':reached);
-  document.getElementById('tl').innerHTML=L.steps.map((s,i)=>{
-    const si=ORDER.indexOf(s[0]);
-    const cls=b.status==='cancelled'?'pending':(si<idx?'done':si===idx?(b.status==='done'?'done':'now'):'pending');
-    return `<div class="tl ${cls}"><div class="nd">${cls==='done'?'✓':cls==='now'?'●':''}</div><div class="t">${s[1]}</div></div>`;
-  }).join('');
+  const s=X.states[b.status]||[b.status,''];
+  $('stT').textContent=s[0]; $('stS').textContent=s[1]; $('stCode').textContent=b.code;
+  $('status').classList.toggle('cancelled',b.status==='cancelled');
+  $('chips').innerHTML=[b.day,b.time_window,b.area].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('');
+  const reached=b.status==='arrived'?'working':b.status, idx=ORDER.indexOf(reached);
+  $('tl').innerHTML=X.steps.map(([k,lbl])=>{const i=ORDER.indexOf(k);
+    const c=b.status==='cancelled'?'':(i<idx||b.status==='done'?'done':i===idx?'now':'');
+    return `<li class="${c}" ${c==='now'?'aria-current="step"':''}>${esc(lbl)}</li>`}).join('');
 
   // technician
-  document.getElementById('techBox').innerHTML=b.technician?`
-    <div class="tech-card"><div class="avatar">${esc(b.technician.name[0])}</div>
-      <div><div class="nm">${esc(b.technician.name)}</div>
-      <div class="meta">✓ ${LANG==='en'?'ID-verified · skill-certified':'متحقق من هويته · معتمد عمليًا'} · ${b.technician.jobs_done}${L.jobs}</div></div>
-      <div class="r">${b.technician.rating}★</div></div>`:'';
+  const t=b.technician;
+  $('techCard').innerHTML = `<h2>${esc(X.tech)}</h2>` + (t
+    ? `<div class="tech"><div class="av">${esc((t.name||'?').trim()[0])}</div><div><b>${esc(t.name)}</b><small>${esc(X.verified)} — ${n2(t.jobs_done)} ${esc(X.jobs)}</small></div>
+       <div class="r">${t.rating?t.rating.toFixed(1)+'★':esc(X.new)}</div></div>`
+    : `<div class="wait">${b.status==='cancelled'?'':'<span class="dotp"></span>'}<span>${esc(b.status==='cancelled'?'—':X.techWait)}</span></div>`);
 
-  // pending parts approvals
-  const pending=(b.parts_quotes||[]).filter(p=>p.status==='pending');
-  const pc=document.getElementById('partsCard');
-  if(pending.length){
-    pc.style.display='block';
-    pc.innerHTML=`<div class="part-pending"><div class="t">${L.partsT}</div>${pending.map(p=>`
-      <div class="part-row"><span>${esc(p.part_name)} — <b class="mono">${p.price_egp} ${LANG==='en'?'EGP':'جنيه'}</b></span>
-      <span class="btns"><button class="pbtn ok" onclick="decide(${p.id},'approved',this)">${L.ok}</button>
-      <button class="pbtn no" onclick="decide(${p.id},'rejected',this)">${L.no}</button></span></div>`).join('')}</div>`;
-  }else pc.style.display='none';
+  // parts waiting for approval — shown above everything else in the column
+  const parts=b.parts_quotes||[], pending=parts.filter(p=>p.status==='pending');
+  const pname=p=>LG==='en'&&p.part_name_en?p.part_name_en:p.part_name;
+  $('partsCard').hidden=!pending.length;
+  if(pending.length) $('partsCard').innerHTML=`<h2>${esc(X.partsT)}</h2><p>${esc(X.partsS)}</p>`+pending.map(p=>`
+    <div class="prow"><div class="nm">${esc(pname(p))}<small class="num">${cur(p.price_egp)}</small></div>
+      <div class="bt"><button type="button" class="btn btn-ok" data-part="${p.id}" data-d="approved">${esc(X.ok)}</button>
+      <button type="button" class="btn btn-line" data-part="${p.id}" data-d="rejected">${esc(X.no)}</button></div></div>`).join('');
+  const decided=parts.filter(p=>p.status!=='pending');
+  $('doneParts').hidden=!decided.length;
+  if(decided.length) $('doneParts').innerHTML=`<h2>${esc(X.partsDone)}</h2><div class="plist-done">`+decided.map(p=>`
+    <div><span>${esc(pname(p))}<span class="st-chip st-${p.status}">${esc(X[p.status])}</span></span><span class="num">${cur(p.price_egp)}</span></div>`).join('')+'</div>';
 
   // bill
-  const cur=LANG==='en'?'EGP ':'';const curA=LANG==='en'?'':' جنيه';
-  document.getElementById('bill').innerHTML=`
-    <div class="row"><span>${L.labor}</span><span class="mono">${cur}${b.labor_egp}${curA}</span></div>
-    <div class="row"><span>${L.fee}</span><span class="mono">${cur}${b.service_fee_egp}${curA}</span></div>
-    ${b.parts_egp?`<div class="row"><span>${L.parts}</span><span class="mono">${cur}${b.parts_egp}${curA}</span></div>`:''}
-    <div class="row total"><span>${L.total} <span class="paid-chip ${b.payment_status==='paid'?'paid':'unpaid'}">${b.payment_status==='paid'?L.paid:L.unpaid}</span></span><span class="mono">${cur}${b.total_egp}${curA}</span></div>`;
+  const paid=b.payment_status==='paid';
+  $('bill').innerHTML=`
+    <div class="rc-row"><span class="k">${esc(X.labor)}</span><span class="v num">${cur(b.labor_egp)}</span></div>
+    <div class="rc-row"><span class="k">${esc(X.fee)}</span><span class="v num">${cur(b.service_fee_egp)}</span></div>
+    ${b.parts_egp?`<div class="rc-row"><span class="k">${esc(X.parts)}</span><span class="v num">${cur(b.parts_egp)}</span></div>`:''}
+    <div class="tear" aria-hidden="true"></div>
+    <div class="rc-total" style="border:0;padding:0;margin:0"><span class="k">${esc(X.total)}<span class="paid ${paid?'':'unpaid'}">${esc(paid?X.paid:X.unpaid)}</span></span>
+      <span class="v">${LG==='en'?'<small>EGP</small> ':''}<span class="num">${n2(b.total_egp)}</span>${LG==='ar'?' <small>جنيه</small>':''}</span></div>`;
+  $('payBox').innerHTML = (!paid && b.status!=='cancelled')
+    ? (b.payment_available ? `<button type="button" class="btn btn-teal btn-block btn-lg" id="payBtn" style="margin-top:18px">${esc(X.pay)}</button>`
+                           : `<p class="rc-note">${esc(X.payNA)}</p>`) : '';
+  if($('payBtn')) $('payBtn').onclick=payNow;
 
-  // pay button
-  const pb=document.getElementById('payBox');
-  if(b.payment_status!=='paid'&&b.status!=='cancelled'){
-    pb.innerHTML=b.payment_available
-      ?`<button class="btn btn-pay" onclick="payNow(this)">💳 ${L.pay}</button>`
-      :`<p class="sub" style="text-align:center;margin:8px 0 0">💵 ${L.payNA}</p>`;
-  }else pb.innerHTML='';
-
-  // rating
-  document.getElementById('rateCard').style.display=(b.status==='done'&&!rated)?'block':'none';
-  document.getElementById('syncLbl').textContent=L.sync+new Date().toLocaleTimeString();
+  $('rateCard').hidden = !(b.status==='done' && !rated);
+  $('sync').textContent = X.sync+' '+new Date().toLocaleTimeString(LG==='en'?'en-GB':'ar-EG-u-nu-latn',{hour:'2-digit',minute:'2-digit'});
 }
 
-async function decide(id,decision,btn){
-  btn.disabled=true;
+$('partsCard').addEventListener('click',async ev=>{
+  const b=ev.target.closest('[data-part]'); if(!b) return;
+  b.closest('.bt').querySelectorAll('button').forEach(x=>x.disabled=true);
   try{
-    const r=await fetch('/api/bookings/'+CODE+'/parts/'+id+'/decision',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({decision})});
+    const r=await fetch('/api/bookings/'+encodeURIComponent(CODE)+'/parts/'+b.dataset.part+'/decision',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({decision:b.dataset.d})});
     const d=await r.json();
-    if(d.ok)render(d.booking);else{alert(d.error);btn.disabled=false}
-  }catch(e){btn.disabled=false}
+    if(d.ok){ track('part_decision',{decision:b.dataset.d,lang:LG}); render(d.booking); }
+    else { alert(d.error); refresh(); }
+  }catch(e){ b.closest('.bt').querySelectorAll('button').forEach(x=>x.disabled=false); }
+});
+async function payNow(){
+  const btn=$('payBtn'); btn.disabled=true;
+  try{ const r=await fetch('/api/bookings/'+encodeURIComponent(CODE)+'/pay',{method:'POST'}); const d=await r.json();
+    if(d.ok){ track('payment_started',{value:d.amount_egp,currency:'EGP'}); location.href=d.iframe_url; return; }
+    alert(d.error); }catch(e){}
+  btn.disabled=false;
 }
-async function payNow(btn){
-  btn.disabled=true;btn.textContent='…';
-  try{
-    const r=await fetch('/api/bookings/'+CODE+'/pay',{method:'POST'});
-    const d=await r.json();
-    if(d.ok)location.href=d.iframe_url;
-    else{alert(d.error);btn.disabled=false;btn.textContent='💳 '+L.pay}
-  }catch(e){btn.disabled=false;btn.textContent='💳 '+L.pay}
-}
-document.querySelectorAll('.star').forEach(s=>s.addEventListener('click',()=>{
-  rating=+s.dataset.s;
-  document.querySelectorAll('.star').forEach(x=>x.classList.toggle('lit',+x.dataset.s<=rating));
-}));
-async function sendRating(btn){
-  if(!rating)return;
-  btn.disabled=true;
-  const tags=[...document.querySelectorAll('.rtag.selected')].map(t=>t.textContent);
-  try{
-    const r=await fetch('/api/bookings/'+CODE+'/rating',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({stars:rating,tags})});
-    const d=await r.json();
-    if(d.ok){rated=true;btn.textContent=L.rated}
-    else{alert(d.error);btn.disabled=false}
-  }catch(e){btn.disabled=false}
-}
-if(P.get('code'))lookup(P.get('code'));
+$('stars').addEventListener('click',ev=>{const b=ev.target.closest('.star');if(!b)return;rating=+b.dataset.s;
+  document.querySelectorAll('.star').forEach(x=>x.classList.toggle('lit',+x.dataset.s<=rating))});
+$('rateBtn').addEventListener('click',async()=>{
+  if(!rating){ $('stars').querySelector('.star').focus(); return; }
+  const btn=$('rateBtn'); btn.disabled=true;
+  const tags=[...document.querySelectorAll('.tag[aria-pressed=true]')].map(x=>x.textContent);
+  try{ const r=await fetch('/api/bookings/'+encodeURIComponent(CODE)+'/rating',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({stars:rating,tags})}); const d=await r.json();
+    if(d.ok||/already/i.test(d.error||'')){ rated=true; track('rating_sent',{stars:rating}); $('rateCard').innerHTML=`<h2>${esc(X.rated)}</h2>`; return; }
+    alert(d.error); }catch(e){}
+  btn.disabled=false;
+});
+$('luForm').addEventListener('submit',ev=>{ev.preventDefault();$('luE').classList.remove('show');lookup($('codeInput').value)});
+if(P.get('code')) lookup(P.get('code')); else { $('lookup').hidden=false; $('codeInput').focus(); }
+
 </script>
 </body>
 </html>
