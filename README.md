@@ -41,6 +41,8 @@ Flask + SQLite. Serves the website AND the API from one process.
       POST /api/admin/inventory/reprice           bulk % change (supports dry_run preview)
       GET  /api/admin/pricing/jobs                labor price per job type
       PATCH /api/admin/pricing/jobs/<id>          change labor price / listing (new bookings only)
+      GET  /api/admin/analytics?days=30           daily bookings/value/revenue, by service, by area, funnel
+      POST /api/admin/notify-test                 {"phone"} send a test WhatsApp message
 
 ## Parts & products catalog
     Seeded once from catalog_seed.py (~120 items across all 6 services, indicative

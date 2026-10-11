@@ -1072,7 +1072,7 @@ def tech_open_jobs():
     trades = g.tech["trades"].split(",")
     q = ",".join("?" for _ in trades)
     rows = db.execute(
-        f"""SELECT b.*, j.title FROM bookings b
+        f"""SELECT b.*, COALESCE(j.title_ar, j.title) AS title FROM bookings b
             JOIN jobs_catalog j ON j.id=b.job_catalog_id
             WHERE b.status='new' AND b.service_slug IN ({q})
             ORDER BY b.created_at""",
@@ -1139,8 +1139,8 @@ def tech_my():
     db = get_db()
     t = g.tech
     jobs = db.execute(
-        "SELECT b.id, b.code, b.status, b.day, b.time_window, b.area, b.address, b.notes,"
-        " b.labor_egp, b.parts_egp, b.total_egp, b.customer_mobile, j.title"
+        "SELECT b.id, b.code, b.status, b.day, b.time_window, b.area, b.address, b.notes, b.updated_at,"
+        " b.labor_egp, b.parts_egp, b.total_egp, b.customer_mobile, COALESCE(j.title_ar, j.title) AS title"
         " FROM bookings b JOIN jobs_catalog j ON j.id=b.job_catalog_id"
         " WHERE b.technician_id=? AND b.status!='cancelled'"
         " ORDER BY CASE WHEN b.status='done' THEN 1 ELSE 0 END, b.updated_at DESC LIMIT 50",
@@ -1304,7 +1304,9 @@ def admin_bookings():
     q = ("SELECT b.*, j.title AS job_title, t.full_name AS tech_name,"
          " t.rating_avg AS tech_rating, t.jobs_done AS tech_jobs,"
          " (SELECT COUNT(*) FROM job_quotes jq WHERE jq.booking_id=b.id"
-         "   AND jq.status='pending') AS offer_count FROM bookings b"
+         "   AND jq.status='pending') AS offer_count,"
+         " (SELECT COUNT(*) FROM parts_quotes pq WHERE pq.booking_id=b.id"
+         "   AND pq.status='pending') AS pending_parts FROM bookings b"
          " JOIN jobs_catalog j ON j.id=b.job_catalog_id"
          " LEFT JOIN technicians t ON t.id=b.technician_id"
          + (" WHERE b.status=?" if status else "")
@@ -1597,6 +1599,114 @@ def admin_stats():
         "applications_pending": one("SELECT COUNT(*) FROM technicians WHERE status IN ('applied','assessment_booked')"),
         "avg_rating": round(one("SELECT COALESCE(AVG(stars),0) FROM ratings"), 2),
     }})
+
+
+# --------------------------------------------------------------------------
+# Admin — analytics & ops helpers
+# --------------------------------------------------------------------------
+
+def _cairo_tz():
+    try:
+        from zoneinfo import ZoneInfo
+        return ZoneInfo("Africa/Cairo")
+    except Exception:
+        from datetime import timedelta
+        return timezone(timedelta(hours=3))
+
+
+def _local_date(iso, tz):
+    try:
+        return datetime.fromisoformat(iso).astimezone(tz).date()
+    except Exception:
+        return None
+
+
+@app.get("/api/admin/analytics")
+@require_admin
+def admin_analytics():
+    """Daily series + breakdowns for the overview charts. ?days=7..90 (default 30)."""
+    from datetime import timedelta
+    try:
+        days = max(7, min(90, int(request.args.get("days", 30))))
+    except ValueError:
+        days = 30
+    tz = _cairo_tz()
+    today = datetime.now(tz).date()
+    start = today - timedelta(days=days - 1)
+    db = get_db()
+    names = {r["slug"]: (r["name_en"], r["name_ar"]) for r in db.execute("SELECT slug,name_en,name_ar FROM services")}
+    first_at = {}
+    for r in db.execute("SELECT booking_id, status, MIN(at) at FROM status_log WHERE status IN ('assigned','done')"
+                        " GROUP BY booking_id, status"):
+        first_at[(r["booking_id"], r["status"])] = r["at"]
+    margin = {r["booking_id"]: r["m"] for r in db.execute(
+        "SELECT booking_id, SUM(price_egp-COALESCE(cost_egp,0)) m FROM parts_quotes"
+        " WHERE status='approved' AND supplied_by='fanni' GROUP BY booking_id")}
+    series = {start + timedelta(days=i): {"bookings": 0, "done": 0, "gmv": 0, "revenue": 0} for i in range(days)}
+    by_svc, by_area, assign_mins = {}, {}, []
+    funnel = {"created": 0, "assigned": 0, "done": 0, "cancelled": 0}
+    today_n = yday_n = 0
+    for b in db.execute("SELECT id, created_at, status, total_egp, labor_egp, service_fee_egp, service_slug, area"
+                        " FROM bookings").fetchall():
+        d = _local_date(b["created_at"], tz)
+        if d == today:
+            today_n += 1
+        elif d == today - timedelta(days=1):
+            yday_n += 1
+        in_window = d is not None and d >= start
+        if in_window:
+            series[d]["bookings"] += 1
+            funnel["created"] += 1
+            if (b["id"], "assigned") in first_at:
+                funnel["assigned"] += 1
+                try:
+                    mins = (datetime.fromisoformat(first_at[(b["id"], "assigned")]) -
+                            datetime.fromisoformat(b["created_at"])).total_seconds() / 60
+                    if mins >= 0:
+                        assign_mins.append(mins)
+                except Exception:
+                    pass
+            if b["status"] == "cancelled":
+                funnel["cancelled"] += 1
+            else:
+                s = by_svc.setdefault(b["service_slug"], {"bookings": 0, "gmv": 0})
+                s["bookings"] += 1
+                area = (b["area"] or "—").strip()
+                by_area[area] = by_area.get(area, 0) + 1
+        if b["status"] == "done":
+            dd = _local_date(first_at.get((b["id"], "done"), b["created_at"]), tz)
+            rev = round(b["labor_egp"] * COMMISSION_RATE) + (b["service_fee_egp"] or 0) + margin.get(b["id"], 0)
+            if in_window:
+                funnel["done"] += 1
+                by_svc.setdefault(b["service_slug"], {"bookings": 0, "gmv": 0})["gmv"] += b["total_egp"]
+            if dd in series:
+                series[dd]["done"] += 1
+                series[dd]["gmv"] += b["total_egp"]
+                series[dd]["revenue"] += rev
+    assign_mins.sort()
+    median = round(assign_mins[len(assign_mins) // 2]) if assign_mins else None
+    return jsonify({"ok": True, "days": days, "today": today.isoformat(),
+        "series": [{"date": d.isoformat(), **v} for d, v in sorted(series.items())],
+        "by_service": sorted([{"slug": k, "name_en": names.get(k, (k, k))[0], "name_ar": names.get(k, (k, k))[1], **v}
+                              for k, v in by_svc.items()], key=lambda x: -x["bookings"]),
+        "by_area": sorted([{"area": k, "bookings": v} for k, v in by_area.items()], key=lambda x: -x["bookings"])[:40],
+        "funnel": funnel, "bookings_today": today_n, "bookings_yesterday": yday_n,
+        "median_assign_minutes": median,
+        "open_jobs": db.execute("SELECT COUNT(*) FROM bookings WHERE status IN"
+                                " ('assigned','en_route','arrived','working')").fetchone()[0]})
+
+
+@app.post("/api/admin/notify-test")
+@require_admin
+def admin_notify_test():
+    d = request.get_json(silent=True) or {}
+    phone = re.sub(r"\D", "", d.get("phone") or "")
+    if not valid_mobile(phone):
+        return err("Enter an Egyptian mobile number, 01XXXXXXXXX")
+    notify(phone, "فنّي — رسالة تجريبية من لوحة التحكم ✓")
+    configured = bool(WA_TOKEN and WA_PHONE_ID)
+    return jsonify({"ok": True, "to": phone,
+                    "mode": "whatsapp" if configured else "not configured — set WA_TOKEN and WA_PHONE_ID, message only logged"})
 
 
 # --------------------------------------------------------------------------

@@ -11,174 +11,217 @@
   function track(ev,params){gtag('event',ev,params||{})}
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A3B42">
 <title>فنّي — بوابة الفنيين</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A424A;
-  --amber:#F08A24; --amber-soft:#FCE9D2;
-  --mist:#EDF3F2; --sand:#F5F0E4; --line:#D8E0DE;
-  --muted:#5C7275; --green:#1E8E5A; --red:#C64B3A;
+  --ink:#0C2E33; --teal:#0F5B63; --teal-deep:#0A3B42; --teal-950:#072D33;
+  --amber:#F08A24; --amber-soft:#FDEBD6; --amber-ink:#9A5A0F;
+  --mist:#EEF4F3; --sand:#F6F8F8; --line:#D6E1DF; --line-2:#E6EDEC;
+  --muted:#55696C; --soft:#A9C4C7; --green:#1E8E5A; --green-soft:#E1F2EA; --red:#C64B3A; --red-soft:#F8E4E0; --blue:#2563A8; --blue-soft:#E4EEF8;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh}
-.mono{font-family:'IBM Plex Mono',monospace}
+[hidden]{display:none!important}
+body{font-family:'Cairo',system-ui,sans-serif;color:var(--ink);background:var(--mist);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:8px}
+.mono{font-variant-numeric:tabular-nums}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
 /* login */
-.login-wrap{max-width:420px;margin:70px auto;padding:0 20px}
-.login-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px;box-shadow:0 14px 40px rgba(12,46,51,.08);text-align:center}
-.login-card .logo-big{font-size:46px;font-weight:900;color:var(--teal);line-height:1}
-.login-card h2{font-size:21px;font-weight:900;margin:12px 0 4px}
-.login-card p{color:var(--muted);font-size:14px;margin-bottom:20px}
-.login-card input{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:14px;text-align:center;direction:ltr}
+#loginView{min-height:100vh;background:var(--teal-deep);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-wrap{width:100%;max-width:400px}
+.login-card{background:#fff;border-radius:22px;padding:34px 26px;text-align:center}
+.login-card .logo-big{font-size:48px;font-weight:900;color:var(--teal);line-height:1}
+.login-card h2{font-size:21px;font-weight:800;margin:12px 0 4px}
+.login-card p{color:var(--muted);font-size:14.5px;margin-bottom:20px}
+.login-card input{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;margin-bottom:12px;text-align:center;direction:ltr}
 .login-card input:focus{outline:none;border-color:var(--teal)}
-.login-err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
-.login-hint{font-size:12px;color:var(--muted);margin-top:16px}
+.login-err{color:var(--red);font-size:13.5px;font-weight:700;margin-top:12px;display:none}
+.login-hint{font-size:13px;color:var(--muted);margin-top:18px}
+.login-hint a{color:var(--teal);font-weight:800}
 
-/* app shell */
-.app-head{background:var(--teal-deep);color:#fff;padding:16px 18px;position:sticky;top:0;z-index:50}
-.app-head-in{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+/* header */
+.app-head{background:var(--teal-deep);color:#fff;position:sticky;top:0;z-index:50}
+.app-head-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 16px}
 .app-logo{display:flex;align-items:baseline;gap:8px}
-.app-logo .ar{font-size:24px;font-weight:900;line-height:1}
-.app-logo .en{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:#A9C4C7}
-.app-head .who{font-size:12.5px;color:#A9C4C7;text-align:left}
-.app-head .who b{color:#fff;display:block;font-size:14px}
-.logout{background:none;border:none;color:#A9C4C7;font-size:11.5px;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:underline}
-.wrap{max-width:640px;margin:0 auto;padding:16px 16px 90px}
+.app-logo b{font-size:26px;font-weight:900;line-height:1}
+.app-logo span{font-size:12px;color:var(--soft);font-weight:700}
+.who{margin-inline-start:auto;text-align:end;line-height:1.3}
+.who b{display:block;font-size:14.5px}
+.who small{font-size:12px;color:var(--soft);font-weight:600}
+.hbtn{width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.hbtn:hover{background:rgba(255,255,255,.18)}
+.hbtn .ic{width:19px;height:19px}
+.hbtn.spin .ic{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(-360deg)}}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 104px}
 
 /* tabs */
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr 1fr;z-index:60}
-.tab{padding:10px 4px 12px;text-align:center;background:none;border:none;font-family:'Cairo',sans-serif;cursor:pointer;position:relative}
-.tab .ic{font-size:20px;display:block;filter:grayscale(1);opacity:.5}
-.tab .l{font-size:11px;font-weight:800;color:var(--muted)}
-.tab.on .ic{filter:none;opacity:1}
-.tab.on .l{color:var(--teal)}
-.tab .pip{position:absolute;top:6px;right:calc(50% - 20px);min-width:17px;height:17px;border-radius:99px;background:var(--red);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line-2);display:grid;grid-template-columns:repeat(4,1fr);z-index:60;padding-bottom:env(safe-area-inset-bottom)}
+.tab{padding:9px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;cursor:pointer;position:relative;color:var(--muted)}
+.tab .ic{width:24px;height:24px}
+.tab .l{font-size:11.5px;font-weight:800}
+.tab.on{color:var(--teal)}
+.tab.on::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--amber)}
+.tab .pip{position:absolute;top:5px;inset-inline-end:calc(50% - 24px);min-width:18px;height:18px;border-radius:99px;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
 
 .screen{display:none}
-.screen.active{display:block;animation:fadeIn .25s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.sec-title{font-size:13px;font-weight:900;color:var(--muted);margin:8px 0 10px}
+.screen.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sec-title{font-size:14px;font-weight:800;color:var(--muted);margin:18px 2px 10px}
+.sec-title:first-child{margin-top:4px}
 
-/* stat strip */
-.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
-.stat .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;color:var(--teal)}
-.stat .l{font-size:11px;color:var(--muted);font-weight:700}
+/* status strip */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.stat{background:#fff;border-radius:14px;padding:12px 10px}
+.stat .v{font-weight:800;font-size:20px;line-height:1.2;color:var(--ink)}
+.stat .l{font-size:12px;color:var(--muted);font-weight:700}
+.live{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 2px 0}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
 
 /* request cards */
-.req{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
-.req.mine::before{content:"";position:absolute;right:0;top:0;bottom:0;width:4px;background:var(--green)}
-.req-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px}
-.req .t{font-weight:900;font-size:15.5px}
-.req .price{text-align:left;flex-shrink:0}
-.req .price .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:var(--teal)}
-.req .price .lbl{font-size:10.5px;color:var(--muted);font-weight:800}
-.req .meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:8px}
-.req .note{font-size:12.5px;background:var(--sand);border-radius:8px;padding:7px 10px;margin-bottom:10px}
-.req .earn{font-size:12.5px;color:var(--green);font-weight:800;margin-bottom:10px}
-.offer-status{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 12px;border-radius:99px;background:#E0F0EA;color:var(--green);margin-bottom:8px}
+.req{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;border:1.5px solid transparent}
+.req.mine{border-color:var(--green)}
+.req.fresh{animation:flash 1.6s ease}
+@keyframes flash{0%,40%{border-color:var(--amber);box-shadow:0 0 0 4px var(--amber-soft)}100%{border-color:transparent;box-shadow:none}}
+.req-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.req .t{font-weight:800;font-size:16.5px;line-height:1.35}
+.req .svc{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:2px}
+.req .svc .ic{width:17px;height:17px;color:var(--teal)}
+.req .price{text-align:end;flex-shrink:0}
+.req .price .amt{font-weight:900;font-size:22px;color:var(--green);line-height:1.1}
+.req .price .amt small{font-size:12px;font-weight:800;margin-inline-start:2px}
+.req .price .lbl{font-size:11.5px;color:var(--muted);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.chips span{display:inline-flex;align-items:center;gap:5px;background:var(--mist);border-radius:99px;padding:3px 11px;font-size:12.5px;font-weight:700}
+.chips .ic{width:15px;height:15px;color:var(--teal)}
+.req .note{font-size:13.5px;background:var(--sand);border-radius:10px;padding:9px 12px;margin-bottom:12px;border-inline-start:3px solid var(--line)}
+.req .earn{font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:12px}
+.offer-status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;padding:8px 12px;border-radius:10px;background:var(--green-soft);color:var(--green);margin-bottom:10px}
 
 /* offer builder */
-.offer-box{border-top:1.5px dashed var(--line);padding-top:12px;margin-top:4px;display:none}
+.offer-box{border-top:1.5px dashed var(--line);padding-top:14px;margin-top:12px;display:none}
 .offer-box.open{display:block}
-.offer-box h4{font-size:13px;font-weight:900;margin-bottom:8px}
-.item-row{display:flex;gap:7px;margin-bottom:7px}
-.item-row input{padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px}
+.offer-box h4{font-size:14px;font-weight:800;margin-bottom:10px}
+.item-row{display:flex;gap:7px;margin-bottom:7px;align-items:center}
+.item-row input{padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:#fff;min-width:0}
+.item-row input:focus{outline:none;border-color:var(--teal)}
 .item-row input.nm{flex:1}
-.item-row input.pr{width:92px;font-family:'IBM Plex Mono',monospace;direction:ltr;text-align:center}
-.item-row .rm{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;font-weight:900}
-.add-item{background:none;border:none;color:var(--teal);font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Cairo',sans-serif;padding:2px 0 8px}
-.offer-note input{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px;margin-bottom:8px}
-.offer-sum{display:flex;justify-content:space-between;font-size:13px;font-weight:800;padding:8px 0;border-top:1px solid var(--line)}
+.item-row input.pr{width:92px;direction:ltr;text-align:center}
+.item-row .rm{background:none;border:0;color:var(--red);font-size:17px;cursor:pointer;font-weight:900;padding:4px}
+.add-item{background:none;border:0;color:var(--teal);font-weight:800;font-size:13.5px;cursor:pointer;padding:4px 0 10px}
+.offer-note input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:8px}
+.offer-sum{display:flex;justify-content:space-between;font-size:14px;font-weight:800;padding:10px 0;border-top:1px solid var(--line-2)}
 .offer-sum .mono{color:var(--teal)}
 
-.btn{padding:11px 20px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:transform .12s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:800;font-size:15px;border:1.5px solid transparent;cursor:pointer;transition:transform .12s;text-decoration:none;line-height:1.3}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.5}
 .btn-primary{background:var(--amber);color:var(--ink)}
-.btn-ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
+.btn-dark{background:var(--teal);color:#fff}
+.btn-ghost{background:#fff;color:var(--teal);border-color:var(--teal)}
 .btn-full{width:100%}
 .btn-row{display:flex;gap:8px}
 .btn-row .btn{flex:1}
+.btn-row .btn-ghost{flex:0 0 auto}
+.btn-cat{background:var(--mist);color:var(--teal);border:1.5px dashed var(--teal)}
 
 /* my jobs */
-.job-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
-.job-card .chip{display:inline-block;font-size:11px;font-weight:800;padding:2px 12px;border-radius:99px;margin-bottom:6px}
-.st-assigned{background:#E4EEF8;color:#2563A8}
-.st-en_route,.st-arrived,.st-working{background:#E0F0EA;color:var(--green)}
+.job-card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px}
+.job-card .head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.job-card .chip{display:inline-block;font-size:12px;font-weight:800;padding:3px 12px;border-radius:99px}
+.job-card .code{font-size:12.5px;color:var(--muted);font-weight:700;direction:ltr}
+.job-card .t{font-weight:800;font-size:17px;line-height:1.35}
+.st-assigned{background:var(--blue-soft);color:var(--blue)}
+.st-en_route,.st-arrived,.st-working{background:var(--green-soft);color:var(--green)}
 .st-done{background:var(--teal);color:#fff}
-.job-card .addr{font-size:13px;background:var(--sand);border-radius:8px;padding:8px 10px;margin:8px 0}
-.job-card .contact{display:flex;gap:8px;margin:8px 0}
-.job-card .contact a{flex:1;text-align:center;border:1.5px solid var(--teal);color:var(--teal);border-radius:99px;padding:8px;font-weight:800;font-size:13px;text-decoration:none}
-.parts-mini{border-top:1.5px dashed var(--line);margin-top:10px;padding-top:10px}
-.empty{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px}
-.empty .big{font-size:36px;display:block;margin-bottom:8px}
-.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:100;white-space:nowrap}
+.prog{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:12px 0 4px}
+.prog i{height:5px;border-radius:9px;background:var(--line-2)}
+.prog i.on{background:var(--green)}
+.prog i.now{background:var(--amber)}
+.prog-l{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px}
+.addr{background:var(--sand);border-radius:12px;padding:11px 13px;margin:10px 0;font-size:14px}
+.addr b{display:block;font-size:12px;color:var(--muted);font-weight:800}
+.contact{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 12px}
+.contact a{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid var(--line);color:var(--teal);border-radius:14px;padding:9px 4px;font-weight:800;font-size:12.5px;text-decoration:none;background:#fff}
+.contact a:hover{border-color:var(--teal)}
+.contact .ic{width:21px;height:21px}
+.pay-line{display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding:10px 0;border-top:1px solid var(--line-2);margin-top:4px}
+.pay-line b{color:var(--green);font-size:16px}
+.parts-mini{border-top:1.5px dashed var(--line);margin-top:12px;padding-top:12px}
+.part-line{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:4px 0}
+.part-line .mono{white-space:nowrap;font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:44px 20px;font-size:14.5px;background:#fff;border-radius:18px}
+.empty .ic{width:40px;height:40px;margin:0 auto 10px;color:var(--soft)}
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13.5px;font-weight:700;padding:10px 22px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:200;max-width:92vw;text-align:center}
 .toast.show{opacity:1}
 
 /* earnings */
-.earn-hero{background:var(--teal-deep);color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
-.earn-hero .bgar{position:absolute;left:-14px;bottom:-34px;font-size:110px;font-weight:900;color:rgba(255,255,255,.05);line-height:1}
-.earn-hero .l{font-size:12.5px;color:#A9C4C7;font-weight:700}
-.earn-hero .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:32px;margin-top:2px}
-.done-row{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
-.done-row .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);white-space:nowrap}
+.earn-hero{background:var(--teal-deep);color:#fff;border-radius:20px;padding:20px}
+.earn-hero .l{font-size:13px;color:var(--soft);font-weight:700}
+.earn-hero .v{font-weight:900;font-size:36px;line-height:1.15;margin-top:2px}
+.earn-hero .v small{font-size:15px;font-weight:800;margin-inline-start:4px}
+.earn-hero .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.14)}
+.earn-hero .row b{display:block;font-size:19px;font-weight:800}
+.earn-hero .row span{font-size:12px;color:var(--soft);font-weight:700}
+.wk{background:#fff;border-radius:18px;padding:16px;margin-top:12px}
+.wk h3{font-size:14.5px;font-weight:800;margin-bottom:2px}
+.wk p{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.wk-bars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:150px;padding-top:22px}
+.wk-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.wk-col .b{width:100%;max-width:24px;background:var(--teal);border-radius:4px 4px 0 0;min-height:2px}
+.wk-col.cur .b{background:var(--amber)}
+.wk-col .val{position:absolute;font-size:11px;font-weight:800;white-space:nowrap;transform:translateY(-18px)}
+.wk-lbl{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;font-size:10.5px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px;border-top:1px solid var(--line-2);padding-top:6px}
+.done-row{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.done-row small{display:block;font-size:12px;color:var(--muted)}
+.done-row .amt{font-weight:800;color:var(--green);white-space:nowrap}
+
 /* catalog */
 .cat-tools{display:flex;gap:8px;margin-bottom:10px}
-.cat-search{flex:1;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;background:#fff}
+.cat-search{flex:1;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:14.5px;background:#fff;min-width:0}
 .cat-search:focus{outline:none;border-color:var(--teal)}
 .cat-chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
-.cat-chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:4px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;color:var(--muted);white-space:nowrap}
+.cat-chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:5px 14px;font-size:13px;font-weight:800;cursor:pointer;color:var(--muted);white-space:nowrap}
 .cat-chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
-.cat-group{font-size:12px;font-weight:900;color:var(--muted);margin:14px 2px 6px}
-.cat-item{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.cat-group{font-size:12.5px;font-weight:800;color:var(--muted);margin:16px 2px 6px}
+.cat-item{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .cat-item.na{opacity:.55}
-.cat-item .nm{font-weight:800;font-size:14px;line-height:1.4}
-.cat-item .sk{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted)}
-.cat-item .pr{text-align:left;flex-shrink:0}
-.cat-item .pr .a{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal);font-size:14.5px;white-space:nowrap}
-.cat-item .pr .u{font-size:10.5px;color:var(--muted);font-weight:700}
-.src{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 9px;border-radius:99px;margin-top:3px}
-.src.fanni{background:#E4EEF8;color:#2563A8}
-.src.tech{background:var(--amber-soft);color:#9A5A0F}
-.src.out{background:#F6E3E0;color:var(--red)}
-.btn-cat{background:var(--mist);color:var(--teal);border:1.5px dashed var(--teal)}
-.item-row.cat{align-items:center;background:var(--mist);border-radius:9px;padding:6px 8px}
-.item-row.cat .cn{flex:1;font-size:13px;font-weight:800;line-height:1.35}
-.item-row.cat .cn small{display:block;font-weight:700;color:var(--muted);font-size:11px}
-.item-row .qty{width:56px;padding:7px 4px;border:1.5px solid var(--line);border-radius:9px;font-family:'IBM Plex Mono',monospace;text-align:center;direction:ltr}
-.item-row .lp{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal);font-size:12.5px;white-space:nowrap;min-width:70px;text-align:left}
-.part-line{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:3px 0}
-.part-line .mono{white-space:nowrap}
-
-/* picker sheet */
-.sheet-bg{position:fixed;inset:0;background:rgba(12,46,51,.5);z-index:150;display:none}
+.cat-item .nm{font-weight:800;font-size:14.5px;line-height:1.4}
+.cat-item .sk{font-size:11px;color:var(--muted);direction:ltr;text-align:end}
+.cat-item .pr{text-align:start;flex-shrink:0}
+.cat-item .pr .a{font-weight:800;color:var(--teal);font-size:15px;white-space:nowrap}
+.cat-item .pr .u{font-size:11px;color:var(--muted);font-weight:700}
+.src{display:inline-block;font-size:11px;font-weight:800;padding:1px 9px;border-radius:99px;margin-top:4px}
+.src.fanni{background:var(--blue-soft);color:var(--blue)}
+.src.tech{background:var(--amber-soft);color:var(--amber-ink)}
+.src.out{background:var(--red-soft);color:var(--red)}
+.item-row.cat{background:var(--mist);border-radius:10px;padding:7px 9px}
+.item-row.cat .cn{flex:1;font-size:13.5px;font-weight:800;line-height:1.35}
+.item-row.cat .cn small{display:block;font-weight:700;color:var(--muted);font-size:11.5px}
+.item-row .qty{width:56px;padding:8px 4px;border:1.5px solid var(--line);border-radius:9px;text-align:center;direction:ltr}
+.item-row .lp{font-weight:800;color:var(--teal);font-size:13px;white-space:nowrap;min-width:64px;text-align:start}
+.sheet-bg{position:fixed;inset:0;background:rgba(7,45,51,.5);z-index:150;display:none}
 .sheet-bg.open{display:block}
-.sheet{position:fixed;left:0;right:0;bottom:0;max-height:86vh;background:var(--mist);border-radius:20px 20px 0 0;z-index:160;display:none;flex-direction:column;max-width:640px;margin:0 auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:86vh;background:var(--mist);border-radius:22px 22px 0 0;z-index:160;display:none;flex-direction:column;max-width:640px;margin:0 auto}
 .sheet.open{display:flex;animation:up .22s ease}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 .sheet-head{padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center}
-.sheet-head h4{font-size:15.5px;font-weight:900}
-.sheet-head button{background:#fff;border:1px solid var(--line);width:32px;height:32px;border-radius:50%;cursor:pointer;font-weight:900;color:var(--muted)}
-.sheet-body{overflow-y:auto;padding:0 16px 24px}
-.pick-open{background:#fff;border:1.5px solid var(--teal);border-radius:13px;padding:11px 13px;margin-bottom:7px}
-.pick-act{display:flex;gap:8px;align-items:center;margin-top:9px}
+.sheet-head h4{font-size:16px;font-weight:800}
+.sheet-head button{background:#fff;border:0;width:34px;height:34px;border-radius:50%;cursor:pointer;font-weight:900;color:var(--muted)}
+.sheet-body{overflow-y:auto;padding:0 16px 28px}
+.pick-open{background:#fff;border:1.5px solid var(--teal);border-radius:14px;padding:12px 14px;margin-bottom:7px}
+.pick-act{display:flex;gap:8px;align-items:center;margin-top:10px}
 .step{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:99px;overflow:hidden;background:#fff}
-.step button{background:none;border:none;width:34px;height:34px;font-size:17px;font-weight:900;color:var(--teal);cursor:pointer}
-.step span{min-width:30px;text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:600}
-.pick-act .btn{flex:1;padding:9px 12px;font-size:13px}
+.step button{background:none;border:0;width:36px;height:36px;font-size:18px;font-weight:900;color:var(--teal);cursor:pointer}
+.step span{min-width:30px;text-align:center;font-weight:800}
+.pick-act .btn{flex:1;padding:10px 12px;font-size:14px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WDZRJYB4H1');
-  function track(ev,params){gtag('event',ev,params||{})}
-</script>
 </head>
 <body>
 
@@ -187,75 +230,78 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
   <div class="login-wrap"><div class="login-card">
     <div class="logo-big">فنّي</div>
     <h2>بوابة الفنيين</h2>
-    <p>ادخل كود الدخول اللي استلمته بعد اعتمادك.</p>
-    <input type="password" id="tokenInput" placeholder="كود الدخول" onkeydown="if(event.key==='Enter')login()">
+    <p>ادخل كود الدخول اللي وصلك بعد اعتمادك.</p>
+    <input type="password" id="tokenInput" placeholder="كود الدخول" aria-label="كود الدخول" onkeydown="if(event.key==='Enter')login()">
     <button class="btn btn-primary btn-full" onclick="login()">دخول</button>
-    <p class="login-err" id="loginErr">الكود مش صحيح — راجع الرسالة اللي وصلتك أو كلم الدعم 16xxx.</p>
-    <p class="login-hint">لسه ماقدمتش؟ <a href="join-ar.html" style="color:var(--teal);font-weight:800">قدّم كفنّي من هنا</a></p>
+    <p class="login-err" id="loginErr">الكود ده مش شغال. راجع رسالة الاعتماد أو اطلب كود جديد من الإدارة.</p>
+    <p class="login-hint">لسه مقدمتش؟ <a href="join-ar.html">قدّم كفنّي من هنا</a></p>
   </div></div>
 </div>
 
 <!-- APP -->
 <div id="appView" style="display:none">
-  <div class="app-head"><div class="app-head-in">
-    <div class="app-logo"><span class="ar">فنّي</span><span class="en">PARTNER</span></div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <button onclick="manualRefresh(this)" style="background:rgba(255,255,255,.14);border:none;color:#fff;font-family:Cairo,sans-serif;font-weight:800;font-size:12.5px;padding:7px 16px;border-radius:99px;cursor:pointer">↻ تحديث</button>
-      <div class="who"><b id="whoName"></b><span id="whoMeta"></span> · <button class="logout" onclick="logout()">خروج</button></div>
-    </div>
-  </div></div>
+  <header class="app-head"><div class="app-head-in">
+    <div class="app-logo"><b>فنّي</b><span>شريك</span></div>
+    <div class="who"><b id="whoName"></b><small id="whoMeta"></small></div>
+    <button class="hbtn" id="refreshBtn" onclick="manualRefresh(this)" aria-label="تحديث"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 5.7M4 4v7h7"/></svg></button>
+    <button class="hbtn" onclick="if(confirm('تسجيل الخروج من الجهاز ده؟'))logout()" aria-label="خروج"><svg class="ic" viewBox="0 0 24 24"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M14 16l4-4-4-4M18 12H8"/></svg></button>
+  </div></header>
 
   <div class="wrap">
     <!-- REQUESTS -->
     <div class="screen active" id="scr-req">
       <div class="stat-strip">
+        <div class="stat"><div class="v" id="stOpen">—</div><div class="l">طلبات متاحة</div></div>
         <div class="stat"><div class="v" id="stRating">—</div><div class="l">تقييمك</div></div>
         <div class="stat"><div class="v" id="stDone">—</div><div class="l">شغلانات خلصت</div></div>
-        <div class="stat"><div class="v" id="stOpen">—</div><div class="l">طلبات متاحة</div></div>
       </div>
-      <div class="sec-title">طلبات في تخصصك — السعر ثابت، وتقدر تضيف معدات أو خدمات إضافية</div>
+      <div class="live"><i></i><span id="liveLbl">بيتحدث تلقائيًا كل ٣٠ ثانية</span></div>
+      <div class="sec-title">طلبات في تخصصك</div>
       <div id="reqList"></div>
-      <div class="empty" id="reqEmpty" style="display:none"><span class="big">📭</span>مفيش طلبات متاحة دلوقتي في تخصصك.<br>الطلبات بتتجدد تلقائيًا كل شوية.</div>
+      <div class="empty" id="reqEmpty" style="display:none"><svg class="ic" viewBox="0 0 24 24"><path d="M3 13l2.5-7.5h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>مفيش طلبات متاحة دلوقتي في تخصصك.<br>أول ما يوصل طلب هيظهر هنا ونبهك.</div>
     </div>
 
     <!-- MY JOBS -->
     <div class="screen" id="scr-jobs">
-      <div class="sec-title">شغلاناتك الحالية</div>
+      <div class="sec-title">شغلاناتك</div>
       <div id="jobList"></div>
-      <div class="empty" id="jobEmpty" style="display:none"><span class="big">🧰</span>مفيش شغلانات نشطة.<br>قدّم عروض من تبويب الطلبات.</div>
+      <div class="empty" id="jobEmpty" style="display:none"><svg class="ic" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.5 5L3 17.5 6.5 21l6.2-6.2a4 4 0 0 0 5-5.5l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>مفيش شغلانات نشطة.<br>قدّم على الطلبات من تبويب الطلبات.</div>
     </div>
 
     <!-- EARNINGS -->
     <div class="screen" id="scr-earn">
-      <div class="earn-hero"><div class="bgar">فنّي</div>
-        <div class="l">إجمالي أرباحك (بعد العمولة)</div>
+      <div class="earn-hero">
+        <div class="l">إجمالي أرباحك بعد العمولة</div>
         <div class="v" id="earnTotal">—</div>
+        <div class="row"><div><b id="earnWeek">—</b><span>الأسبوع ده</span></div><div><b id="earnMonth">—</b><span>آخر ٣٠ يوم</span></div></div>
       </div>
+      <div class="wk"><h3>أرباحك آخر ٨ أسابيع</h3><p>الأسبوع بيبدأ يوم السبت. الأسبوع الحالي باللون البرتقاني.</p>
+        <div class="wk-bars" id="wkBars"></div><div class="wk-lbl" id="wkLbl"></div></div>
       <div class="sec-title">شغلانات مكتملة</div>
       <div id="doneList"></div>
-      <div class="empty" id="doneEmpty" style="display:none"><span class="big">💰</span>أول شغلانة تخلص، أرباحها هتظهر هنا.</div>
+      <div class="empty" id="doneEmpty" style="display:none"><svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M7 15h3"/></svg>أول شغلانة تخلص، أرباحها هتظهر هنا.</div>
     </div>
 
     <!-- CATALOG -->
     <div class="screen" id="scr-cat">
       <div class="sec-title">قطع الغيار والمنتجات بالأسعار الثابتة للعميل</div>
-      <div class="cat-tools"><input type="search" class="cat-search" id="catSearch" placeholder="ابحث باسم القطعة أو الكود…" oninput="renderCatalog()"></div>
+      <div class="cat-tools"><input type="search" class="cat-search" id="catSearch" placeholder="ابحث باسم القطعة أو الكود" oninput="renderCatalog()"></div>
       <div class="cat-chips" id="catChips"></div>
       <div id="catList"></div>
-      <div class="empty" id="catEmpty" style="display:none"><span class="big">📦</span>مفيش نتايج — جرّب كلمة تانية.</div>
-      <p style="font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.7">
-        <span class="src fanni">من مخزن فنّي</span> تستلمها من الإدارة وسعرها بيروح لفنّي.
+      <div class="empty" id="catEmpty" style="display:none">مفيش نتايج. جرّب كلمة تانية.</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.8">
+        <span class="src fanni">من مخزن فنّي</span> بتستلمها من الإدارة وسعرها بيروح لفنّي.
         <span class="src tech">توريدك</span> بتجيبها بنفسك وبتاخد سعرها كامل.
         مش لاقي القطعة؟ أضفها يدوي باسمها وسعرها.</p>
     </div>
   </div>
 
-  <div class="tabs" style="grid-template-columns:repeat(4,1fr)">
-    <button class="tab on" onclick="go('req',this)"><span class="pip" id="reqPip" style="display:none"></span><span class="ic">📋</span><span class="l">الطلبات</span></button>
-    <button class="tab" onclick="go('jobs',this)"><span class="pip" id="jobPip" style="display:none"></span><span class="ic">🧰</span><span class="l">شغلاناتي</span></button>
-    <button class="tab" onclick="go('cat',this)"><span class="ic">📦</span><span class="l">الكتالوج</span></button>
-    <button class="tab" onclick="go('earn',this)"><span class="ic">💰</span><span class="l">أرباحي</span></button>
-  </div>
+  <nav class="tabs" aria-label="الأقسام">
+    <button class="tab on" onclick="go('req',this)"><span class="pip" id="reqPip" style="display:none"></span><svg class="ic" viewBox="0 0 24 24"><path d="M3 13l2.5-7.5h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg><span class="l">الطلبات</span></button>
+    <button class="tab" onclick="go('jobs',this)"><span class="pip" id="jobPip" style="display:none"></span><svg class="ic" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.5 5L3 17.5 6.5 21l6.2-6.2a4 4 0 0 0 5-5.5l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="l">شغلاناتي</span></button>
+    <button class="tab" onclick="go('cat',this)"><svg class="ic" viewBox="0 0 24 24"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg><span class="l">الكتالوج</span></button>
+    <button class="tab" onclick="go('earn',this)"><svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M7 15h3"/></svg><span class="l">أرباحي</span></button>
+  </nav>
 </div>
 
 <!-- catalog picker -->
@@ -263,13 +309,13 @@ body{font-family:'Cairo',sans-serif;color:var(--ink);background:var(--mist);line
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="sheet-head"><h4 id="sheetTitle">اختار من الكتالوج</h4><button onclick="closePicker()" aria-label="إغلاق">✕</button></div>
   <div class="sheet-body">
-    <div class="cat-tools"><input type="search" class="cat-search" id="pickSearch" placeholder="ابحث…" oninput="renderPicker()"></div>
+    <div class="cat-tools"><input type="search" class="cat-search" id="pickSearch" placeholder="ابحث" oninput="renderPicker()"></div>
     <div class="cat-chips" id="pickChips"></div>
     <div id="pickList"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 let TOKEN=null,pollTimer=null,OPEN=[],MY=null,CAT=[],catKind='',pickKind='',PICK=null;
@@ -306,16 +352,49 @@ async function login(silent){
     document.getElementById('loginView').style.display='none';
     document.getElementById('appView').style.display='block';
     track('tech_login');
-    render(d);loadReqs();loadCatalog();
+    if(!silent)primeAudio();
+    render(d);loadReqs();loadCatalog();startPolling();
   }catch(e){
     store.set(null);
     if(!silent)document.getElementById('loginErr').style.display='block';
   }
 }
+const SVC_IC={
+  ac:'<rect x="2.5" y="4.5" width="19" height="8.5" rx="2"/><path d="M6 10h12"/><path d="M7.5 16c.6 1-.6 2 0 3.5M12 16c.6 1-.6 2 0 3.5M16.5 16c.6 1-.6 2 0 3.5"/>',
+  satellite:'<path d="M4.5 8.5l11 11a8 8 0 0 1-11-11z"/><path d="M10 14l3.6-3.6"/><circle cx="14.6" cy="9.4" r="1.4"/><path d="M15.5 4.6a4 4 0 0 1 3.9 3.9"/>',
+  cctv:'<path d="M2.8 6.2l13.4 3.6-1.6 5.8L1.2 12z"/><path d="M16.2 9.8l4.4-.9.8 3.1-4.4 1.6"/><path d="M8 13.9L7 18.5H3"/>',
+  wifi:'<path d="M2 9a15 15 0 0 1 20 0M5.5 12.6a10 10 0 0 1 13 0M9 16.1a5 5 0 0 1 6 0"/><path d="M12 19.6h.01" stroke-width="2.6"/>',
+  intercom:'<rect x="6" y="2.5" width="12" height="19" rx="2.2"/><rect x="8.5" y="5.5" width="7" height="5.5" rx="1"/><circle cx="12" cy="16" r="2"/>',
+  'smart-home':'<path d="M3 11l9-7.5 9 7.5"/><path d="M5.5 9.3V20.5h13V9.3"/><path d="M9.3 14.6a3.8 3.8 0 0 1 5.4 0"/>'
+};
+const ICS={pin:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', people:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8"/>',
+  phone:'<path d="M5 3.5h4l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5l1.5-2.5 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5.5a2 2 0 0 1 2-2z"/>',
+  chat:'<path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/>', map:'<path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
+  check:'<circle cx="12" cy="12" r="9.5"/><path d="M7.8 12.3l2.8 2.8 5.6-5.8"/>'};
+const svg=(p,c='ic')=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const jn=n=>Number(n||0).toLocaleString('en-US');
+let SEEN=null, audioCtx=null;
+
+/* new-request alert: tone + vibration + tab title (sound unlocks after the login tap) */
+function primeAudio(){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+function chime(){
+  try{if(!audioCtx)return;const t=audioCtx.currentTime;
+    [880,1175].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;o.type='sine';
+      g.gain.setValueAtTime(0.0001,t+i*.18);g.gain.exponentialRampToValueAtTime(0.25,t+i*.18+.02);g.gain.exponentialRampToValueAtTime(0.0001,t+i*.18+.35);
+      o.connect(g).connect(audioCtx.destination);o.start(t+i*.18);o.stop(t+i*.18+.4)});}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([180,90,180])}catch(e){}
+}
+function startPolling(){
+  clearInterval(pollTimer);
+  pollTimer=setInterval(()=>{if(!document.hidden){loadReqs(true);loadMy(true)}},30000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&TOKEN){loadReqs(true);loadMy(true)}});
+}
+
 async function manualRefresh(btn){
-  btn.disabled=true;const o=btn.textContent;btn.textContent='…';
+  btn.classList.add('spin');btn.disabled=true;
   await Promise.all([loadReqs(),loadMy(),loadCatalog()]);
-  btn.textContent=o;btn.disabled=false;
+  btn.classList.remove('spin');btn.disabled=false;
   toast('اتحدثت ✓');
 }
 function logout(){TOKEN=null;store.set(null);clearInterval(pollTimer);location.reload()}
@@ -324,67 +403,76 @@ function go(scr,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('scr-'+scr).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  btn.classList.add('on');
+  btn.classList.add('on');window.scrollTo(0,0);
 }
 
-function render(d){
+/* don't re-render a list while the technician is typing in it */
+const busyIn=id=>{const el=document.getElementById(id);return el.contains(document.activeElement)&&document.activeElement.tagName==='INPUT'
+  || [...el.querySelectorAll('input')].some(i=>i.value.trim()&&!i.classList.contains('qty'))||!!el.querySelector('.offer-box.open')};
+
+function render(d,auto){
   MY=d;
   const p=d.profile;
   document.getElementById('whoName').textContent=p.name.split(' ').slice(0,2).join(' ');
-  document.getElementById('whoMeta').textContent=p.district||'';
-  document.getElementById('stRating').textContent=p.rating_count?p.rating_avg+'★':'جديد';
-  document.getElementById('stDone').textContent=p.jobs_done;
-  document.getElementById('earnTotal').textContent=d.earnings_egp.toLocaleString()+' جنيه';
-  renderJobs(d.active_jobs);renderDone(d.done_jobs);
+  document.getElementById('whoMeta').textContent=(p.rating_count?p.rating_avg.toFixed(1)+'★ — ':'')+(p.district||'');
+  document.getElementById('stRating').textContent=p.rating_count?p.rating_avg.toFixed(1)+'★':'جديد';
+  document.getElementById('stDone').textContent=jn(p.jobs_done);
+  if(!(auto&&busyIn('jobList')))renderJobs(d.active_jobs);
+  renderDone(d.done_jobs);renderEarnings(d);
   const pip=document.getElementById('jobPip');
   pip.style.display=d.active_jobs.length?'flex':'none';pip.textContent=d.active_jobs.length;
 }
-async function loadMy(){try{const d=await api('/api/tech/my');if(d.ok)render(d)}catch(e){if(e.message==='auth')logout()}}
-async function loadReqs(){
+async function loadMy(auto){try{const d=await api('/api/tech/my');if(d.ok)render(d,auto)}catch(e){if(e.message==='auth')logout()}}
+async function loadReqs(auto){
   try{
     const d=await api('/api/tech/jobs');
     if(!d.ok)return;
+    const codes=d.jobs.map(j=>j.code), fresh=SEEN?codes.filter(c=>!SEEN.has(c)):[];
+    SEEN=new Set(codes);
     OPEN=d.jobs;
     document.getElementById('stOpen').textContent=OPEN.length;
     const pip=document.getElementById('reqPip');
-    const fresh=OPEN.filter(j=>!j.my_offer).length;
-    pip.style.display=fresh?'flex':'none';pip.textContent=fresh;
-    renderReqs();
+    const notMine=OPEN.filter(j=>!j.my_offer).length;
+    pip.style.display=notMine?'flex':'none';pip.textContent=notMine;
+    document.title=(notMine?`(${notMine}) `:'')+'فنّي — بوابة الفنيين';
+    if(!(auto&&busyIn('reqList')))renderReqs(fresh);
+    if(fresh.length){chime();toast(fresh.length>1?`وصلك ${fresh.length} طلبات جديدة`:'وصلك طلب جديد في تخصصك');track('tech_new_request_alert',{n:fresh.length})}
+    document.getElementById('liveLbl').textContent='آخر تحديث '+new Date().toLocaleTimeString('ar-EG-u-nu-latn',{hour:'2-digit',minute:'2-digit'})+' — بيتحدث كل ٣٠ ثانية';
   }catch(e){if(e.message==='auth')logout()}
 }
 
-function renderReqs(){
+function renderReqs(fresh=[]){
   const el=document.getElementById('reqList');
   document.getElementById('reqEmpty').style.display=OPEN.length?'none':'block';
   el.innerHTML=OPEN.map((j,i)=>`
-    <div class="req ${j.my_offer?'mine':''}">
+    <article class="req ${j.my_offer?'mine':''} ${fresh.includes(j.code)?'fresh':''}">
       <div class="req-top">
-        <div class="t">${esc(j.title)}</div>
-        <div class="price"><div class="amt">${j.listed_price_egp} جنيه</div><div class="lbl">سعر المصنعية الثابت</div></div>
+        <div><div class="svc">${svg(SVC_IC[j.service]||'')}${esc(SVC_AR[j.service]||j.service)}</div><div class="t">${esc(j.title)}</div></div>
+        <div class="price"><div class="amt">${jn(j.you_earn_at_listed)}<small>جنيه</small></div><div class="lbl">نصيبك من ${jn(j.listed_price_egp)}</div></div>
       </div>
-      <div class="meta"><span>📍 ${esc(j.area)}</span><span>🕐 ${esc(j.day)} · ${esc(j.time_window)}</span>${j.offer_count?`<span>👥 ${j.offer_count} عرض مقدم</span>`:''}</div>
-      ${j.notes?`<div class="note">"${esc(j.notes)}"</div>`:''}
-      <div class="earn">نصيبك من المصنعية: ${j.you_earn_at_listed} جنيه · الإضافات ليك بالكامل</div>
-      ${j.my_offer?`<span class="offer-status">✓ قدمت عرض${j.my_offer.extras_egp?' — إضافات '+j.my_offer.extras_egp+' جنيه':' بالسعر الثابت'} · في انتظار الرد</span>`:''}
+      <div class="chips"><span>${svg(ICS.pin)}${esc(j.area)}</span><span>${svg(ICS.clock)}${esc(j.day)} — ${esc(j.time_window)}</span>${j.offer_count?`<span>${svg(ICS.people)}${j.offer_count} عرض</span>`:''}</div>
+      ${j.notes?`<div class="note">${esc(j.notes)}</div>`:''}
+      ${j.my_offer?`<div class="offer-status">${svg(ICS.check)}قدمت عرض${j.my_offer.extras_egp?' + إضافات '+jn(j.my_offer.extras_egp)+' جنيه':' بالسعر الثابت'} — مستني رد الإدارة</div>`
+                  :`<div class="earn">المصنعية ثابتة. أي إضافات من توريدك بتاخدها كاملة.</div>`}
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="submitOffer(${i},this,true)">${j.my_offer?'جدد عرضك بالسعر الثابت':'اقبل بالسعر الثابت ✓'}</button>
-        <button class="btn btn-ghost" onclick="toggleOffer(${i})">+ إضافات</button>
+        <button class="btn btn-primary" onclick="submitOffer(${i},this,true)">${j.my_offer?'جدّد عرضك بالسعر الثابت':'اقبل بالسعر الثابت'}</button>
+        <button class="btn btn-ghost" onclick="toggleOffer(${i})" aria-expanded="false">+ إضافات</button>
       </div>
       <div class="offer-box" id="ob-${i}">
         <h4>معدات أو خدمات إضافية الطلب محتاجها</h4>
-        <div id="items-${i}"><div class="item-row"><input class="nm" placeholder="مثال: حامل شاشة 65 بوصة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})">✕</button></div></div>
-        <div style="display:flex;gap:14px;align-items:center"><button class="add-item" onclick="openPicker({type:'offer',i:${i}})">📦 من الكتالوج</button><button class="add-item" onclick="addItem(${i})">+ سطر يدوي</button></div>
+        <div id="items-${i}"><div class="item-row"><input class="nm" placeholder="مثال: حامل شاشة 65 بوصة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})" aria-label="حذف">✕</button></div></div>
+        <div style="display:flex;gap:16px;align-items:center"><button class="add-item" onclick="openPicker({type:'offer',i:${i}})">من الكتالوج</button><button class="add-item" onclick="addItem(${i})">+ سطر يدوي</button></div>
         <div class="offer-note"><input id="note-${i}" placeholder="ملاحظة للإدارة (اختياري)"></div>
         <div class="offer-sum"><span>إجمالي الإضافات</span><span class="mono" id="sum-${i}">0 جنيه</span></div>
-        <button class="btn btn-primary btn-full" onclick="submitOffer(${i},this,false)">ابعت العرض: ${j.listed_price_egp} جنيه + الإضافات</button>
+        <button class="btn btn-primary btn-full" onclick="submitOffer(${i},this,false)">ابعت العرض: ${jn(j.listed_price_egp)} جنيه + الإضافات</button>
       </div>
-    </div>`).join('');
+    </article>`).join('');
   OPEN.forEach((_,i)=>{document.querySelectorAll(`#items-${i} input.pr, #items-${i} input.nm`).forEach(inp=>inp.addEventListener('input',()=>sumOffer(i)))});
 }
-function toggleOffer(i){document.getElementById('ob-'+i).classList.toggle('open')}
+function toggleOffer(i){const b=document.getElementById('ob-'+i);b.classList.toggle('open');b.previousElementSibling.querySelector('.btn-ghost').setAttribute('aria-expanded',b.classList.contains('open'))}
 function addItem(i){
   const row=document.createElement('div');row.className='item-row';
-  row.innerHTML=`<input class="nm" placeholder="اسم المعدة أو الخدمة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})">✕</button>`;
+  row.innerHTML=`<input class="nm" placeholder="اسم المعدة أو الخدمة"><input class="pr" inputmode="numeric" placeholder="جنيه"><button class="rm" onclick="this.parentNode.remove();sumOffer(${i})" aria-label="حذف">✕</button>`;
   document.getElementById('items-'+i).appendChild(row);
   row.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>sumOffer(i)));
 }
@@ -403,7 +491,7 @@ function readItems(i){
 }
 function sumOffer(i){
   const s=readItems(i).reduce((a,x)=>a+(x._price||x.price_egp),0);
-  document.getElementById('sum-'+i).textContent=s.toLocaleString()+' جنيه';
+  document.getElementById('sum-'+i).textContent=jn(s)+' جنيه';
 }
 async function submitOffer(i,btn,plain){
   const j=OPEN[i];
@@ -413,49 +501,59 @@ async function submitOffer(i,btn,plain){
   try{
     const d=await api('/api/tech/jobs/'+j.code+'/offer',{method:'POST',
       body:JSON.stringify({items,note:plain?'':document.getElementById('note-'+i).value.trim()})});
-    if(d.ok){track('tech_offer_submitted',{extras:items.length});toast('تم إرسال عرضك ✓ هيوصلك رد قريب');loadReqs()}
+    if(d.ok){track('tech_offer_submitted',{extras:items.length});toast('عرضك وصل للإدارة ✓');loadReqs()}
     else{toast(d.error);btn.disabled=false}
-  }catch(e){btn.disabled=false;toast('في مشكلة في الاتصال — جرب تاني')}
+  }catch(e){btn.disabled=false;toast('مفيش اتصال. جرّب تاني.')}
 }
 
+const NEXT2={assigned:['en_route','أنا في الطريق'],en_route:['arrived','وصلت عند العميل'],arrived:['working','بدأت الشغل'],working:['done','خلصت الشغلانة']};
+const ST_AR={assigned:'اتقبل عرضك — جهّز للزيارة',en_route:'في الطريق',arrived:'وصلت',working:'الشغل جاري'};
+const PROG=['assigned','en_route','arrived','working'];
 function renderJobs(rows){
   const el=document.getElementById('jobList');
   document.getElementById('jobEmpty').style.display=rows.length?'none':'block';
   el.innerHTML=rows.map(j=>{
-    const nx=NEXT[j.status];
-    return `<div class="job-card">
-      <span class="chip st-${esc(j.status)}">${({assigned:'اتقبل عرضك — استعد',en_route:'في الطريق',arrived:'وصلت',working:'الشغل جاري'})[j.status]||esc(j.status)}</span>
-      <div style="font-weight:900;font-size:15.5px">${esc(j.title)} <span class="mono" style="font-size:12px;color:var(--muted)">${esc(j.code)}</span></div>
-      <div style="font-size:12.5px;color:var(--muted)">📍 ${esc(j.area)} · 🕐 ${esc(j.day)} · ${esc(j.time_window)}</div>
-      ${j.address?`<div class="addr">🏠 ${esc(j.address)}${j.notes?'<br>📝 '+esc(j.notes):''}</div>`:''}
-      <div class="earn" style="font-size:13px;color:var(--green);font-weight:800">مصنعيتك: ${j.you_earn_egp} جنيه${j.tech_parts_egp?' + قطع من توريدك '+j.tech_parts_egp+' جنيه':''}</div>
-      ${(j.parts&&j.parts.length)?`<div class="parts-mini" style="margin-top:6px">${j.parts.map(p=>`<div class="part-line"><span>${esc(p.part_name)}
+    const nx=NEXT2[j.status], si=PROG.indexOf(j.status);
+    const pendingParts=(j.parts||[]).filter(p=>p.status==='pending').length;
+    const mapQ=encodeURIComponent((j.address||'')+', '+(j.area||'')+', Egypt');
+    return `<article class="job-card">
+      <div class="head"><span class="chip st-${esc(j.status)}">${ST_AR[j.status]||esc(j.status)}</span><span class="code mono">${esc(j.code)}</span></div>
+      <div class="t">${esc(j.title)}</div>
+      <div class="prog" aria-hidden="true">${PROG.map((_,k)=>`<i class="${k<si?'on':k===si?'now':''}"></i>`).join('')}</div>
+      <div class="prog-l" aria-hidden="true"><span>اتقبل</span><span>في الطريق</span><span>وصلت</span><span>شغال</span></div>
+      <div class="chips" style="margin:0"><span>${svg(ICS.clock)}${esc(j.day)} — ${esc(j.time_window)}</span></div>
+      ${j.address?`<div class="addr"><b>العنوان</b>${esc(j.address)} — ${esc(j.area)}${j.notes?'<br><b style="margin-top:6px">ملاحظات العميل</b>'+esc(j.notes):''}</div>`:`<div class="chips"><span>${svg(ICS.pin)}${esc(j.area)}</span></div>`}
+      ${j.customer_mobile?`<div class="contact">
+        <a href="tel:+2${esc(j.customer_mobile)}">${svg(ICS.phone)}اتصال</a>
+        <a href="https://wa.me/2${esc(j.customer_mobile)}?text=${encodeURIComponent('السلام عليكم، أنا الفني من فنّي بخصوص طلبك '+j.code)}" target="_blank" rel="noopener">${svg(ICS.chat)}واتساب</a>
+        <a href="https://www.google.com/maps/search/?api=1&query=${mapQ}" target="_blank" rel="noopener">${svg(ICS.map)}الخريطة</a>
+      </div>`:''}
+      ${(j.parts&&j.parts.length)?`<div class="parts-mini">${j.parts.map(p=>`<div class="part-line"><span>${esc(p.part_name)}
         <span class="src ${p.supplied_by==='fanni'?'fanni':'tech'}">${p.supplied_by==='fanni'?'من مخزن فنّي':'توريدك'}</span>
         ${p.status!=='approved'?`<span class="src ${p.status==='pending'?'tech':'out'}">${p.status==='pending'?'مستني موافقة العميل':'مرفوضة'}</span>`:''}</span>
-        <span class="mono">${p.price_egp.toLocaleString()} ج</span></div>`).join('')}</div>`:''}
-      ${j.customer_mobile?`<div class="contact">
-        <a href="tel:+2${esc(j.customer_mobile)}">📞 اتصل بالعميل</a>
-        <a href="https://wa.me/2${esc(j.customer_mobile)}?text=${encodeURIComponent('السلام عليكم، أنا فنّي بخصوص طلبك '+j.code)}" target="_blank">💬 واتساب</a>
-      </div>`:''}
-      ${nx?`<button class="btn btn-primary btn-full" onclick="advance('${esc(j.code)}','${nx[0]}',this)">${nx[1]}</button>`:''}
+        <span class="mono">${jn(p.price_egp)} ج</span></div>`).join('')}</div>`:''}
+      <div class="pay-line"><span>نصيبك</span><b>${jn(j.you_earn_egp+(j.tech_parts_egp||0))} جنيه</b></div>
+      ${nx?`<button class="btn ${j.status==='working'?'btn-dark':'btn-primary'} btn-full" onclick="advance('${esc(j.code)}','${nx[0]}',this)" ${j.status==='working'&&pendingParts?'disabled':''}>${nx[1]}</button>
+        ${j.status==='working'&&pendingParts?'<p style="font-size:12.5px;color:var(--amber-ink);font-weight:700;text-align:center;margin-top:6px">مستني العميل يوافق أو يرفض قطع الغيار قبل ما تقفل الشغلانة.</p>':''}`:''}
       ${(j.status==='arrived'||j.status==='working')?`
         <div class="parts-mini">
-          <div style="font-size:12.5px;font-weight:900;margin-bottom:6px">🔩 قطعة غيار طلعت أثناء الشغل؟ ابعتها لموافقة العميل</div>
-          <button class="btn btn-cat btn-full" style="padding:8px;margin-bottom:8px" onclick="openPicker({type:'part',code:'${esc(j.code)}'})">📦 اختار من الكتالوج (سعر ثابت)</button>
-          <div style="font-size:11.5px;color:var(--muted);margin-bottom:5px">أو قطعة مش في الكتالوج:</div>
+          <div style="font-size:13.5px;font-weight:800;margin-bottom:8px">قطعة غيار طلعت أثناء الشغل؟ ابعتها لموافقة العميل</div>
+          <button class="btn btn-cat btn-full" style="padding:10px;margin-bottom:10px" onclick="openPicker({type:'part',code:'${esc(j.code)}'})">اختار من الكتالوج بسعر ثابت</button>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">أو قطعة مش في الكتالوج:</div>
           <div class="item-row"><input class="nm" id="pn-${esc(j.code)}" placeholder="اسم القطعة"><input class="pr" id="pp-${esc(j.code)}" inputmode="numeric" placeholder="جنيه"></div>
-          <button class="btn btn-ghost btn-full" style="padding:8px" onclick="quotePart('${esc(j.code)}',this)">ابعت للعميل للموافقة</button>
+          <button class="btn btn-ghost btn-full" style="padding:9px" onclick="quotePart('${esc(j.code)}',this)">ابعت للعميل يوافق</button>
         </div>`:''}
-    </div>`;
+    </article>`;
   }).join('');
 }
 async function advance(code,status,btn){
+  if(status==='done'&&!confirm('متأكد إن الشغلانة خلصت؟ العميل هيوصله إشعار بالإجمالي.'))return;
   btn.disabled=true;
   try{
     const d=await api('/api/tech/jobs/'+code+'/status',{method:'POST',body:JSON.stringify({status})});
-    if(d.ok){track('tech_job_status',{status});toast(status==='done'?('تم! نصيبك '+(d.payout_egp||'')+' جنيه هيتضاف لأرباحك 🛡️'):'تم التحديث ✓');loadMy()}
+    if(d.ok){track('tech_job_status',{status});toast(status==='done'?('تمام! '+jn(d.payout_egp)+' جنيه اتضافوا لأرباحك'):'اتحدثت الحالة ✓');loadMy()}
     else{toast(d.error);btn.disabled=false}
-  }catch(e){btn.disabled=false}
+  }catch(e){btn.disabled=false;toast('مفيش اتصال. جرّب تاني.')}
 }
 async function quotePart(code,btn){
   const nm=document.getElementById('pn-'+code).value.trim();
@@ -464,7 +562,7 @@ async function quotePart(code,btn){
   btn.disabled=true;
   try{
     const d=await api('/api/tech/jobs/'+code+'/parts',{method:'POST',body:JSON.stringify({part_name:nm,price_egp:pr})});
-    if(d.ok){toast('اتبعتت للعميل — استنى موافقته قبل التركيب');document.getElementById('pn-'+code).value='';document.getElementById('pp-'+code).value='';loadMy()}
+    if(d.ok){toast('اتبعتت للعميل. استنى موافقته قبل التركيب.');document.getElementById('pn-'+code).value='';document.getElementById('pp-'+code).value='';loadMy()}
     else toast(d.error);
   }catch(e){}
   btn.disabled=false;
@@ -473,8 +571,27 @@ function renderDone(rows){
   const el=document.getElementById('doneList');
   document.getElementById('doneEmpty').style.display=rows.length?'none':'block';
   el.innerHTML=rows.map(j=>`
-    <div class="done-row"><span><b>${esc(j.title)}</b><br><span style="font-size:11.5px;color:var(--muted)" class="mono">${esc(j.code)} · ${esc(j.area)}</span></span>
-    <span class="amt">+ ${(j.you_earn_egp+(j.tech_parts_egp||0)).toLocaleString()} جنيه</span></div>`).join('');
+    <div class="done-row"><span><b>${esc(j.title)}</b><small class="mono">${esc(j.code)} — ${esc(j.area)}${j.updated_at?' — '+new Date(j.updated_at).toLocaleDateString('ar-EG-u-nu-latn',{day:'numeric',month:'short'}):''}</small></span>
+    <span class="amt">+ ${jn(j.you_earn_egp+(j.tech_parts_egp||0))} ج</span></div>`).join('');
+}
+
+/* earnings by week, Saturday to Friday */
+function weekStart(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+1)%7));return x}
+function renderEarnings(d){
+  const done=d.done_jobs.map(j=>({at:j.updated_at?new Date(j.updated_at):null,v:j.you_earn_egp+(j.tech_parts_egp||0)}));
+  document.getElementById('earnTotal').innerHTML=jn(d.earnings_egp)+'<small>جنيه</small>';
+  const ws=weekStart(new Date()), now=Date.now();
+  const wk=[...Array(8)].map((_,k)=>{const s=new Date(ws);s.setDate(s.getDate()-7*(7-k));return {s,v:0}});
+  let month=0;
+  done.forEach(x=>{if(!x.at)return;if(now-x.at<30*864e5)month+=x.v;
+    const s=weekStart(x.at).getTime();const w=wk.find(w=>w.s.getTime()===s);if(w)w.v+=x.v});
+  document.getElementById('earnWeek').textContent=jn(wk[7].v)+' جنيه';
+  document.getElementById('earnMonth').textContent=jn(month)+' جنيه';
+  const max=Math.max(...wk.map(w=>w.v),1), best=wk.reduce((a,w,i)=>w.v>wk[a].v?i:a,0);
+  document.getElementById('wkBars').innerHTML=wk.map((w,i)=>`<div class="wk-col ${i===7?'cur':''}" title="${jn(w.v)} جنيه">
+    ${(i===7||i===best)&&w.v?`<span class="val" style="bottom:${100*w.v/max}%">${jn(w.v)}</span>`:''}
+    <div class="b" style="height:${100*w.v/max}%"></div></div>`).join('');
+  document.getElementById('wkLbl').innerHTML=wk.map((w,i)=>`<span>${i===7?'ده':w.s.toLocaleDateString('ar-EG-u-nu-latn',{day:'numeric',month:'numeric'})}</span>`).join('');
 }
 
 /* ───────── Catalog ───────── */
@@ -568,6 +685,7 @@ async function pickConfirm(id){
   }catch(e){btn.disabled=false;toast('في مشكلة في الاتصال — جرب تاني')}
 }
 
+document.addEventListener('pointerdown',primeAudio,{once:true});
 /* auto-login if a token is saved on this device */
 login(true);
 </script>
