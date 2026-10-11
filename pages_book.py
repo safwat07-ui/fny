@@ -12,7 +12,9 @@ def book(lang):
         f'<span><b>{B.e(s[L])}</b><br><small>{t["from"]} <span data-from="{s["slug"]}">{B.money(min(j[3] for j in s["jobs"]), L)}</span></small></span></button>'
         for s in SERVICES)
     steps = "".join(f'<li><button type="button" data-go="{i+1}">{B.e(x)}</button></li>' for i, x in enumerate(t["steps"]))
-    areas = "".join(f'<option value="{B.e(a[1] if L=="ar" else a[0])}">{B.e(a[1] if L=="ar" else a[0])}</option>' for a in AREAS)
+    areas = "".join(f'<optgroup label="{B.e(city[1] if L=="ar" else city[0])}">' + "".join(
+        f'<option value="{B.e(a[1] if L=="ar" else a[0])}">{B.e((a[1] if L=="ar" else a[0]).split(" — ")[-1])}</option>' for a in lst) + '</optgroup>'
+        for city, lst in AREAS.items())
     slots = json.dumps([{"h": h, "label": (ar if L == "ar" else en)} for h, en, ar in SLOTS], ensure_ascii=False)
     icons = json.dumps({s["slug"]: B.ic(s["slug"]) for s in SERVICES})
     body = f"""{B.nav(L, 'book', minimal=True)}
@@ -62,10 +64,11 @@ def book(lang):
       <span class="lbl" style="margin-top:26px">{t['pay_h']}</span>
       <div class="pays">
         <label class="pay"><input type="radio" name="pay" value="cash" checked><span class="rd"></span>{t['pay_cash']}</label>
-        <label class="pay"><input type="radio" name="pay" value="card"><span class="rd"></span>{t['pay_card']}</label>
+        <label class="pay" id="payCard" hidden><input type="radio" name="pay" value="card"><span class="rd"></span>{t['pay_card']}</label>
       </div>
       <p class="hint" id="payHint" hidden>{t['pay_card_note']}</p>
-      <div class="next-box"><b>{t['after_h']}</b>{t['after_p']}</div>
+      <div class="next-box"><b>{t['after_h']}</b>{t['after_p']}
+        <div style="margin-top:8px"><a class="support" data-support hidden target="_blank" rel="noopener">{B.WA_ICON}{t['support_q']}</a></div></div>
       <div class="alert" id="alert" role="alert"></div>
     </section>
 
@@ -356,6 +359,7 @@ def track():
       <section class="card" id="doneParts" hidden></section></aside>
     </div>
     <p class="sync" id="sync"></p>
+    <p class="sync"><a class="support" data-support hidden target="_blank" rel="noopener">{B.WA_ICON}<span id="supTxt"></span></a></p>
   </div>
 </main>
 """
@@ -486,6 +490,8 @@ $('rateBtn').addEventListener('click',async()=>{
   btn.disabled=false;
 });
 $('luForm').addEventListener('submit',ev=>{ev.preventDefault();$('luE').classList.remove('show');lookup($('codeInput').value)});
+$('supTxt').textContent = LG==='en' ? 'Need to change or cancel? Message us on WhatsApp.' : 'عايز تغيّر الميعاد أو تلغي؟ كلمنا على واتساب.';
+loadCatalog();
 if(P.get('code')) lookup(P.get('code')); else { $('lookup').hidden=false; $('codeInput').focus(); }
 """.replace("__TR__", json.dumps(TR, ensure_ascii=False))
     css = B.read("site.css") + "\n" + B.read("flow.css")

@@ -29,6 +29,8 @@ ICONS = {
 def ic(name, cls="ic"):
     return f'<svg class="{cls}" viewBox="0 0 24 24" aria-hidden="true">{ICONS[name]}</svg>'
 
+WA_ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c.3 2 2.5 4.6 5 5l1.2-1.4-1.9-1-0.9.9c-.9-.4-1.7-1.2-2.1-2.1l.9-.9-1-1.9z"/></svg>'
+
 FAVICON = ("data:image/svg+xml," + "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E"
            "%3Crect width='64' height='64' rx='16' fill='%230F5B63'/%3E%3Ctext x='32' y='45' font-family='Arial' "
            "font-size='40' font-weight='900' text-anchor='middle' fill='%23F08A24'%3E%D9%81%3C/text%3E%3C/svg%3E")
@@ -113,7 +115,8 @@ def footer(lang):
     return f"""<footer class="foot">
   <div class="wrap">
     <div class="foot-in">
-      <div><a class="logo" href="{page_url('index', lang)}"><b>فنّي</b><span>{t['brand_sub']}</span></a><p>{t['foot_line']}</p></div>
+      <div><a class="logo" href="{page_url('index', lang)}"><b>فنّي</b><span>{t['brand_sub']}</span></a><p>{t['foot_line']}</p>
+        <a class="support" data-support hidden target="_blank" rel="noopener">{WA_ICON}{t['support']}</a></div>
       <div><h4>{t['foot_services']}</h4>{svc_links}</div>
       <div><h4>{t['foot_company']}</h4>
         <a href="{svc_page}">{t['nav_prices']}</a>
@@ -182,7 +185,7 @@ def index(lang):
     <div class="ticket" id="ticket" aria-label="{e(t['tk_title'])}">
       <div class="stamp" id="stamp">{t['stamp']}</div>
       <div class="ticket-head"><h2>{t['tk_title']}</h2></div>
-      <div class="svc-tabs" role="group" aria-label="{e(t['foot_services'])}">{tabs}</div>
+      <div class="svc-tabs" style="--n:{len(SERVICES)}" role="group" aria-label="{e(t['foot_services'])}">{tabs}</div>
       <fieldset class="job-opts" id="jobOpts"><legend class="sr">{t['tk_pick']}</legend></fieldset>
       <div class="tear" aria-hidden="true"></div>
       <div class="rc" aria-live="polite">

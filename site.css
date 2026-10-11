@@ -66,7 +66,7 @@ button{font:inherit;color:inherit}
 .ticket-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
 .ticket-head h2{font-size:20px;font-weight:800}
 .ticket-head .code{font-size:12.5px;color:var(--muted);font-weight:700}
-.svc-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:16px}
+.svc-tabs{display:grid;grid-template-columns:repeat(var(--n,6),1fr);gap:6px;margin-bottom:16px}
 .svc-tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 2px 9px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);transition:border-color .15s,background .15s,color .15s}
 .svc-tab:hover{border-color:var(--teal);color:var(--teal)}
 .svc-tab[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
@@ -190,7 +190,10 @@ a.m-row:hover .n{color:var(--teal)}
 .foot-in a.logo{display:flex;margin:0}
 .foot-in a:hover{color:#fff}
 .foot-bot{border-top:1px solid rgba(255,255,255,.1);padding-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.foot-bot a{text-decoration:none}.foot-bot a:hover{color:#fff}
+.foot-bot a{text-decoration:none}
+.support{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--teal);text-decoration:none}
+.support:hover{text-decoration:underline;text-underline-offset:3px}
+.foot .support{color:#fff;margin-top:14px}.foot-bot a:hover{color:#fff}
 
 /* page head (inner pages) */
 .phead{background:var(--teal-900);color:#fff;padding:64px 0 56px}

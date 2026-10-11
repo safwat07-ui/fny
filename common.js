@@ -24,6 +24,7 @@ async function loadCatalog(){
     const d = await r.json();
     if(!d.ok) return CAT;
     if(typeof d.service_fee_egp==='number') FEE = d.service_fee_egp;
+    applyMeta(d);
     const byId = {}; CAT0.forEach(s=>s.jobs.forEach(j=>byId[j.id]=j));
     CAT = d.services.map(s=>{
       const base = CAT0.find(x=>x.slug===s.slug) || {};
@@ -41,6 +42,15 @@ async function loadCatalog(){
     applyLivePrices();
   }catch(e){ /* keep fallback prices */ }
   return CAT;
+}
+/* runtime settings from the server: support WhatsApp, online payment */
+function applyMeta(d){
+  if(d.support_whatsapp){
+    const num=String(d.support_whatsapp).replace(/\D/g,'');
+    document.querySelectorAll('[data-support]').forEach(a=>{a.href='https://wa.me/'+num;a.hidden=false;
+      a.addEventListener('click',()=>track('support_click',{page:location.pathname}),{once:true})});
+  }
+  const pc=document.getElementById('payCard'); if(pc) pc.hidden=!d.payment_available;
 }
 function findJob(id){for(const s of CAT)for(const j of s.jobs)if(j.id===+id)return {svc:s,job:j};return null}
 

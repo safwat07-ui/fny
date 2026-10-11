@@ -17,26 +17,26 @@ SERVICES = [
      "blurb_en": "Cleaning, repairs, freon and new installations, any brand.",
      "blurb_ar": "غسيل وإصلاح وشحن فريون وتركيب جديد، لأي ماركة.",
      "jobs": [
-        (1, "Deep cleaning & maintenance", "1.5 HP split, indoor + outdoor", 350, 0,
+        (1, "Deep cleaning & maintenance", "1.5 HP split, indoor + outdoor", 950, 0,
          "غسيل وصيانة شاملة", "سبليت 1.5 حصان، داخلي وخارجي"),
-        (2, "Not cooling — diagnosis & repair", "Inspection deducted from repair", 150, 1,
+        (2, "Not cooling — diagnosis & repair", "Inspection deducted from repair", 300, 1,
          "التكييف مش بيبرّد — كشف وإصلاح", "رسوم الكشف بتتخصم من الإصلاح"),
-        (3, "Freon refill (R410)", "Includes leak check", 600, 0,
+        (3, "Freon refill (R410)", "Includes leak check", 350, 0,
          "شحن فريون (R410)", "شامل كشف التسريب"),
-        (4, "New AC installation", "Split unit, up to 4m piping", 900, 0,
+        (4, "New AC installation", "Split unit, up to 4m piping", 1150, 0,
          "تركيب تكييف جديد", "سبليت، لحد 4 متر مواسير"),
      ]},
     {"slug": "satellite", "en": "Satellite & TV", "ar": "دش وشاشات", "short_en": "Satellite", "short_ar": "دش",
      "blurb_en": "Dish installs, signal fixes, receivers and TV mounting.",
      "blurb_ar": "تركيب أطباق، ضبط الإشارة، الريسيفر وتعليق الشاشات.",
      "jobs": [
-        (5, "Dish install & alignment", "Single receiver, incl. 10m cable", 400, 0,
+        (5, "Dish install & alignment", "Single receiver, incl. 10m cable", 500, 0,
          "تركيب وضبط دش", "ريسيفر واحد، شامل 10 متر كابل"),
-        (6, "Signal loss — realignment", "Existing dish", 250, 0,
+        (6, "Signal loss — realignment", "Existing dish", 350, 0,
          "الإشارة بتقطع — إعادة ضبط", "للدش الموجود"),
-        (7, "Receiver setup & channels", "Any receiver brand", 200, 0,
+        (7, "Receiver setup & channels", "Any receiver brand", 250, 0,
          "تظبيط الريسيفر والقنوات", "أي نوع ريسيفر"),
-        (8, "TV wall mounting", "Up to 65\", bracket not included", 300, 0,
+        (8, "TV wall mounting", "Up to 65\", bracket not included", 1000, 0,
          "تعليق شاشة على الحائط", "لحد 65 بوصة، الحامل مش شامل"),
      ]},
     {"slug": "cctv", "en": "CCTV & security", "ar": "كاميرات مراقبة", "short_en": "CCTV", "short_ar": "كاميرات",
@@ -91,15 +91,27 @@ SERVICES = [
      ]},
 ]
 
-# Booking areas. Values are what the admin dashboard's city filter understands:
-# names containing "Giza"/"الجيزة" or "Alexandria"/"الإسكندرية" are grouped by city.
-AREAS = [
-    ("Nasr City", "مدينة نصر"), ("New Cairo", "القاهرة الجديدة"), ("Maadi", "المعادي"),
-    ("Heliopolis", "مصر الجديدة"), ("Zamalek", "الزمالك"), ("6th of October", "٦ أكتوبر"),
-    ("Giza — Dokki", "الجيزة — الدقي"), ("Giza — Mohandessin", "الجيزة — المهندسين"),
-    ("Giza — Haram", "الجيزة — الهرم"), ("Giza — Sheikh Zayed", "الجيزة — الشيخ زايد"),
-    ("Alexandria — Smouha", "الإسكندرية — سموحة"),
-]
+# Trades open for booking on the site. Must match FANNI_SERVICES in app.py / Railway.
+# To open another trade: add its slug here and to FANNI_SERVICES, then rebuild.
+LIVE_SERVICES = ["ac", "satellite", "cctv"]
+SERVICES = [s for s in SERVICES if s["slug"] in LIVE_SERVICES]
+
+# Booking areas, grouped by city: (value_en, value_ar). Values are what the admin
+# dashboard's area/city filter understands (see AREA_MAP in admin.html).
+AREAS = {
+    ("Cairo", "القاهرة"): [
+        ("Nasr City", "مدينة نصر"), ("Heliopolis", "مصر الجديدة"), ("New Cairo", "القاهرة الجديدة"),
+        ("El Rehab", "الرحاب"), ("Madinaty", "مدينتي"), ("Maadi", "المعادي"), ("Zamalek", "الزمالك"),
+        ("Downtown", "وسط البلد"), ("Mokattam", "المقطم"), ("Shubra", "شبرا"), ("Ain Shams", "عين شمس"),
+        ("Cairo — other area", "القاهرة — منطقة أخرى"),
+    ],
+    ("Giza", "الجيزة"): [
+        ("Giza — Dokki", "الجيزة — الدقي"), ("Giza — Mohandessin", "الجيزة — المهندسين"),
+        ("Giza — Agouza", "الجيزة — العجوزة"), ("Giza — Haram", "الجيزة — الهرم"),
+        ("Giza — Faisal", "الجيزة — فيصل"), ("6th of October", "٦ أكتوبر"),
+        ("Giza — Sheikh Zayed", "الجيزة — الشيخ زايد"), ("Giza — other area", "الجيزة — منطقة أخرى"),
+    ],
+}
 
 # Arrival windows: (start hour 24h, label en, label ar). Labels are stored on the booking.
 SLOTS = [(9, "9–11 AM", "9–11 ص"), (11, "11–1 PM", "11–1 ظ"), (13, "1–3 PM", "1–3 ع"),
@@ -110,10 +122,10 @@ S = {
 "en": {
   "dir": "ltr", "other_lang": "العربية", "brand_sub": "Fanni",
   "nav_prices": "Prices", "nav_how": "How it works", "nav_track": "Track a booking", "nav_book": "Book a technician",
-  "meta_title": "Fanni | Fixed-price home technicians in Cairo, Giza and Alexandria",
-  "meta_desc": "Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart home. See the full price before you book. 30-day warranty.",
+  "meta_title": "Fanni | Fixed-price AC, satellite and CCTV technicians in Cairo and Giza",
+  "meta_desc": "Book vetted technicians for AC, satellite and TV, and CCTV in Cairo and Giza. See the full price before you book. 30-day warranty.",
   "h1": "The price is fixed before the technician knocks.",
-  "lead": "Book vetted technicians for AC, satellite, CCTV, WiFi, intercom and smart-home jobs in Cairo, Giza and Alexandria. Pick the job, see the full price, follow your فنّي live.",
+  "lead": "Book vetted technicians for AC, satellite and TV, and CCTV jobs in Cairo and Giza. Pick the job, see the full price, follow your فنّي live.",
   "hero_cta2": "Track a booking",
   "promise1": "Labor price locked when you book",
   "promise2": "No part installed without your OK",
@@ -145,7 +157,7 @@ S = {
           ("What is an inspection visit?", "For faults that need diagnosis first, you book the inspection. If you go ahead with the repair, the inspection price is deducted from it."),
           ("What does the 30-day warranty cover?", "The work we did. If the same fault comes back within 30 days, we send a technician back at no charge."),
           ("How do I pay?", "Cash to the technician after the job, or by card or mobile wallet online from your tracking page."),
-          ("Which areas do you cover?", "Greater Cairo, Giza and Alexandria (Smouha), with more areas being added.")],
+          ("Which areas do you cover?", "Cairo and Giza, including New Cairo, 6th of October and Sheikh Zayed. More areas and services are coming.")],
   "tech_h": "Are you a technician?",
   "tech_p": "Get job requests in your trade and area, at prices you see upfront. You keep 80% of the labor and 80% of the margin on parts and products from our catalog.",
   "tech_cta": "Apply as a technician",
@@ -153,7 +165,7 @@ S = {
   "foot_services": "Services", "foot_company": "Fanni", "foot_join": "Become a technician",
   "rights": "© 2026 Fanni",
   # services page
-  "svc_title": "Fanni price list | AC, satellite, CCTV, WiFi, intercom, smart home",
+  "svc_title": "Fanni price list | AC, satellite and TV, CCTV in Cairo and Giza",
   "svc_h1": "Price list",
   "svc_lead": "Every price below is the fixed labor price. Your booking total adds the EGP 25 service fee, and nothing else unless you approve a spare part.",
   "book": "Book", "svc_note_h": "How pricing works",
@@ -183,14 +195,15 @@ S = {
   "after_h": "What happens next", "after_p": "You'll get a booking code and a live tracking page. It updates the moment a technician is assigned.",
   # tracking
   "tr_title": "Track your booking | Fanni",
+  "support": "WhatsApp support", "support_q": "Need to change or cancel? Message us on WhatsApp.",
 },
 "ar": {
   "dir": "rtl", "other_lang": "English", "brand_sub": "Fanni",
   "nav_prices": "الأسعار", "nav_how": "إزاي بنشتغل", "nav_track": "تابع طلبك", "nav_book": "احجز فنّي",
-  "meta_title": "فنّي | فنيين صيانة البيت بسعر ثابت في القاهرة والجيزة والإسكندرية",
-  "meta_desc": "احجز فني معتمد للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي. السعر كامل قدامك قبل الحجز، وضمان ٣٠ يوم.",
+  "meta_title": "فنّي | فنيين تكييف ودش وكاميرات بسعر ثابت في القاهرة والجيزة",
+  "meta_desc": "احجز فني معتمد للتكييف والدش والشاشات وكاميرات المراقبة في القاهرة والجيزة. السعر كامل قدامك قبل الحجز، وضمان ٣٠ يوم.",
   "h1": "السعر ثابت قبل ما الفني يخبّط على بابك.",
-  "lead": "احجز فنيين معتمدين للتكييف والدش والكاميرات والواي فاي والإنتركم والمنزل الذكي في القاهرة والجيزة والإسكندرية. اختار الشغلانة، شوف السعر كامل، وتابع فنّيك لحظة بلحظة.",
+  "lead": "احجز فنيين معتمدين للتكييف والدش والشاشات وكاميرات المراقبة في القاهرة والجيزة. اختار الشغلانة، شوف السعر كامل، وتابع فنّيك لحظة بلحظة.",
   "hero_cta2": "تابع طلبك",
   "promise1": "سعر المصنعية بيتقفل لحظة الحجز",
   "promise2": "مفيش قطعة بتتركب من غير موافقتك",
@@ -222,14 +235,14 @@ S = {
           ("يعني إيه زيارة كشف؟", "في الأعطال اللي محتاجة تشخيص الأول، بتحجز الكشف. ولو كمّلت الإصلاح، سعر الكشف بيتخصم منه."),
           ("الضمان ٣٠ يوم بيغطي إيه؟", "الشغل اللي عملناه. لو نفس العطل رجع خلال ٣٠ يوم، بنبعتلك فني تاني ببلاش."),
           ("الدفع إزاي؟", "كاش للفني بعد الشغل، أو بالكارت أو المحفظة أونلاين من صفحة متابعة طلبك."),
-          ("بتغطوا أنهي مناطق؟", "القاهرة الكبرى والجيزة والإسكندرية (سموحة)، ومناطق جديدة بتتضاف.")],
+          ("بتغطوا أنهي مناطق؟", "القاهرة والجيزة، ومنها القاهرة الجديدة و٦ أكتوبر والشيخ زايد. مناطق وخدمات جديدة جاية قريب.")],
   "tech_h": "إنت فني؟",
   "tech_p": "استلم طلبات شغل في تخصصك ومنطقتك، بأسعار واضحة من الأول. بتاخد ٨٠٪ من المصنعية و٨٠٪ من ربح قطع الغيار والمنتجات من الكتالوج.",
   "tech_cta": "قدّم كفنّي",
   "foot_line": "فنيين صيانة البيت بسعر ثابت في مصر.",
   "foot_services": "الخدمات", "foot_company": "فنّي", "foot_join": "اشتغل معانا كفني",
   "rights": "© 2026 فنّي",
-  "svc_title": "أسعار فنّي | تكييف، دش، كاميرات، واي فاي، إنتركم، منزل ذكي",
+  "svc_title": "أسعار فنّي | تكييف، دش وشاشات، كاميرات مراقبة في القاهرة والجيزة",
   "svc_h1": "قائمة الأسعار",
   "svc_lead": "كل الأسعار تحت هي سعر المصنعية الثابت. إجمالي حجزك بيزيد عليه رسوم الخدمة 25 جنيه، ومفيش أي حاجة تانية إلا لو وافقت على قطعة غيار.",
   "book": "احجز", "svc_note_h": "الأسعار بتتحسب إزاي",
@@ -257,5 +270,6 @@ S = {
   "summary": "حجزك", "sum_empty": "اختار الخدمة والشغلانة عشان تشوف السعر.",
   "after_h": "اللي هيحصل بعد كده", "after_p": "هيوصلك كود الطلب وصفحة متابعة مباشرة، بتتحدث أول ما يتعيّن فني.",
   "tr_title": "تابع طلبك | فنّي",
+  "support": "كلمنا على واتساب", "support_q": "عايز تغيّر الميعاد أو تلغي؟ كلمنا على واتساب.",
 },
 }

@@ -33,6 +33,11 @@ WA_TOKEN = os.environ.get("WA_TOKEN", "")
 WA_PHONE_ID = os.environ.get("WA_PHONE_ID", "")
 ADMIN_WHATSAPP = os.environ.get("ADMIN_WHATSAPP", "")          # e.g. 2010XXXXXXXX
 PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+# Services customers can book right now (comma-separated slugs). Others stay in the
+# catalog and admin but are hidden from the site and refused by the booking API.
+LAUNCH_SERVICES = [x.strip() for x in os.environ.get("FANNI_SERVICES", "ac,satellite,cctv").split(",") if x.strip()]
+# Customer support WhatsApp number shown on the site, e.g. 201012345678 (empty = hidden)
+SUPPORT_WHATSAPP = re.sub(r"\D", "", os.environ.get("SUPPORT_WHATSAPP", ""))
 # Paymob (optional — online payment disabled until configured)
 PAYMOB_API_KEY = os.environ.get("PAYMOB_API_KEY", "")
 PAYMOB_INTEGRATION_ID = os.environ.get("PAYMOB_INTEGRATION_ID", "")
@@ -779,10 +784,16 @@ def home():
     return send_from_directory(STATIC_DIR, "index.html")
 
 
+RETIRED_PAGES = {"app.html"}   # old prototypes kept in the repo but not served
+
+
 @app.get("/<path:page>")
 def static_page(page):
     safe = os.path.basename(page)
-    if safe.endswith(".html") and os.path.isfile(os.path.join(STATIC_DIR, safe)):
+    # only clean page names: old copies like "index 2.html" stay private
+    if not re.fullmatch(r"[a-z0-9-]+\.html", safe) or safe in RETIRED_PAGES:
+        return err("Not found", 404)
+    if os.path.isfile(os.path.join(STATIC_DIR, safe)):
         return send_from_directory(STATIC_DIR, safe)
     return err("Not found", 404)
 
@@ -796,6 +807,8 @@ def list_services():
     db = get_db()
     out = []
     for s in db.execute("SELECT * FROM services ORDER BY id").fetchall():
+        if s["slug"] not in LAUNCH_SERVICES:
+            continue
         jobs = db.execute(
             "SELECT id, title, detail, title_ar, detail_ar, price_egp, is_inspection"
             " FROM jobs_catalog WHERE service_id=? AND COALESCE(active,1)=1 ORDER BY id",
@@ -809,7 +822,9 @@ def list_services():
                 "jobs": [dict(j) for j in jobs],
             }
         )
-    return jsonify({"ok": True, "services": out, "service_fee_egp": SERVICE_FEE})
+    return jsonify({"ok": True, "services": out, "service_fee_egp": SERVICE_FEE,
+                    "payment_available": bool(PAYMOB_API_KEY and PAYMOB_INTEGRATION_ID and PAYMOB_IFRAME_ID),
+                    "support_whatsapp": SUPPORT_WHATSAPP or None})
 
 
 # --------------------------------------------------------------------------
@@ -834,6 +849,8 @@ def create_booking():
     ).fetchone()
     if not job:
         return err("Unknown job_catalog_id", 404)
+    if job["service_slug"] not in LAUNCH_SERVICES:
+        return err("This service isn't available for booking yet.", 409)
 
     code = gen_code()
     total = job["price_egp"] + SERVICE_FEE
