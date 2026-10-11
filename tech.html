@@ -290,9 +290,10 @@ button,input,select,textarea{font:inherit;color:inherit}
       <div id="catList"></div>
       <div class="empty" id="catEmpty" style="display:none">مفيش نتايج. جرّب كلمة تانية.</div>
       <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.8">
-        <span class="src fanni">من مخزن فنّي</span> بتستلمها من الإدارة وسعرها بيروح لفنّي.
-        <span class="src tech">توريدك</span> بتجيبها بنفسك وبتاخد سعرها كامل.
-        مش لاقي القطعة؟ أضفها يدوي باسمها وسعرها.</p>
+        ليك ٨٠٪ من ربح كل قطعة أو منتج من الكتالوج، وفنّي بياخد ٢٠٪.
+        <span class="src fanni">من مخزن فنّي</span> بتستلمها من الإدارة، وتمنها بيرجع لفنّي.
+        <span class="src tech">توريدك</span> بتشتريها بنفسك، وتمنها بيرجعلك.
+        مش لاقي القطعة؟ أضفها يدوي باسمها وسعرها، وتبقى ليك بالكامل.</p>
     </div>
   </div>
 
@@ -453,7 +454,7 @@ function renderReqs(fresh=[]){
       <div class="chips"><span>${svg(ICS.pin)}${esc(j.area)}</span><span>${svg(ICS.clock)}${esc(j.day)} — ${esc(j.time_window)}</span>${j.offer_count?`<span>${svg(ICS.people)}${j.offer_count} عرض</span>`:''}</div>
       ${j.notes?`<div class="note">${esc(j.notes)}</div>`:''}
       ${j.my_offer?`<div class="offer-status">${svg(ICS.check)}قدمت عرض${j.my_offer.extras_egp?' + إضافات '+jn(j.my_offer.extras_egp)+' جنيه':' بالسعر الثابت'} — مستني رد الإدارة</div>`
-                  :`<div class="earn">المصنعية ثابتة. أي إضافات من توريدك بتاخدها كاملة.</div>`}
+                  :`<div class="earn">ليك ٨٠٪ من المصنعية و٨٠٪ من ربح قطع الكتالوج. القطع اللي بتضيفها يدوي ليك بالكامل.</div>`}
       <div class="btn-row">
         <button class="btn btn-primary" onclick="submitOffer(${i},this,true)">${j.my_offer?'جدّد عرضك بالسعر الثابت':'اقبل بالسعر الثابت'}</button>
         <button class="btn btn-ghost" onclick="toggleOffer(${i})" aria-expanded="false">+ إضافات</button>
@@ -618,7 +619,8 @@ function groupHtml(rows,itemFn){
   return Object.keys(groups).map(g=>`<div class="cat-group">${esc(g)}</div>`+groups[g].map(itemFn).join('')).join('');
 }
 function catRow(x,extra){
-  return `<div class="nm">${esc(x.name_ar)}</div><div class="sk">${esc(x.sku)} · ${esc(x.name_en)}</div>${srcBadge(x)}${extra||''}`;
+  const earn=x.your_profit_egp!=null?`<span class="src" style="background:var(--green-soft);color:var(--green);margin-inline-start:4px">ربحك ${Number(x.your_profit_egp).toLocaleString('en-US')} ج</span>`:'';
+  return `<div class="nm">${esc(x.name_ar)}</div><div class="sk">${esc(x.sku)} · ${esc(x.name_en)}</div>${srcBadge(x)}${earn}${extra||''}`;
 }
 function renderCatalog(){
   document.getElementById('catChips').innerHTML=chipsHtml(catKind,'setCatKind');

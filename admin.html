@@ -332,6 +332,7 @@ tr.inactive td{opacity:.5}
         <h3>Bookings <span class="count" id="bkCount"></span></h3>
         <input type="search" id="bkSearch" placeholder="Search code, mobile, name or area" oninput="renderBookings(BK_CACHE)">
         <select class="city-sel" id="bkCity" title="Filter by city" onchange="bkCity=this.value;this.classList.toggle('on',!!this.value);renderBookings(BK_CACHE)"><option value="">All cities</option></select>
+        <select class="city-sel" id="bkTrade" title="Filter by trade" onchange="bkTrade=this.value;this.classList.toggle('on',!!this.value);renderBookings(BK_CACHE)"><option value="">All trades</option><option value="ac">AC</option><option value="satellite">Satellite & TV</option><option value="cctv">CCTV</option><option value="wifi">WiFi</option><option value="intercom">Intercom</option><option value="smart-home">Smart Home</option></select>
         <div class="filters" id="bkFilters">
           <button class="f-chip on" data-f="">All</button>
           <button class="f-chip" data-f="new">New</button>
@@ -364,6 +365,7 @@ tr.inactive td{opacity:.5}
           <button class="f-chip" data-f="approved">Approved</button>
         </div>
         <select class="city-sel" id="apCity" title="Filter by city" onchange="apCity=this.value;this.classList.toggle('on',!!this.value);renderApps(filteredApps())"><option value="">All cities</option></select>
+        <select class="city-sel" id="apTrade" title="Filter by trade" onchange="apTrade=this.value;this.classList.toggle('on',!!this.value);renderApps(filteredApps())"><option value="">All trades</option><option value="ac">AC</option><option value="satellite">Satellite & TV</option><option value="cctv">CCTV</option><option value="wifi">WiFi</option><option value="intercom">Intercom</option><option value="smart-home">Smart Home</option></select>
         <div class="export-bar">
           <button class="export-btn" onclick="openPrintOptions()">Print or PDF</button>
           <button class="export-btn" onclick="exportAppsCSV()">Export CSV</button>
@@ -441,7 +443,7 @@ tr.inactive td{opacity:.5}
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-let TOKEN=null, bkFilter='', apFilter='', bkCity='', apCity='', pollTimer=null, TECHS=[], BK_CACHE=[], AP_CACHE=[];
+let TOKEN=null, bkFilter='', apFilter='', bkCity='', apCity='', bkTrade='', apTrade='', pollTimer=null, TECHS=[], BK_CACHE=[], AP_CACHE=[];
 const tradeAr={"ac":"AC","satellite":"Satellite","cctv":"CCTV","wifi":"WiFi","intercom":"Intercom","smart-home":"Smart Home"};
 
 async function api(path,opts={}){
@@ -562,7 +564,7 @@ function renderOverview(){
       <div class="d ${dy>0?'up':dy<0?'down':''}">${dy===0?'Same as yesterday':(dy>0?'+':'')+dy+' vs yesterday'}</div></button>
     <button class="kpi" onclick="showView('bookings')"><div class="l">Jobs in progress</div><div class="v">${fmtN(a.open_jobs)}</div><div class="d">assigned to done</div></button>
     <div class="kpi"><div class="l">Completed job value</div><div class="v">${compact(sum('gmv'))}<small>EGP</small></div><div class="d">${sum('done')} jobs, last ${RANGE} days</div></div>
-    <div class="kpi"><div class="l">Fanni revenue</div><div class="v">${compact(sum('revenue'))}<small>EGP</small></div><div class="d">commission, fees, parts margin</div></div>
+    <div class="kpi"><div class="l">Fanni revenue</div><div class="v">${compact(sum('revenue'))}<small>EGP</small></div><div class="d">20% of labor and parts margin, plus fees</div></div>
     <div class="kpi"><div class="l">Median time to assign</div><div class="v">${minsLabel(a.median_assign_minutes)}</div><div class="d">booking to technician</div></div>
     <div class="kpi"><div class="l">Average rating</div><div class="v">${s.avg_rating?s.avg_rating.toFixed(1):'—'}<small>/ 5</small></div><div class="d">${fmtN(s.technicians_approved)} approved technicians</div></div>`;
 
@@ -677,6 +679,7 @@ function renderBookings(rows){
   const q=(document.getElementById('bkSearch').value||'').trim().toLowerCase();
   if(q)rows=rows.filter(b=>(b.code+' '+b.customer_mobile+' '+(b.customer_name||'')+' '+b.area).toLowerCase().includes(q));
   if(bkCity)rows=rows.filter(b=>matchBkCity(b,bkCity));
+  if(bkTrade)rows=rows.filter(b=>b.service_slug===bkTrade);
   const body=document.getElementById('bkBody');
   document.getElementById('bkCount').textContent='· '+rows.length;
   document.getElementById('bkEmpty').style.display=rows.length?'none':'block';
@@ -921,7 +924,9 @@ async function openBooking(code){
           ${(o.status==='pending'&&b.status==='new')?`<button class="approve-btn" style="margin-top:4px" onclick="acceptOffer(${o.id},'${esc(b.code)}')">Accept — total EGP ${b.labor_egp+b.service_fee_egp+b.parts_egp+o.extras_egp} ✓</button>`:''}
         </div>`).join('')}</div>`:''}
     ${b.parts_quotes.length?`<div class="det-k" style="margin-top:14px">Parts quotes</div>
-      <div class="hist">${b.parts_quotes.map(p=>`<div>${esc(p.part_name)} — <span class="mono">EGP ${p.price_egp}</span> <span class="supply ${p.supplied_by==='fanni'?'fanni':'tech'}">${p.supplied_by==='fanni'?'Fanni stock':'tech-supplied'}</span> <span class="chip st-${p.status==='approved'?'done':p.status==='pending'?'new':'cancelled'}">${p.status}</span></div>`).join('')}</div>`:''}
+      <div class="hist">${b.parts_quotes.map(p=>`<div>${esc(p.part_name)} — <span class="mono">EGP ${p.price_egp}</span> <span class="supply ${p.supplied_by==='fanni'?'fanni':'tech'}">${p.supplied_by==='fanni'?'Fanni stock':'tech-supplied'}</span> <span class="chip st-${p.status==='approved'?'done':p.status==='pending'?'new':'cancelled'}">${p.status}</span>
+        <div class="sub">${p.product_id?`Technician EGP ${p.tech_egp} — Fanni EGP ${p.fanni_egp} (20% of EGP ${p.price_egp-(p.cost_egp||0)} margin)`:'Custom part — all to the technician'}</div></div>`).join('')}</div>`:''}
+    ${b.tech_payout_egp!=null&&b.technician_id?`<div class="det-k" style="margin-top:6px">Technician payout: <span class="mono" style="color:var(--ink)">EGP ${b.tech_payout_egp}</span> — 80% of labor plus his share of approved parts</div>`:''}
     <div class="det-k" style="margin-top:14px">Status history</div>
     <div class="hist">${b.history.map(h=>`<div>${esc(h.status.replace('_',' '))} <span class="mono">${esc(h.at.replace('T',' ').slice(0,16))}</span></div>`).join('')}</div>
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
@@ -951,6 +956,7 @@ function filteredApps(){
   if(apFilter==='pending')rows=rows.filter(a=>a.status!=='approved');
   if(apFilter==='approved')rows=rows.filter(a=>a.status==='approved');
   if(apCity)rows=rows.filter(a=>govCity(a.governorate)===apCity);
+  if(apTrade)rows=rows.filter(a=>(a.trades||'').split(',').includes(apTrade));
   return rows;
 }
 const apTitle=()=>AP_FILTER_LABEL[apFilter]+(apCity?' — '+apCity:'');
@@ -1249,7 +1255,7 @@ function renderInventory(){
       <td><span class="supply ${x.track_stock?'fanni':'tech'}">${x.track_stock?'Fanni stock':'Tech-supplied'}</span></td>
       <td class="mono" style="text-align:right">${egp(x.cost_egp)}</td>
       <td class="mono" style="text-align:right"><b>${egp(x.price_egp)}</b></td>
-      <td class="mono hide-m" style="text-align:right"><span class="${x.margin_egp<0?'margin-neg':''}">${egp(x.margin_egp)}</span><div class="sub">${x.margin_pct}%</div></td>
+      <td class="mono hide-m" style="text-align:right"><span class="${x.margin_egp<0?'margin-neg':''}">${egp(x.margin_egp)}</span><div class="sub">${x.margin_pct}% — Fanni ${egp(x.fanni_cut_egp)}</div></td>
       <td style="text-align:right">${x.track_stock?`<span class="stock-pill ${x.low_stock?'low':'ok'}">${x.stock_qty}</span><div class="sub">reorder ≤ ${x.reorder_level}</div>`:'<span class="sub">—</span>'}</td>
       <td class="mono hide-m" style="text-align:right">${x.sold_qty||0}</td>
       <td style="text-align:right">
@@ -1285,7 +1291,7 @@ function openItemForm(id){
       ${fld('Unit',`<select id="fUnit">${INV_META.units.map(u=>`<option value="${u}"${x.unit===u?' selected':''}>${UNIT_LABEL[u]||u}</option>`).join('')}</select>`)}
       ${fld('Cost (EGP / unit)',`<input id="fCost" class="mono" inputmode="numeric" value="${x.cost_egp}" oninput="formMargin()">`,false,'Your purchase cost. Never shown to technicians or customers.')}
       ${fld('Customer price (EGP / unit)',`<input id="fPrice" class="mono" inputmode="numeric" value="${x.price_egp}" oninput="formMargin()">`,false,'<span id="fMargin"></span>')}
-      ${fld('Supply',`<label class="opt-row" style="margin:0"><input type="checkbox" id="fTrack" ${x.track_stock?'checked':''} onchange="document.getElementById('stockFields').style.display=this.checked?'contents':'none'"><div><b>Fanni-supplied from stock</b><div class="sub">On: stock is tracked, deducted when the customer approves, and the sale is Fanni revenue. Off: the technician sources it at this fixed price and keeps the money.</div></div></label>`,true)}
+      ${fld('Supply',`<label class="opt-row" style="margin:0"><input type="checkbox" id="fTrack" ${x.track_stock?'checked':''} onchange="document.getElementById('stockFields').style.display=this.checked?'contents':'none'"><div><b>Fanni-supplied from stock</b><div class="sub">On: Fanni supplies it from stock, tracks the quantity and gets its cost back. Off: the technician buys it himself and gets the cost back. Either way the margin is split 80% technician, 20% Fanni.</div></div></label>`,true)}
       <div id="stockFields" style="display:${x.track_stock?'contents':'none'}">
         ${fld('Reorder alert at',`<input id="fReorder" class="mono" inputmode="numeric" value="${x.reorder_level}">`,false,'Flagged as low stock at or below this quantity.')}
         ${id?fld('In stock',`<div class="mono" style="padding:9px 0;font-weight:700">${x.stock_qty} — use ± Stock to change</div>`):fld('Opening stock',`<input id="fOpen" class="mono" inputmode="numeric" value="0">`)}
@@ -1303,7 +1309,8 @@ const intVal=id=>{const v=(document.getElementById(id)||{}).value;return v===und
 function formMargin(){
   const c=intVal('fCost')||0,p=intVal('fPrice')||0,el=document.getElementById('fMargin');
   if(!el)return;
-  el.innerHTML=p?`Margin <b class="mono ${p-c<0?'margin-neg':''}">EGP ${egp(p-c)}</b> (${Math.round(100*(p-c)/p)}%)`:'';
+  const m=p-c, f=m>0?Math.round(m*0.2):0;
+  el.innerHTML=p?`Margin <b class="mono ${m<0?'margin-neg':''}">EGP ${egp(m)}</b> (${Math.round(100*m/p)}%): technician EGP ${egp(m-f)}, Fanni EGP ${egp(f)}`:'';
 }
 async function saveItem(id){
   const body={

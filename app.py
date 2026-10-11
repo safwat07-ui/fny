@@ -433,7 +433,7 @@ JOB_AR = {
 }
 
 SERVICE_FEE = 25
-COMMISSION_RATE = 0.20  # platform keeps 20% of labor
+COMMISSION_RATE = 0.20  # platform keeps 20% of labor AND 20% of catalog parts/products margin
 
 
 def get_db():
@@ -732,12 +732,42 @@ def insert_part_line(db, booking_id, line, status):
     )
 
 
+def part_split(price, cost, supplied_by, product_id):
+    """Who gets what from one part/product line the customer paid for.
+
+    Margin (price - cost) on catalog items belongs to the technician; Fanni takes
+    COMMISSION_RATE of it, same as labor. Whoever paid for the item gets its cost back
+    (Fanni for stock items, the technician for items he sourced). Custom parts the
+    technician typed in (no catalog item, unknown cost) carry no commission.
+    Returns (technician_egp, fanni_revenue_egp, fanni_cost_recovery_egp)."""
+    price, cost = int(price or 0), int(cost or 0)
+    if not product_id:
+        return price, 0, 0
+    margin = max(0, price - cost)
+    fanni_cut = round(margin * COMMISSION_RATE)
+    tech_margin = margin - fanni_cut
+    if (supplied_by or "tech") == "fanni":
+        return tech_margin, fanni_cut, price - margin
+    return price - fanni_cut, fanni_cut, 0
+
+
+def booking_parts_split(db, booking_id):
+    """Totals over a booking's approved parts: (technician_egp, fanni_revenue_egp)."""
+    tech = fanni = 0
+    for p in db.execute("SELECT price_egp, cost_egp, supplied_by, product_id FROM parts_quotes"
+                        " WHERE booking_id=? AND status='approved'", (booking_id,)):
+        t, f, _ = part_split(p["price_egp"], p["cost_egp"], p["supplied_by"], p["product_id"])
+        tech += t; fanni += f
+    return tech, fanni
+
+
 def tech_parts_egp(db, booking_id):
-    """Approved parts the technician supplied himself (his money, not Fanni's)."""
-    return db.execute(
-        "SELECT COALESCE(SUM(price_egp),0) FROM parts_quotes WHERE booking_id=?"
-        " AND status='approved' AND COALESCE(supplied_by,'tech')='tech'", (booking_id,)
-    ).fetchone()[0]
+    """The technician's share of a booking's approved parts and products."""
+    return booking_parts_split(db, booking_id)[0]
+
+
+def labor_share(labor):
+    return round(labor * (1 - COMMISSION_RATE))
 
 
 # --------------------------------------------------------------------------
@@ -1111,7 +1141,7 @@ def tech_offer_job(code):
     if problem:
         return err(problem)
     extras = sum(i["price_egp"] for i in clean)
-    tech_extras = sum(i["price_egp"] for i in clean if i["supplied_by"] == "tech")
+    tech_extras = sum(part_split(i["price_egp"], i["cost_egp"], i["supplied_by"], i["product_id"])[0] for i in clean)
     b = db.execute("SELECT * FROM bookings WHERE code=? AND status='new'", (code.upper(),)).fetchone()
     if not b:
         return err("Request not open for offers", 409)
@@ -1153,7 +1183,7 @@ def tech_my():
         rec["you_earn_egp"] = round(j["labor_egp"] * (1 - COMMISSION_RATE))
         bid = rec.pop("id")
         rec["tech_parts_egp"] = tech_parts_egp(db, bid)          # parts he supplied → his
-        rec["fanni_parts_egp"] = (j["parts_egp"] or 0) - rec["tech_parts_egp"]  # from Fanni stock
+        rec["fanni_parts_egp"] = (j["parts_egp"] or 0) - rec["tech_parts_egp"]  # cost of Fanni stock + 20% of margins
         rec["parts"] = [dict(p) for p in db.execute(
             "SELECT part_name, qty, price_egp, status, COALESCE(supplied_by,'tech') AS supplied_by"
             " FROM parts_quotes WHERE booking_id=? ORDER BY id", (bid,)).fetchall()]
@@ -1234,7 +1264,7 @@ def tech_status(code):
                f"ضمان ٣٠ يوم على الشغل 🛡️\nقيّم الفني: {track_link(b['code'])}")
     elif new_status == "en_route":
         notify(b["customer_mobile"], f"فنّي 🛵 الفني في الطريق إليك الآن — طلب {b['code']}")
-    payout = round(b["labor_egp"] * (1 - COMMISSION_RATE)) if new_status == "done" else None
+    payout = labor_share(b["labor_egp"]) + tech_parts_egp(db, b["id"]) if new_status == "done" else None
     return jsonify({"ok": True, "status": new_status, "payout_egp": payout})
 
 
@@ -1285,6 +1315,8 @@ def tech_catalog():
             "id": p["id"], "sku": p["sku"], "services": svcs, "kind": p["kind"],
             "category": p["category"], "name_en": p["name_en"], "name_ar": p["name_ar"],
             "unit": p["unit"], "price_egp": p["price_egp"],
+            "you_earn_egp": part_split(p["price_egp"], p["cost_egp"], "tech" if not p["track_stock"] else "fanni", p["id"])[0],
+            "your_profit_egp": part_split(p["price_egp"], p["cost_egp"], "fanni", p["id"])[0],
             "supplied_by": "fanni" if p["track_stock"] else "tech",
             "in_stock": (p["stock_qty"] if p["track_stock"] else None),
             "available": (not p["track_stock"]) or p["stock_qty"] > 0,
@@ -1500,9 +1532,14 @@ def admin_booking_full(code):
         o = dict(q)
         o["items"] = json.loads(o.pop("extras_json") or "[]")
         rec["offers"].append(o)
-    rec["parts_quotes"] = [dict(p) for p in db.execute(
-        "SELECT id, part_name, qty, price_egp, status, COALESCE(supplied_by,'tech') AS supplied_by, created_at FROM parts_quotes WHERE booking_id=?",
-        (b["id"],)).fetchall()]
+    rec["parts_quotes"] = []
+    for p in db.execute(
+            "SELECT id, part_name, qty, price_egp, cost_egp, product_id, status, COALESCE(supplied_by,'tech') AS supplied_by,"
+            " created_at FROM parts_quotes WHERE booking_id=?", (b["id"],)).fetchall():
+        x = dict(p)
+        x["tech_egp"], x["fanni_egp"], _ = part_split(p["price_egp"], p["cost_egp"], p["supplied_by"], p["product_id"])
+        rec["parts_quotes"].append(x)
+    rec["tech_payout_egp"] = labor_share(b["labor_egp"]) + tech_parts_egp(db, b["id"])
     rec["history"] = [dict(h) for h in db.execute(
         "SELECT status, at FROM status_log WHERE booking_id=? ORDER BY id", (b["id"],)).fetchall()]
     r = db.execute("SELECT stars, tags, comment FROM ratings WHERE booking_id=?", (b["id"],)).fetchone()
@@ -1578,10 +1615,11 @@ def admin_stats():
         return db.execute(q, p).fetchone()[0]
     gmv = one("SELECT COALESCE(SUM(total_egp),0) FROM bookings WHERE status='done'")
     labor = one("SELECT COALESCE(SUM(labor_egp),0) FROM bookings WHERE status='done'")
-    supplied = "FROM parts_quotes p JOIN bookings b ON b.id=p.booking_id WHERE b.status='done'" \
-               " AND p.status='approved' AND p.supplied_by='fanni'"
-    parts_sales = one("SELECT COALESCE(SUM(p.price_egp),0) " + supplied)
-    parts_margin = parts_sales - one("SELECT COALESCE(SUM(p.cost_egp),0) " + supplied)
+    parts_sales = parts_margin = parts_tech = 0
+    for p in db.execute("SELECT p.price_egp, p.cost_egp, p.supplied_by, p.product_id FROM parts_quotes p"
+                        " JOIN bookings b ON b.id=p.booking_id WHERE b.status='done' AND p.status='approved'"):
+        t, f, _ = part_split(p["price_egp"], p["cost_egp"], p["supplied_by"], p["product_id"])
+        parts_sales += p["price_egp"]; parts_margin += f; parts_tech += t
     return jsonify({"ok": True, "stats": {
         "bookings_total": one("SELECT COUNT(*) FROM bookings"),
         "bookings_done": one("SELECT COUNT(*) FROM bookings WHERE status='done'"),
@@ -1589,8 +1627,9 @@ def admin_stats():
         "platform_revenue_egp": round(labor * COMMISSION_RATE)
                                 + SERVICE_FEE * one("SELECT COUNT(*) FROM bookings WHERE status='done'")
                                 + parts_margin,
-        "parts_sales_egp": parts_sales,
-        "parts_margin_egp": parts_margin,
+        "parts_sales_egp": parts_sales,          # all approved parts/products on completed jobs
+        "parts_margin_egp": parts_margin,        # Fanni's 20% of catalog margins
+        "parts_tech_egp": parts_tech,            # paid out to technicians for parts
         "inventory_value_egp": one("SELECT COALESCE(SUM(stock_qty*cost_egp),0) FROM products"
                                    " WHERE track_stock=1 AND stock_qty>0"),
         "low_stock_count": one("SELECT COUNT(*) FROM products WHERE active=1 AND track_stock=1"
@@ -1639,9 +1678,11 @@ def admin_analytics():
     for r in db.execute("SELECT booking_id, status, MIN(at) at FROM status_log WHERE status IN ('assigned','done')"
                         " GROUP BY booking_id, status"):
         first_at[(r["booking_id"], r["status"])] = r["at"]
-    margin = {r["booking_id"]: r["m"] for r in db.execute(
-        "SELECT booking_id, SUM(price_egp-COALESCE(cost_egp,0)) m FROM parts_quotes"
-        " WHERE status='approved' AND supplied_by='fanni' GROUP BY booking_id")}
+    margin = {}
+    for p in db.execute("SELECT booking_id, price_egp, cost_egp, supplied_by, product_id FROM parts_quotes"
+                        " WHERE status='approved'"):
+        margin[p["booking_id"]] = margin.get(p["booking_id"], 0) + part_split(
+            p["price_egp"], p["cost_egp"], p["supplied_by"], p["product_id"])[1]
     series = {start + timedelta(days=i): {"bookings": 0, "done": 0, "gmv": 0, "revenue": 0} for i in range(days)}
     by_svc, by_area, assign_mins = {}, {}, []
     funnel = {"created": 0, "assigned": 0, "done": 0, "cancelled": 0}
@@ -1725,6 +1766,8 @@ def product_admin(p):
     rec = dict(p)
     rec["services"] = p["services"].split(",")
     rec["margin_egp"] = p["price_egp"] - p["cost_egp"]
+    rec["fanni_cut_egp"] = part_split(p["price_egp"], p["cost_egp"], "tech", p["id"])[1]   # 20% of margin, per unit
+    rec["tech_margin_egp"] = rec["margin_egp"] - rec["fanni_cut_egp"] if rec["margin_egp"] > 0 else 0
     rec["margin_pct"] = round(100 * (p["price_egp"] - p["cost_egp"]) / p["price_egp"], 1) if p["price_egp"] else 0
     rec["low_stock"] = bool(p["track_stock"] and p["active"] and p["stock_qty"] <= p["reorder_level"])
     return rec

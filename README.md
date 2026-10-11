@@ -57,7 +57,9 @@ Flask + SQLite. Serves the website AND the API from one process.
 
 ## Business rules encoded
     - Fixed labor price + EGP 25 service fee, locked at booking
-    - 20% platform commission on labor (technician sees his net upfront)
+    - 20% platform commission on labor AND on the margin (price − cost) of catalog parts/products;
+      the technician keeps 80% of both. Whoever paid for an item gets its cost back.
+      Custom parts typed in by the technician carry no commission.
     - Parts must be customer-approved in-app before job can close
     - Ratings only after completion; one per booking; updates tech average
     - Status transitions enforced server-side (no skipping states)
